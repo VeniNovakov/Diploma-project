@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Order Details</title>
+    <link rel="stylesheet" href="../static/css/basket.css">
+    <link rel="stylesheet" href="../static/css/common.css">
+    <style>
+        body {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow:hidden
+            
+        }
+
+        #order-details {
+            display: flex;
+
+            width: 100%;
+            height: 100%;
+            justify-content: space-between;
+            overflow:scroll;
+            margin-right: -50px;
+            padding-right: 50px;
+            margin-bottom: -50px;
+            padding-bottom: 50px
+        }
+
+        #order-details-left {
+            margin:auto;
+            max-width:300px;
+            overflow-wrap: break-word;
+        }
+
+        #order-details-right {
+            width: 45%;
+            border-left: 1px solid #ccc;
+            padding-left: 20px;
+            margin-left:100px;
+        }
+
+        #order-products {
+            list-style: none;
+            padding: 0;
+        }
+
+        #order-products li {
+            margin: 5px 0;
+        }
+
+        #complete-order {
+            position:fixed;
+            bottom:0;
+            right:0;
+            min-width: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div id="order-details">
+        <div id="order-details-left" >
+            <p>dsiuajsdkaljdklsajdlksajdklsajdklsajdklsajdlasjldkasjdklasjdlkasjdlksajdlkasjdlkasjdsjalkdjsldsiuajsdkaljdklsajdlksajdklsajdklsajdklsajdlasjldkasjdklasjdlkasjdlksajdlkasjdlkasjdsjalkdjsldsiuajsdkaljdklsajdlksajdklsajdklsajdklsajdlasjldkasjdklasjdlkasjdlksajdlkasjdlkasjdsjalkdjsldsiuajsdkaljdklsajdlksajdklsajdklsajdklsajdlasjldkasjdklasjdlkasjdlksajdlkasjdlkasjdsjalkdjsldsiuajsdkaljdklsajdlksajdklsajdklsajdklsajdlasjldkasjdklasjdlkasjdlksajdlkasjdlkasjdsjalkdjsldsiuajsdkaljdklsajdlksajdklsajdklsajdklsajdlasjldkasjdklasjdlkasjdlksajdlkasjdlkasjdsjalkdjsl</p>
+            <p>Done by: 17:15</p>
+        </div>
+        <div id="order-details-right" class="flex-dir-column">
+            <h1>Order Items</h1>
+            <div class="productContainer">
+                <div class="imgContainer">
+                  <img src="../static/images/pizza.jpg" style="height:50px;width:50px">
+      
+                  </div>
+                <div class="infoContainer">
+                  <p>abvdg</p>
+                  <p>amount: 2<p>
+                </div>
+                <div class="priceContainer">
+                  <p>9.99</p>
+                </div>
+              </div>
+            <div class="productContainer">
+                <div class="imgContainer">
+                  <img src="../static/images/pizza.jpg" style="height:50px;width:50px">
+      
+                  </div>
+                <div class="infoContainer">
+                  <p>abvdg</p>
+                  <p>amount: 2<p>
+                </div>
+                <div class="priceContainer">
+                  <p>9.99</p>
+                </div>
+              </div>
+        </div>
+    </div>
+<button id="complete-order">Complete Order</button>
+</body>
+</html>

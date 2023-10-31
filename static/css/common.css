@@ -1,0 +1,39 @@
+.nav {
+  border: 1px solid #ccc;
+  border-width: 1px 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  background-color: beige;
+  justify-content: center;
+}
+
+.nav li {
+  display: flex;
+  justify-self: center;
+  background-color: beige;
+  height: 100%;
+}
+
+.nav li:hover {
+  background-color: aliceblue;
+  cursor: pointer;
+}
+
+.nav a {
+  display: inline-block;
+  padding: 10px;
+  text-decoration: none;
+}
+.nav img {
+  display: inline-block;
+  padding: 10px;
+  text-decoration: none;
+}
+.flex-dir-column{
+  flex-direction:column;
+}
+.flex-dir-row{
+  flex-direction: row;
+}
