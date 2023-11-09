@@ -1,0 +1,212 @@
+[
+  {
+    "id": 1,
+    "name": "Pizza",
+    "description": "Delicious and cheesy pizza topped with your favorite ingredients.",
+    "price": 12.99,
+    "category": "Fast Food"
+  },
+  {
+    "id": 2,
+    "name": "Burger",
+    "description": "Classic burger with juicy beef patty, lettuce, and special sauce.",
+    "price": 9.99,
+    "category": "Fast Food"
+  },
+  {
+    "id": 3,
+    "name": "Sushi Roll",
+    "description": "Freshly prepared sushi rolls with a variety of seafood and flavors.",
+    "price": 15.99,
+    "category": "Japanese"
+  },
+  {
+    "id": 4,
+    "name": "Pasta Carbonara",
+    "description": "Creamy pasta carbonara with bacon and parmesan cheese.",
+    "price": 13.99,
+    "category": "Italian"
+  },
+  {
+    "id": 5,
+    "name": "Taco",
+    "description": "Spicy and flavorful tacos with your choice of fillings.",
+    "price": 8.99,
+    "category": "Mexican"
+  },
+  {
+    "id": 6,
+    "name": "Sushi Nigiri",
+    "description": "Delicate sushi nigiri with a variety of fish and rice.",
+    "price": 14.99,
+    "category": "Japanese"
+  },
+  {
+    "id": 7,
+    "name": "Spaghetti Bolognese",
+    "description": "Savory spaghetti bolognese with a rich tomato and meat sauce.",
+    "price": 12.99,
+    "category": "Italian"
+  },
+  {
+    "id": 8,
+    "name": "Burrito",
+    "description": "Hearty and satisfying burrito with rice, beans, and your choice of meat.",
+    "price": 10.99,
+    "category": "Mexican"
+  },
+  {
+    "id": 9,
+    "name": "Sashimi Platter",
+    "description": "A delightful sashimi platter featuring the freshest seafood.",
+    "price": 18.99,
+    "category": "Japanese"
+  },
+  {
+    "id": 10,
+    "name": "Lasagna",
+    "description": "Layers of delicious lasagna with pasta, cheese, and meat sauce.",
+    "price": 13.99,
+    "category": "Italian"
+  },
+  {
+    "id": 11,
+    "name": "Taco Salad",
+    "description": "A refreshing taco salad with crispy tortilla strips and fresh greens.",
+    "price": 9.99,
+    "category": "Mexican"
+  },
+  {
+    "id": 12,
+    "name": "Sushi Sashimi Combo",
+    "description": "The best of both worlds - sushi and sashimi in one combo.",
+    "price": 19.99,
+    "category": "Japanese"
+  },
+  {
+    "id": 13,
+    "name": "Margherita Pizza",
+    "description": "A classic Margherita pizza with tomato, mozzarella, and basil.",
+    "price": 11.99,
+    "category": "Italian"
+  },
+  {
+    "id": 14,
+    "name": "Enchiladas",
+    "description": "Savory enchiladas filled with tender meat and smothered in sauce.",
+    "price": 10.99,
+    "category": "Mexican"
+  },
+  {
+    "id": 15,
+    "name": "Tempura Platter",
+    "description": "Crispy and light tempura platter with a variety of vegetables and seafood.",
+    "price": 16.99,
+    "category": "Japanese"
+  },
+  {
+    "id": 16,
+    "name": "Ravioli",
+    "description": "Delicious ravioli filled with cheese and served with a tomato sauce.",
+    "price": 12.99,
+    "category": "Italian"
+  },
+  {
+    "id": 17,
+    "name": "Churros",
+    "description": "Sweet and cinnamon-dusted churros for a delightful dessert.",
+    "price": 4.99,
+    "category": "Mexican"
+  },
+  {
+    "id": 18,
+    "name": "Miso Soup",
+    "description": "Traditional miso soup with tofu and seaweed.",
+    "price": 3.99,
+    "category": "Japanese"
+  },
+  {
+    "id": 19,
+    "name": "Gelato",
+    "description": "Smooth and creamy gelato with a variety of flavors.",
+    "price": 6.99,
+    "category": "Italian"
+  },
+  {
+    "id": 20,
+    "name": "Guacamole",
+    "description": "Fresh and flavorful guacamole with ripe avocados.",
+    "price": 5.99,
+    "category": "Mexican"
+  },
+  {
+    "id": 21,
+    "name": "Sukiyaki",
+    "description": "A hot pot of sukiyaki with thinly sliced beef and vegetables.",
+    "price": 15.99,
+    "category": "Japanese"
+  },
+  {
+    "id": 22,
+    "name": "Tiramisu",
+    "description": "Decadent tiramisu with layers of coffee-soaked ladyfingers and mascarpone.",
+    "price": 7.99,
+    "category": "Italian"
+  },
+  {
+    "id": 23,
+    "name": "Quesadilla",
+    "description": "Cheesy and satisfying quesadilla with your choice of fillings.",
+    "price": 8.99,
+    "category": "Mexican"
+  },
+  {
+    "id": 24,
+    "name": "Soba Noodles",
+    "description": "Nutritious soba noodles served with a dipping sauce.",
+    "price": 11.99,
+    "category": "Japanese"
+  },
+  {
+    "id": 25,
+    "name": "Cannoli",
+    "description": "Crispy cannoli filled with sweet ricotta and chocolate chips.",
+    "price": 6.99,
+    "category": "Italian"
+  },
+  {
+    "id": 26,
+    "name": "Nachos",
+    "description": "Loaded nachos with cheese, jalapenos, and all your favorite toppings.",
+    "price": 9.99,
+    "category": "Mexican"
+  },
+  {
+    "id": 27,
+    "name": "Udon Noodles",
+    "description": "Hearty udon noodles in a savory broth with your choice of toppings.",
+    "price": 10.99,
+    "category": "Japanese"
+  },
+  {
+    "id": 28,
+    "name": "Calzone",
+    "description": "A delicious calzone filled with cheese and your choice of ingredients.",
+    "price": 11.99,
+    "category": "Italian"
+  },
+  {
+    "id": 29,
+    "name": "Tamales",
+    "description": "Authentic tamales with flavorful fillings wrapped in corn husks.",
+    "price": 8.99,
+    "category": "Mexican"
+  },
+  {
+    "id": 30,
+    "name": "Yakitori",
+    "description": "Skewers of grilled yakitori with a variety of meats and seasonings.",
+    "price": 13.99,
+    "category": "Japanese"
+  }
+]
