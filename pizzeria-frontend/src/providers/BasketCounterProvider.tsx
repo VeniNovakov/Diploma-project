@@ -1,12 +1,18 @@
 import { createContext, useContext, useState } from "react";
+import React from "react";
 
-const BasketContext = createContext();
+const BasketContext = createContext(
+  {
+    basketCounter: 0 as number,
+    setBasketCounter: (amount: number) => {} 
+  }
+);
 
-export function useBasket(){
+export const useBasket = () => {
   return useContext(BasketContext);
 }
 
-export function BasketProvider({children}){
+export const BasketCounterProvider = ({children}:any) => {
   const [basketCounter, setBasketCounter] = useState(0); // Initialize basket counter state
   
   return (

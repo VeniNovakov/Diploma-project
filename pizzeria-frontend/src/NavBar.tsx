@@ -1,8 +1,9 @@
-import { useBasket } from './BasketProvider';
+import { useBasket } from './providers/BasketCounterProvider';
 import shoppingCart from './images/shopping-cart.png'
 import { Link } from 'react-router-dom';
+import React from 'react';
 
-function NavBar(){
+const NavBar = () => {
   const {basketCounter} = useBasket();
 
   return(
@@ -17,7 +18,7 @@ function NavBar(){
   )
 }
 
-function NavItem(props){
+function NavItem(props:any){
 
   return (
     <div className=' flex h-full pl-12 m-0'>

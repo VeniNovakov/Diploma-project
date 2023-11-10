@@ -1,4 +1,12 @@
-import { useState } from "react"
+import React from "react"
+
+type OrderedProduct = {
+  id: number, 
+  name: string,
+  price: number,
+  amount: number
+}
+
 
 const BasketPage = () => {
 
@@ -9,13 +17,7 @@ const BasketPage = () => {
   )
 }
 //product has image, id, price, name
-const ProductOrdered = (product, amountParam) => {
-  
-  const [amount, SetAmount] = useState(amountParam)
-  const AmountChangeHandler = () =>{
-
-  }
-
+const ProductOrdered = (product: OrderedProduct) => {
 
   return(
     <div className="flex flex-col">

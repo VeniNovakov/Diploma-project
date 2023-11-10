@@ -1,3 +1,5 @@
+import React from "react"
+
 const ProductPage = () => {
   return (
     <div className="flex flex-row h-max-screen">
@@ -14,19 +16,9 @@ const Additions = () => {
   )
 }
 
-const AdditionsSection = ({sectionType, additions}) => {
+const AdditionsSection = () => {
   return (
-    <div>
-      <label id={sectionType.id}>{sectionType.name}</label>
-      <div>
-        {
-        additions.map(addition => {
-          <Addition key={addition.id} addition={addition}/>
-        }
-        )
-        }
-      </div>
-    </div>
+  <div></div>
   )
 }
 const Addition = () => {
