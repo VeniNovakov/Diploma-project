@@ -5,11 +5,11 @@ import React from "react";
 
 const MenuPage = () => {
   return (
-  <BasketProvider>
-    <NavBar></NavBar>
-    <Menu></Menu>
-  </BasketProvider>
-  )
-}
+    <BasketProvider>
+      <NavBar></NavBar>
+      <Menu></Menu>
+    </BasketProvider>
+  );
+};
 
-export default MenuPage
+export default MenuPage;

@@ -1,36 +1,26 @@
-import React from "react"
+import React from "react";
 
 const ProductPage = () => {
   return (
     <div className="flex flex-row h-max-screen">
-      <Additions/>
+      <Additions />
     </div>
-  ) 
-}
+  );
+};
 
 const Additions = () => {
-  return (
-    <div>
-
-    </div>
-  )
-}
+  return <div></div>;
+};
 
 const AdditionsSection = () => {
-  return (
-  <div></div>
-  )
-}
+  return <div></div>;
+};
 const Addition = () => {
-  return (
-    <div></div>
-  )
-}
+  return <div></div>;
+};
 //all important things for a product(name, desc, price)
 const Product = () => {
-  return (
-    <div></div>
-  )
-}
+  return <div></div>;
+};
 
-export default ProductPage
+export default ProductPage;
