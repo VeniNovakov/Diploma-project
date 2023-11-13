@@ -5,10 +5,10 @@ import React from "react";
 
 const MenuPage = () => {
   return (
-    <BasketProvider>
+    <div>
       <NavBar></NavBar>
       <Menu></Menu>
-    </BasketProvider>
+    </div>
   );
 };
 

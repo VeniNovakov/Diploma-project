@@ -49,7 +49,7 @@ const Product = (props: ProductProps) => {
 
   useEffect(() => {
     Cookies.set("basket", JSON.stringify(basketItems));
-    setBasketCounter(basketItems.length);
+    setBasketCounter((JSON.parse(Cookies.get('basket') || '[]') as  BasketItem[]).length);
   }, [basketItems]);
 
   const updateBasket = (product: ProductType) => {
@@ -59,7 +59,6 @@ const Product = (props: ProductProps) => {
 
     if (basketItems.length === 0) {
       setBasketItems([...basketItems, newBasketObj]);
-      Cookies.set("basket", JSON.stringify(newBasketObj));
       return;
     }
 
@@ -80,22 +79,20 @@ const Product = (props: ProductProps) => {
     JSON.stringify(updatedList) === JSON.stringify(basketItems)
       ? setBasketItems([...updatedList, newBasketObj])
       : setBasketItems(updatedList);
-
-    Cookies.set("basket", JSON.stringify(basketItems));
   };
 
   return (
-    <div className="font-medium flex relative items-center content-center flex-col justify-center m-2 h-60 w-60 border">
-      <img src={pizza} className="h-3/6 w-4/6 fa" alt="pizza"></img>
-      <p className="self-center">{props.product.name}</p>
-      <p className="self-center">{props.product.price}</p>
-      <button
-        className="border-2 self-center hover:bg-slate-300"
+<div className="font-medium flex flex-col items-center justify-center m-2 h-60 w-60 border rounded-md overflow-hidden">
+    <img src={pizza} className="h-3/6 w-4/6 object-cover" alt="pizza"></img>
+    <p className="mt-2 text-center text-lg font-semibold">{props.product.name}</p>
+    <p className="mt-1 text-center text-gray-600">${props.product.price}</p>
+    <button
+        className="mt-3 px-4 py-2 border-2 border-black hover:bg-slate-300 focus:outline-none focus:border-slate-300"
         onClick={() => updateBasket(props.product)}
-      >
-        add to basket
-      </button>
-    </div>
+    >
+        Add to Basket
+    </button>
+</div>
   );
 };
 

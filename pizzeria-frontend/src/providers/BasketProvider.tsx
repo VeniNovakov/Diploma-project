@@ -1,4 +1,3 @@
-// CombinedContextProvider.js
 import React from "react";
 import { BasketCounterProvider } from "./BasketCounterProvider";
 import { BasketContentProvider } from "./BasketContentProvider";

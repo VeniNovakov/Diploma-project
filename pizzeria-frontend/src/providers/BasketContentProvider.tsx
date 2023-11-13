@@ -8,6 +8,7 @@ const BasketContentContext = createContext<BasketItemsProvider>({
   basketItems: [],
   setBasketItems: (items: BasketItem[]) => {},
 });
+
 export const useBasketContent = () => {
   return useContext(BasketContentContext);
 };

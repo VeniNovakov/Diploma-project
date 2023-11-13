@@ -3,9 +3,14 @@ export type Prop = {
 };
 
 export type ProductProps = {
-  product: ProductType; // Assuming ProductType is another type/interface you have defined
-  key: number; // Assuming the key is a number
+  product: ProductType;
+  key: number; 
 };
+
+export type BasketProps = {
+  item: BasketItem;
+  key: number; 
+}
 
 export type ProductType = {
   id: number;
