@@ -97,6 +97,7 @@ const Product = (props: ProductProps) => {
     >
         Add to Basket
     </button>
+    
 </div>
   );
 };

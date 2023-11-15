@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { BasketProps } from "../types";
 import Cookies from "js-cookie";
 import NavBar from "../NavBar";
@@ -34,6 +34,7 @@ const BasketPage = () => {
 const ProductOrdered = (props: BasketProps) => {
   const { basketItems, setBasketItems } = useBasketContent();
   const { basketCounter, setBasketCounter} = useBasket();
+  const [buttonState, setButtonState] = useState(props.item.amount===1?false:true)
 
   useEffect(() => {
     console.log('basketItems:');
@@ -43,9 +44,15 @@ const ProductOrdered = (props: BasketProps) => {
     const basketString = JSON.stringify(basketItems);
   
     Cookies.set('basket', basketString);
-  
+    
+    if(props.item.amount === 1){
+      setButtonState(false);
+    }else{
+      setButtonState(true);
+    }
+
     console.log('not first render');
-  }, [basketItems, setBasketCounter, setBasketItems]);
+  }, [basketItems, props.item.amount, setBasketCounter, setBasketItems]);
 
   const search = (id: number): number => {
     for (let i = 0; i < basketItems.length; i++) {
@@ -72,7 +79,6 @@ const ProductOrdered = (props: BasketProps) => {
       const updatedItems = [...basketItems];
       updatedItems[ix].amount--;
       setBasketItems(updatedItems);
-
     }
   };
 
@@ -106,7 +112,7 @@ const ProductOrdered = (props: BasketProps) => {
     <div className='flex flex-col ml-4'>
         <div className="text-lg font-semibold">{props.item.product.name}</div>
         <div className="flex flex-row items-center mt-2">
-            <button onClick={() => updateBasket('-')} className="border p-1 hover:bg-slate-300">-</button>
+            <button disabled={!buttonState} onClick={() => updateBasket('-')} className="border p-1 enabled:hover:bg-slate-300">-</button>
             <div className="mx-2">{props.item.amount}</div>
             <button onClick={() => updateBasket('+')} className="border p-1 hover:bg-slate-300">+</button>
         </div>
