@@ -44,13 +44,15 @@ const FilterItem = (props: any) => {
 };
 
 const Product = (props: ProductProps) => {
-  const { basketCounter, setBasketCounter } = useBasket();
   const { basketItems, setBasketItems } = useBasketContent();
+  const { basketCounter, setBasketCounter } = useBasket();
+ 
 
   useEffect(() => {
     Cookies.set("basket", JSON.stringify(basketItems));
+    console.log(basketItems)
     setBasketCounter((JSON.parse(Cookies.get('basket') || '[]') as  BasketItem[]).length);
-  }, [basketItems]);
+  }, [basketItems, setBasketCounter]);
 
   const updateBasket = (product: ProductType) => {
     setBasketCounter(basketCounter + 1);
@@ -58,11 +60,13 @@ const Product = (props: ProductProps) => {
     const newBasketObj: BasketItem = { product: product, amount: 1 };
 
     if (basketItems.length === 0) {
+      console.log(basketItems)
+
       setBasketItems([...basketItems, newBasketObj]);
       return;
-    }
-
-    const updatedList: BasketItem[] = basketItems.map((item: BasketItem) => {
+      
+    }else{
+    const updatedList: BasketItem[] = basketItems?.map((item: BasketItem) => {
       if (item.product.id === product.id) {
         const updatedItem = {
           ...item,
@@ -74,11 +78,12 @@ const Product = (props: ProductProps) => {
       }
     });
 
-    console.log(basketItems);
-    console.log(updatedList);
-    JSON.stringify(updatedList) === JSON.stringify(basketItems)
-      ? setBasketItems([...updatedList, newBasketObj])
-      : setBasketItems(updatedList);
+      console.log(basketItems);
+      console.log(updatedList);
+      JSON.stringify(updatedList) === JSON.stringify(basketItems)
+        ? setBasketItems([...updatedList, newBasketObj])
+        : setBasketItems([...updatedList]);
+    }
   };
 
   return (

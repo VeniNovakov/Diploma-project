@@ -7,10 +7,10 @@ import React from "react";
 import { BasketContentProvider } from "./providers/BasketContentProvider";
 import { BasketCounterProvider } from "./providers/BasketCounterProvider";
 import BasketPage from "./pages/basketPage";
+import { BasketProvider } from "./providers/BasketProvider";
 const App = () => {
   return (
-    <BasketContentProvider>
-      <BasketCounterProvider>
+    <BasketProvider>
         <BrowserRouter>
           <Routes>
             <Route path="/">
@@ -21,8 +21,7 @@ const App = () => {
             </Route>
           </Routes>
         </BrowserRouter>
-      </BasketCounterProvider>
-    </BasketContentProvider>
+      </BasketProvider>
   );
 };
 

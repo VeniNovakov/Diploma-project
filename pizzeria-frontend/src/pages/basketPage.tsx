@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import { BasketItem, BasketProps } from "../types";
+import React, { useEffect, useRef } from "react";
+import { BasketProps } from "../types";
 import Cookies from "js-cookie";
 import NavBar from "../NavBar";
 import { useBasketContent } from "../providers/BasketContentProvider";
@@ -10,6 +10,7 @@ const BasketPage = () => {
   const ref = useRef(true)
   ref.current = false
 
+  console.log(basketItems)
   
   return (
     <div>
@@ -34,8 +35,6 @@ const ProductOrdered = (props: BasketProps) => {
   const { basketItems, setBasketItems } = useBasketContent();
   const { basketCounter, setBasketCounter} = useBasket();
 
-  const ref = useRef(true)
-  
   useEffect(() => {
     console.log('basketItems:');
 
