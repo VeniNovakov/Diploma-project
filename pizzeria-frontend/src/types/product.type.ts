@@ -4,13 +4,13 @@ export type Prop = {
 
 export type ProductProps = {
   product: ProductType;
-  key: number; 
+  key: number;
 };
 
 export type BasketProps = {
   item: BasketItem;
-  key: number; 
-}
+  key: number;
+};
 
 export type ProductType = {
   id: number;

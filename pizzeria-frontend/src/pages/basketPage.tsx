@@ -3,28 +3,42 @@ import { BasketProps } from "../types";
 import Cookies from "js-cookie";
 import NavBar from "../NavBar";
 import { useBasketContent } from "../providers/BasketContentProvider";
-import pizza from '../images/pizza.jpg'
+import pizza from "../images/pizza.jpg";
 import { useBasket } from "../providers/BasketCounterProvider";
+
+function round(num: number, fractionDigits: number): number {
+  return Number(num.toFixed(fractionDigits));
+}
+
 const BasketPage = () => {
   const { basketItems, setBasketItems } = useBasketContent();
-  const ref = useRef(true)
-  ref.current = false
 
-  console.log(basketItems)
-  
   return (
     <div>
       <NavBar></NavBar>
-      <div className="flex flex-row">
+      <div className="flex flex-row justify-around">
         <div className="flex flex-col">
-          {basketItems?.map((item) => {
-            return (
-              <ProductOrdered
-                item={item}
-                key={item.product.id}
-              ></ProductOrdered>
-            );
-          })}
+          {basketItems.length ? (
+            basketItems.map((item) => {
+              return (
+                <ProductOrdered
+                  item={item}
+                  key={item.product.id}
+                ></ProductOrdered>
+              );
+            })
+          ) : (
+            <div>NO items in basket</div>
+          )}
+
+          <Checkout></Checkout>
+        </div>
+        <div className="flex flex-col">
+          <label>More information about the order:</label>
+          <textarea
+            className="border border-slate-300"
+            placeholder="IDK"
+          ></textarea>
         </div>
       </div>
     </div>
@@ -33,25 +47,25 @@ const BasketPage = () => {
 
 const ProductOrdered = (props: BasketProps) => {
   const { basketItems, setBasketItems } = useBasketContent();
-  const { basketCounter, setBasketCounter} = useBasket();
-  const [buttonState, setButtonState] = useState(props.item.amount===1?false:true)
+  const { basketCounter, setBasketCounter } = useBasket();
+  const [buttonState, setButtonState] = useState(
+    props.item.amount === 1 ? false : true,
+  );
 
   useEffect(() => {
-    console.log('basketItems:');
+    console.log("basketItems:");
 
     setBasketCounter(basketItems.length);
-  
+
     const basketString = JSON.stringify(basketItems);
-  
-    Cookies.set('basket', basketString);
-    
-    if(props.item.amount === 1){
+
+    Cookies.set("basket", basketString);
+
+    if (props.item.amount === 1) {
       setButtonState(false);
-    }else{
+    } else {
       setButtonState(true);
     }
-
-    console.log('not first render');
   }, [basketItems, props.item.amount, setBasketCounter, setBasketItems]);
 
   const search = (id: number): number => {
@@ -70,7 +84,6 @@ const ProductOrdered = (props: BasketProps) => {
       updatedItems[ix].amount++;
       setBasketItems(updatedItems);
     }
-
   };
 
   const removeAmount = (): void => {
@@ -83,44 +96,114 @@ const ProductOrdered = (props: BasketProps) => {
   };
 
   const deleteItem = (): void => {
-      const updatedList = [...basketItems.filter(
-        (bItem) => props.item.product.id !== bItem.product.id
-      )];
-      if(updatedList.length === 0){
-        Cookies.remove('basket')
-      }
-        setBasketItems(updatedList)
-        setBasketCounter(updatedList.length)
-    
-    
+    const updatedList = [
+      ...basketItems.filter(
+        (bItem) => props.item.product.id !== bItem.product.id,
+      ),
+    ];
+    if (updatedList.length === 0) {
+      Cookies.remove("basket");
+    }
+    setBasketItems(updatedList);
+    setBasketCounter(updatedList.length);
   };
 
   let operations = {
     "+": addAmount,
     "-": removeAmount,
-    "x": deleteItem
+    x: deleteItem,
   };
 
-  const updateBasket = (option: '+' | '-' | 'x'):void => {
-    console.log('got here')
+  const updateBasket = (option: "+" | "-" | "x"): void => {
     operations[option]();
-  }
+  };
 
-  return( 
-<div className="flex flex-row justify-between items-center border p-2 mb-2 bg-white rounded-lg shadow-md">
-    <img src={pizza} className='object-scale-down h-16 w-16 border-black' alt='pizza'></img>
-    <div className='flex flex-col ml-4'>
-        <div className="text-lg font-semibold">{props.item.product.name}</div>
-        <div className="flex flex-row items-center mt-2">
-            <button disabled={!buttonState} onClick={() => updateBasket('-')} className="border p-1 enabled:hover:bg-slate-300">-</button>
-            <div className="mx-2">{props.item.amount}</div>
-            <button onClick={() => updateBasket('+')} className="border p-1 hover:bg-slate-300">+</button>
+  return (
+    <div className="flex flex-row justify-between items-center border p-2 mb-2 bg-white rounded-lg shadow-md">
+      <img
+        src={pizza}
+        className="object-scale-down h-16 w-16 border-black"
+        alt="pizza"
+      ></img>
+      <div className="flex flex-col ml-4">
+        <div className="text-lg font-semibold overflow-hidden">
+          {props.item.product.name}
         </div>
+        <div className="flex flex-row items-center mt-2">
+          <button
+            disabled={!buttonState}
+            onClick={() => updateBasket("-")}
+            className="border p-1 enabled:hover:bg-slate-300"
+          >
+            -
+          </button>
+          <div className="mx-2">{props.item.amount}</div>
+          <button
+            onClick={() => updateBasket("+")}
+            className="border p-1 hover:bg-slate-300"
+          >
+            +
+          </button>
+        </div>
+      </div>
+      <div className="text-xl font-semibold pr-2 self-end">
+        ${round(props.item.product.price * props.item.amount, 2)}
+      </div>
+      <button
+        className="border p-1 hover:bg-red-300 self-end"
+        onClick={() => updateBasket("x")}
+      >
+        X
+      </button>
     </div>
-    <div className="text-xl font-semibold pr-2">${props.item.product.price * props.item.amount}</div>
-    <button className="border p-1 hover:bg-slate-300" onClick={() => updateBasket('x')}>X</button>
-</div>
-);
+  );
 };
 
+const Checkout = () => {
+  const { basketItems, setBasketItems } = useBasketContent();
+  return (
+    <div>
+      {basketItems.length ? (
+        <>
+          <Total></Total>
+          <button
+            type="button"
+            className="shadow-md hover:shadow-inner hover:bg-slate-100 rounded-md border-slate-400 border"
+          >
+            ORDER
+          </button>
+        </>
+      ) : (
+        <div></div>
+      )}
+    </div>
+  );
+};
+const Total = () => {
+  const { basketItems, setBasketItems } = useBasketContent();
+  const calcTotals = basketItems.map((item) => {
+    return item.amount * item.product.price;
+  }) as unknown as number[];
+  const total = calcTotals.length
+    ? round(
+        calcTotals.reduce((acc, curr) => {
+          return acc + curr;
+        }),
+        2,
+      )
+    : 0;
+
+  return (
+    <div>
+      {basketItems.length ? (
+        <div className="flex flex-row justify-between shadow-xl rounded">
+          total:
+          <div className="flex justify-end">{total}</div>
+        </div>
+      ) : (
+        <></>
+      )}
+    </div>
+  );
+};
 export default BasketPage;

@@ -1,0 +1,89 @@
+{
+  "toppingSections": [
+    {
+      "sectionName": "Meat Toppings",
+      "toppings": [
+        {
+          "id": 1,
+          "name": "Pepperoni",
+          "description": "Classic spicy Italian sausage"
+        },
+        {
+          "id": 8,
+          "name": "Bacon",
+          "description": "Smoky and crispy bacon"
+        },
+        {
+          "id": 9,
+          "name": "Sausage",
+          "description": "Savory and seasoned sausage"
+        },
+        {
+          "id": 10,
+          "name": "Ham",
+          "description": "Delicious smoked ham"
+        }
+      ]
+    },
+    {
+      "sectionName": "Vegetable Toppings",
+      "toppings": [
+        {
+          "id": 2,
+          "name": "Mushrooms",
+          "description": "Fresh and savory mushrooms"
+        },
+        {
+          "id": 3,
+          "name": "Onions",
+          "description": "Sweet and flavorful onions"
+        },
+        {
+          "id": 4,
+          "name": "Green Peppers",
+          "description": "Crisp and colorful green peppers"
+        },
+        {
+          "id": 5,
+          "name": "Olives",
+          "description": "Briny and rich black olives"
+        },
+        {
+          "id": 6,
+          "name": "Tomatoes",
+          "description": "Juicy and ripe tomatoes"
+        },
+        {
+          "id": 11,
+          "name": "Spinach",
+          "description": "Nutrient-rich spinach leaves"
+        },
+        {
+          "id": 12,
+          "name": "Artichokes",
+          "description": "Tender artichoke hearts"
+        }
+      ]
+    },
+    {
+      "sectionName": "Cheese Toppings",
+      "toppings": [
+        {
+          "id": 7,
+          "name": "Cheese",
+          "description": "Melted and gooey cheese blend"
+        },
+        {
+          "id": 13,
+          "name": "Feta Cheese",
+          "description": "Crumbly and tangy feta cheese"
+        },
+        {
+          "id": 14,
+          "name": "Parmesan",
+          "description": "Aged and flavorful Parmesan cheese"
+        }
+      ]
+    }
+  ]
+}
