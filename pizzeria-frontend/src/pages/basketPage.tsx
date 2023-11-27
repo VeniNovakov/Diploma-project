@@ -47,10 +47,8 @@ const BasketPage = () => {
 
 const ProductOrdered = (props: BasketProps) => {
   const { basketItems, setBasketItems } = useBasketContent();
-  const { basketCounter, setBasketCounter } = useBasket();
-  const [buttonState, setButtonState] = useState(
-    props.item.amount === 1 ? false : true,
-  );
+  const { setBasketCounter } = useBasket();
+  const IsButtonDisabled = props.item.amount === 1 ? true:false
 
   useEffect(() => {
     console.log("basketItems:");
@@ -61,12 +59,7 @@ const ProductOrdered = (props: BasketProps) => {
 
     Cookies.set("basket", basketString);
 
-    if (props.item.amount === 1) {
-      setButtonState(false);
-    } else {
-      setButtonState(true);
-    }
-  }, [basketItems, props.item.amount, setBasketCounter, setBasketItems]);
+  }, [basketItems, setBasketCounter]);
 
   const search = (id: number): number => {
     for (let i = 0; i < basketItems.length; i++) {
@@ -88,11 +81,16 @@ const ProductOrdered = (props: BasketProps) => {
 
   const removeAmount = (): void => {
     const ix = search(props.item.product.id);
-    if (ix !== -1 && props.item.amount > 1) {
-      const updatedItems = [...basketItems];
+    if(ix === -1){
+      return;
+    }
+    const updatedItems = [...basketItems];
+
+    if(props.item.amount > 1){
       updatedItems[ix].amount--;
       setBasketItems(updatedItems);
     }
+
   };
 
   const deleteItem = (): void => {
@@ -111,7 +109,7 @@ const ProductOrdered = (props: BasketProps) => {
   let operations = {
     "+": addAmount,
     "-": removeAmount,
-    x: deleteItem,
+    "x": deleteItem,
   };
 
   const updateBasket = (option: "+" | "-" | "x"): void => {
@@ -119,7 +117,7 @@ const ProductOrdered = (props: BasketProps) => {
   };
 
   return (
-    <div className="flex flex-row justify-between items-center border p-2 mb-2 bg-white rounded-lg shadow-md">
+    <div className="flex flex-row justify-between items-center border p-2 mb-2 bg-white rounded-lg shadow-md flex-wrap">
       <img
         src={pizza}
         className="object-scale-down h-16 w-16 border-black"
@@ -131,7 +129,7 @@ const ProductOrdered = (props: BasketProps) => {
         </div>
         <div className="flex flex-row items-center mt-2">
           <button
-            disabled={!buttonState}
+            disabled={IsButtonDisabled}
             onClick={() => updateBasket("-")}
             className="border p-1 enabled:hover:bg-slate-300"
           >

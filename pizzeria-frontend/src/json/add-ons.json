@@ -6,22 +6,26 @@
         {
           "id": 1,
           "name": "Pepperoni",
-          "description": "Classic spicy Italian sausage"
+          "description": "Classic spicy Italian sausage",
+          "price": 2.50
         },
         {
           "id": 8,
           "name": "Bacon",
-          "description": "Smoky and crispy bacon"
+          "description": "Smoky and crispy bacon",
+          "price": 3.00
         },
         {
           "id": 9,
           "name": "Sausage",
-          "description": "Savory and seasoned sausage"
+          "description": "Savory and seasoned sausage",
+          "price": 2.75
         },
         {
           "id": 10,
           "name": "Ham",
-          "description": "Delicious smoked ham"
+          "description": "Delicious smoked ham",
+          "price": 3.25
         }
       ]
     },
@@ -31,37 +35,44 @@
         {
           "id": 2,
           "name": "Mushrooms",
-          "description": "Fresh and savory mushrooms"
+          "description": "Fresh and savory mushrooms",
+          "price": 1.75
         },
         {
           "id": 3,
           "name": "Onions",
-          "description": "Sweet and flavorful onions"
+          "description": "Sweet and flavorful onions",
+          "price": 1.50
         },
         {
           "id": 4,
           "name": "Green Peppers",
-          "description": "Crisp and colorful green peppers"
+          "description": "Crisp and colorful green peppers",
+          "price": 1.75
         },
         {
           "id": 5,
           "name": "Olives",
-          "description": "Briny and rich black olives"
+          "description": "Briny and rich black olives",
+          "price": 2.00
         },
         {
           "id": 6,
           "name": "Tomatoes",
-          "description": "Juicy and ripe tomatoes"
+          "description": "Juicy and ripe tomatoes",
+          "price": 1.50
         },
         {
           "id": 11,
           "name": "Spinach",
-          "description": "Nutrient-rich spinach leaves"
+          "description": "Nutrient-rich spinach leaves",
+          "price": 2.25
         },
         {
           "id": 12,
           "name": "Artichokes",
-          "description": "Tender artichoke hearts"
+          "description": "Tender artichoke hearts",
+          "price": 2.50
         }
       ]
     },
@@ -71,17 +82,20 @@
         {
           "id": 7,
           "name": "Cheese",
-          "description": "Melted and gooey cheese blend"
+          "description": "Melted and gooey cheese blend",
+          "price": 2.00
         },
         {
           "id": 13,
           "name": "Feta Cheese",
-          "description": "Crumbly and tangy feta cheese"
+          "description": "Crumbly and tangy feta cheese",
+          "price": 2.50
         },
         {
           "id": 14,
           "name": "Parmesan",
-          "description": "Aged and flavorful Parmesan cheese"
+          "description": "Aged and flavorful Parmesan cheese",
+          "price": 3.00
         }
       ]
     }

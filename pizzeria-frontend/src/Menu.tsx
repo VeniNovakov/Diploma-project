@@ -102,15 +102,17 @@ const Product = (props: ProductProps) => {
           return item;
         }
       });
-
-      JSON.stringify(updatedList) === JSON.stringify(basketItems)
-        ? setBasketItems([...updatedList, newBasketObj])
-        : setBasketItems([...updatedList]);
+      
+      if(JSON.stringify(updatedList) === JSON.stringify(basketItems)){
+        setBasketItems([...updatedList, newBasketObj])
+      }else{
+        setBasketItems([...updatedList]);
+      }
     }
   };
 
   return (
-    <div className="font-medium flex flex-col items-center justify-center m-2 h-60 w-60 border rounded-md overflow-hidden">
+    <div className="font-medium flex flex-col items-center justify-center m-2 h-60 w-60 border rounded-md max-h-full ">
       <img src={pizza} className="h-3/6 w-4/6 object-cover" alt="pizza"></img>
       <p className="mt-2 text-center text-lg font-semibold">
         {props.product.name}
