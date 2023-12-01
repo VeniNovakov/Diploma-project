@@ -1,7 +1,7 @@
 import Cookies from "js-cookie";
 import { createContext, useContext, useState } from "react";
 import React from "react";
-import { BasketItem } from "../types";
+import { BasketItem } from "../utilities/types";
 
 const BasketContext = createContext({
   basketCounter: (JSON.parse(Cookies.get("basket") || "[]") as BasketItem[])

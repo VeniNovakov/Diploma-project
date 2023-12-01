@@ -1,7 +1,7 @@
 import React from "react";
 import { createContext, useContext, useState } from "react";
-import { BasketItem } from "../types";
-import { BasketItemsProvider } from "../types/provider.type";
+import { BasketItem } from "../utilities/types";
+import { BasketItemsProvider } from "../utilities/types/provider.type";
 import Cookies from "js-cookie";
 
 const BasketContentContext = createContext<BasketItemsProvider>({

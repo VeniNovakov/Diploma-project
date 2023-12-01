@@ -1,14 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
-import { BasketProps } from "../types";
+import { BasketItem, BasketProps, ProductType } from "../utilities/types";
 import Cookies from "js-cookie";
 import NavBar from "../NavBar";
 import { useBasketContent } from "../providers/BasketContentProvider";
 import pizza from "../images/pizza.jpg";
 import { useBasket } from "../providers/BasketCounterProvider";
+import { round } from "../utilities/functions/math";
+import { TempProduct } from "../utilities/types/provider.type";
 
-function round(num: number, fractionDigits: number): number {
-  return Number(num.toFixed(fractionDigits));
-}
 
 const BasketPage = () => {
   const { basketItems, setBasketItems } = useBasketContent();
@@ -48,10 +47,22 @@ const BasketPage = () => {
 const ProductOrdered = (props: BasketProps) => {
   const { basketItems, setBasketItems } = useBasketContent();
   const { setBasketCounter } = useBasket();
-  const IsButtonDisabled = props.item.amount === 1 ? true:false
-
+  const IsButtonDisabled = props.item.amount === 1 ? true:false;
+  const [isHovered, setIsHovered] = useState(false);
+  const addOnsPrices = props.item.addOns?.map(addOn => {
+    return addOn.price * addOn.amount;
+  });
+  
+  const total = addOnsPrices?.length
+    ? round(
+      addOnsPrices.reduce((acc, curr) => {
+        return acc + curr;
+      }),
+      2,
+    )
+  : 0;
   useEffect(() => {
-    console.log("basketItems:");
+
 
     setBasketCounter(basketItems.length);
 
@@ -61,9 +72,9 @@ const ProductOrdered = (props: BasketProps) => {
 
   }, [basketItems, setBasketCounter]);
 
-  const search = (id: number): number => {
+  const search = (product: ProductType | BasketItem): number => {
     for (let i = 0; i < basketItems.length; i++) {
-      if (id === basketItems[i].product.id) {
+      if (JSON.stringify(basketItems[i]) === JSON.stringify(product)) {
         return i;
       }
     }
@@ -71,7 +82,7 @@ const ProductOrdered = (props: BasketProps) => {
   };
 
   const addAmount = (): void => {
-    const ix = search(props.item.product.id);
+    const ix = search(props.item);
     if (ix !== -1) {
       const updatedItems = [...basketItems];
       updatedItems[ix].amount++;
@@ -80,7 +91,7 @@ const ProductOrdered = (props: BasketProps) => {
   };
 
   const removeAmount = (): void => {
-    const ix = search(props.item.product.id);
+    const ix = search(props.item);
     if(ix === -1){
       return;
     }
@@ -94,11 +105,8 @@ const ProductOrdered = (props: BasketProps) => {
   };
 
   const deleteItem = (): void => {
-    const updatedList = [
-      ...basketItems.filter(
-        (bItem) => props.item.product.id !== bItem.product.id,
-      ),
-    ];
+    const ix = search(props.item);
+    const updatedList = basketItems.filter((_, index) => index !== ix)
     if (updatedList.length === 0) {
       Cookies.remove("basket");
     }
@@ -117,7 +125,11 @@ const ProductOrdered = (props: BasketProps) => {
   };
 
   return (
-    <div className="flex flex-row justify-between items-center border p-2 mb-2 bg-white rounded-lg shadow-md flex-wrap">
+    <div
+      className="flex flex-row justify-between items-center border p-2 mb-2 bg-white rounded-lg shadow-md flex-wrap"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <img
         src={pizza}
         className="object-scale-down h-16 w-16 border-black"
@@ -145,7 +157,10 @@ const ProductOrdered = (props: BasketProps) => {
         </div>
       </div>
       <div className="text-xl font-semibold pr-2 self-end">
-        ${round(props.item.product.price * props.item.amount, 2)}
+        ${round(
+          props.item.product.price * props.item.amount + total * props.item.amount,
+          2
+        )}
       </div>
       <button
         className="border p-1 hover:bg-red-300 self-end"
@@ -153,6 +168,18 @@ const ProductOrdered = (props: BasketProps) => {
       >
         X
       </button>
+      {isHovered && (
+        <div className="absolute left-0 mt-8 p-2 bg-white border rounded-lg shadow-md">
+          <p className="font-bold">Add-ons:</p>
+          {props.item.addOns?.map((addOn) => (
+            <div key={addOn.id} className="flex">
+              <p className="mr-2">{addOn.amount}x</p>
+              <p className="mr-2">{addOn.name}:</p>
+              <p>${round(addOn.price * addOn.amount, 2)}</p>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
@@ -177,18 +204,32 @@ const Checkout = () => {
     </div>
   );
 };
+
 const Total = () => {
   const { basketItems, setBasketItems } = useBasketContent();
   const calcTotals = basketItems.map((item) => {
     return item.amount * item.product.price;
   }) as unknown as number[];
+
+  const addOnsTotals = basketItems.map((item) => {
+    const itemAddOnsPrices = item.addOns? item.addOns.map(addOn => {
+      return addOn.amount * addOn.price;
+    }):[];
+
+    const itemAddOnsTotal = itemAddOnsPrices.length ? itemAddOnsPrices?.reduce((acc, curr) => {
+      return acc + curr
+    }):0;
+    return itemAddOnsTotal * item.amount;
+  });
+  const addOnsTotal = addOnsTotals?.reduce((acc, curr) => {
+    return acc + curr;
+  })
+
   const total = calcTotals.length
-    ? round(
+    ?
         calcTotals.reduce((acc, curr) => {
           return acc + curr;
-        }),
-        2,
-      )
+        })
     : 0;
 
   return (
@@ -196,7 +237,7 @@ const Total = () => {
       {basketItems.length ? (
         <div className="flex flex-row justify-between shadow-xl rounded">
           total:
-          <div className="flex justify-end">{total}</div>
+          <div className="flex justify-end">{round( total + addOnsTotal, 2)}</div>
         </div>
       ) : (
         <></>

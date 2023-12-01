@@ -2,9 +2,9 @@ import { useBasket } from "./providers/BasketCounterProvider";
 import pizza from "./images/pizza.jpg";
 import menu from "./json/menu.json";
 import React, { useEffect, useState } from "react";
-import { ProductType, BasketItem } from "./types";
+import { ProductType, BasketItem } from "./utilities/types";
 import Cookies from "js-cookie";
-import { ProductProps } from "./types";
+import { ProductProps } from "./utilities/types";
 import { useBasketContent } from "./providers/BasketContentProvider";
 import { Link } from "react-router-dom";
 
@@ -92,7 +92,7 @@ const Product = (props: ProductProps) => {
       return;
     } else {
       const updatedList: BasketItem[] = basketItems?.map((item: BasketItem) => {
-        if (item.product.id === product.id) {
+        if (item.product.id === product.id && !item.addOns) {
           const updatedItem = {
             ...item,
             amount: item.amount + 1,
@@ -111,6 +111,10 @@ const Product = (props: ProductProps) => {
     }
   };
 
+  const btnHandle = () =>{
+    Cookies.set('tempProduct', JSON.stringify({ addOns: [], product: menu[props.product.id-1], amount: 1 }));
+  }
+  
   return (
     <div className="font-medium flex flex-col items-center justify-center m-2 h-60 w-60 border rounded-md max-h-full ">
       <img src={pizza} className="h-3/6 w-4/6 object-cover" alt="pizza"></img>
@@ -120,7 +124,7 @@ const Product = (props: ProductProps) => {
       <p className="mt-1 text-center text-gray-600">${props.product.price}</p>
       <div className="flex flex-row">
         <Link to={"/product/" + props.product.id}>
-          <button className="mt-3 px-4 py-2 border-2 border-black hover:bg-slate-300 focus:outline-none focus:border-slate-300">
+          <button onClick={btnHandle} className="mt-3 px-4 py-2 border-2 border-black hover:bg-slate-300 focus:outline-none focus:border-slate-300">
             change
           </button>
         </Link>

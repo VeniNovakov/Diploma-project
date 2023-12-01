@@ -19,13 +19,20 @@ export interface ProductType {
   description: string;
   category: string;
 };
-export interface AddOn {
+
+export interface AddOnType {
   id: number;
   name: string;
+  description: string;
+  price: number;
+}
+
+export interface AddOnBasketType extends AddOnType{
   amount: number;
 }
+
 export interface BasketItem {
+  addOns? : AddOnBasketType[]
   product: ProductType;
-  addOns? : AddOn[]
   amount: number;
 };
