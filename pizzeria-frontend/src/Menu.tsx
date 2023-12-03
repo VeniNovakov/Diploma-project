@@ -7,17 +7,35 @@ import Cookies from "js-cookie";
 import { ProductProps } from "./utilities/types";
 import { useBasketContent } from "./providers/BasketContentProvider";
 import { Link } from "react-router-dom";
+interface IFilter {
+  onFilterClick: (filterType: string) => void;
+}
+
+interface IFilterItem {
+  item: {
+    image: string;
+    alt: string;
+    name: string;
+  };
+  onFilterClick: () => void;
+}
 
 const Menu = () => {
   const [selectedFilter, setSelectedFilter] = useState("");
-
+  const [filteredMenu, setFilteredMenu] = useState(menu);
   const handleFilterClick = (filterType: string) => {
     setSelectedFilter(filterType);
   };
 
-  const filteredMenu = selectedFilter
-    ? menu.filter((product) => product.category === selectedFilter)
-    : menu;
+  useEffect(() => {
+    if (selectedFilter.length) {
+      setFilteredMenu(
+        menu.filter((product) => product.category === selectedFilter),
+      );
+    } else {
+      setFilteredMenu(menu);
+    }
+  }, [selectedFilter, setFilteredMenu]);
 
   return (
     <div>
@@ -31,12 +49,12 @@ const Menu = () => {
   );
 };
 
-const Filter = ({ onFilterClick }: any) => {
+const Filter: React.FC<IFilter> = ({ onFilterClick }) => {
   const filterItems = [
-    { img: "ds", alt: "", name: ''},
-    { img: "pizza", alt: "", name: "Pizza" },
-    { img: "img", alt: "", name: "Burger" },
-    { img: "img", alt: "", name: "Italian Delights" },
+    { image: "ds", alt: "", name: "" },
+    { image: "pizza", alt: "", name: "Pizza" },
+    { image: "img", alt: "", name: "Burger" },
+    { image: "img", alt: "", name: "Italian Delights" },
   ];
 
   return (
@@ -52,7 +70,7 @@ const Filter = ({ onFilterClick }: any) => {
   );
 };
 
-const FilterItem = ({ item, onFilterClick }: any) => {
+const FilterItem: React.FC<IFilterItem> = ({ item, onFilterClick }) => {
   return (
     <button
       className="flex flex-col self-center justify-self-center m-2 justify-center text-center items-center"
@@ -60,7 +78,7 @@ const FilterItem = ({ item, onFilterClick }: any) => {
     >
       <img
         className="h-12 w-12 justify-self-center"
-        src={item.img}
+        src={item.image}
         alt={item.alt}
       ></img>
       <div className="justify-self-center break-all">{item.name}</div>
@@ -74,7 +92,7 @@ const Product = (props: ProductProps) => {
 
   useEffect(() => {
     Cookies.set("basket", JSON.stringify(basketItems));
-    console.log(basketItems);
+
     setBasketCounter(
       (JSON.parse(Cookies.get("basket") || "[]") as BasketItem[]).length,
     );
@@ -86,8 +104,6 @@ const Product = (props: ProductProps) => {
     const newBasketObj: BasketItem = { product: product, amount: 1 };
 
     if (basketItems.length === 0) {
-      console.log(basketItems);
-
       setBasketItems([...basketItems, newBasketObj]);
       return;
     } else {
@@ -102,19 +118,26 @@ const Product = (props: ProductProps) => {
           return item;
         }
       });
-      
-      if(JSON.stringify(updatedList) === JSON.stringify(basketItems)){
-        setBasketItems([...updatedList, newBasketObj])
-      }else{
+
+      if (JSON.stringify(updatedList) === JSON.stringify(basketItems)) {
+        setBasketItems([...updatedList, newBasketObj]);
+      } else {
         setBasketItems([...updatedList]);
       }
     }
   };
 
-  const btnHandle = () =>{
-    Cookies.set('tempProduct', JSON.stringify({ addOns: [], product: menu[props.product.id-1], amount: 1 }));
-  }
-  
+  const btnHandle = () => {
+    Cookies.set(
+      "tempProduct",
+      JSON.stringify({
+        addOns: [],
+        product: menu[props.product.id - 1],
+        amount: 1,
+      }),
+    );
+  };
+
   return (
     <div className="font-medium flex flex-col items-center justify-center m-2 h-60 w-60 border rounded-md max-h-full ">
       <img src={pizza} className="h-3/6 w-4/6 object-cover" alt="pizza"></img>
@@ -124,7 +147,10 @@ const Product = (props: ProductProps) => {
       <p className="mt-1 text-center text-gray-600">${props.product.price}</p>
       <div className="flex flex-row">
         <Link to={"/product/" + props.product.id}>
-          <button onClick={btnHandle} className="mt-3 px-4 py-2 border-2 border-black hover:bg-slate-300 focus:outline-none focus:border-slate-300">
+          <button
+            onClick={btnHandle}
+            className="mt-3 px-4 py-2 border-2 border-black hover:bg-slate-300 focus:outline-none focus:border-slate-300"
+          >
             change
           </button>
         </Link>

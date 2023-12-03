@@ -1,10 +1,13 @@
 import React from "react";
 import { createContext, useContext, useState } from "react";
-import { TempProductProvider, TempProduct } from "../utilities/types/provider.type";
+import {
+  TempProductProvider,
+  TempProduct,
+} from "../utilities/types/provider.interfaces";
 import Cookies from "js-cookie";
 
 const TempProductContext = createContext<TempProductProvider>({
-  tempProduct: JSON.parse(Cookies.get('tempProduct') || '{}'),
+  tempProduct: JSON.parse(Cookies.get("tempProduct") || "{}"),
   setTempProduct: (tempProduct: TempProduct) => {},
 });
 
@@ -18,7 +21,7 @@ export const ProductProvider = ({ children }: any) => {
   );
 
   return (
-    <TempProductContext.Provider value={{tempProduct, setTempProduct}}>
+    <TempProductContext.Provider value={{ tempProduct, setTempProduct }}>
       {children}
     </TempProductContext.Provider>
   );

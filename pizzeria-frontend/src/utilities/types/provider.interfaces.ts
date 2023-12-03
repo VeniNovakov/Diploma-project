@@ -1,4 +1,4 @@
-import { BasketItem, ProductType } from "./product.type";
+import { BasketItem, ProductType } from "./product.interfaces";
 
 export type BasketItemsProvider = {
   basketItems: BasketItem[];
@@ -16,11 +16,12 @@ interface AddOnType {
   price: number;
 }
 
-interface AddOnBasketType extends AddOnType{
+interface AddOnBasketType extends AddOnType {
   amount: number;
 }
+
 export interface TempProduct {
   addOns: AddOnBasketType[];
   product: ProductType;
-  amount: number
+  amount: number;
 }
