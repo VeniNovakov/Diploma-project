@@ -1,0 +1,103 @@
+{
+  "toppingSections": [
+    {
+      "sectionName": "Meat Toppings",
+      "toppings": [
+        {
+          "id": 1,
+          "name": "Pepperoni",
+          "description": "Classic spicy Italian sausage",
+          "price": 2.5
+        },
+        {
+          "id": 8,
+          "name": "Bacon",
+          "description": "Smoky and crispy bacon",
+          "price": 3.0
+        },
+        {
+          "id": 9,
+          "name": "Sausage",
+          "description": "Savory and seasoned sausage",
+          "price": 2.75
+        },
+        {
+          "id": 10,
+          "name": "Ham",
+          "description": "Delicious smoked ham",
+          "price": 3.25
+        }
+      ]
+    },
+    {
+      "sectionName": "Vegetable Toppings",
+      "toppings": [
+        {
+          "id": 2,
+          "name": "Mushrooms",
+          "description": "Fresh and savory mushrooms",
+          "price": 1.75
+        },
+        {
+          "id": 3,
+          "name": "Onions",
+          "description": "Sweet and flavorful onions",
+          "price": 1.5
+        },
+        {
+          "id": 4,
+          "name": "Green Peppers",
+          "description": "Crisp and colorful green peppers",
+          "price": 1.75
+        },
+        {
+          "id": 5,
+          "name": "Olives",
+          "description": "Briny and rich black olives",
+          "price": 2.0
+        },
+        {
+          "id": 6,
+          "name": "Tomatoes",
+          "description": "Juicy and ripe tomatoes",
+          "price": 1.5
+        },
+        {
+          "id": 11,
+          "name": "Spinach",
+          "description": "Nutrient-rich spinach leaves",
+          "price": 2.25
+        },
+        {
+          "id": 12,
+          "name": "Artichokes",
+          "description": "Tender artichoke hearts",
+          "price": 2.5
+        }
+      ]
+    },
+    {
+      "sectionName": "Cheese Toppings",
+      "toppings": [
+        {
+          "id": 7,
+          "name": "Cheese",
+          "description": "Melted and gooey cheese blend",
+          "price": 2.0
+        },
+        {
+          "id": 13,
+          "name": "Feta Cheese",
+          "description": "Crumbly and tangy feta cheese",
+          "price": 2.5
+        },
+        {
+          "id": 14,
+          "name": "Parmesan",
+          "description": "Aged and flavorful Parmesan cheese",
+          "price": 3.0
+        }
+      ]
+    }
+  ]
+}

@@ -1,9 +1,11 @@
 import Cookies from "js-cookie";
 import { createContext, useContext, useState } from "react";
 import React from "react";
+import { BasketItem } from "../utilities/types";
 
 const BasketContext = createContext({
-  basketCounter: 0 as number,
+  basketCounter: (JSON.parse(Cookies.get("basket") || "[]") as BasketItem[])
+    .length,
   setBasketCounter: (amount: number) => {},
 });
 
@@ -13,7 +15,7 @@ export const useBasket = () => {
 
 export const BasketCounterProvider = ({ children }: any) => {
   const [basketCounter, setBasketCounter] = useState(
-    JSON.parse((Cookies.get("basket") as string) || "[]").length,
+    (JSON.parse(Cookies.get("basket") || "[]") as BasketItem[]).length,
   );
 
   return (
