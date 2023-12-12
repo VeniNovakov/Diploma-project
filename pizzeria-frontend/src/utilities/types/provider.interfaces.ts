@@ -4,6 +4,12 @@ export type BasketItemsProvider = {
   basketItems: BasketItem[];
   setBasketItems: Function;
 };
+
+export type SelectedProductsProviderType = {
+  selectedProducts: ProductType[];
+  setSelectedProducts: Function;
+};
+
 export type TempProductProvider = {
   tempProduct: TempProduct;
   setTempProduct: Function;

@@ -1,0 +1,176 @@
+{
+  "orders": [
+    {
+      "id": 1,
+      "wanted_for": "Now",
+      "customer": {
+        "name": "John Doe",
+        "phone": "+1234567890"
+      },
+      "items": [
+        {
+          
+          "id": 101,
+          "addOns": [
+            {
+              "id": 201,
+              "name": "Extra Cheese",
+              "price": 1.99,
+              "amount": 1
+            },
+            {
+              "id": 202,
+              "name": "Pepperoni",
+              "price": 2.49,
+              "amount": 1
+            }
+          ],
+          "product": {
+            "id": 301,
+            "name": "Margherita Pizza",
+            "description": "Classic margherita pizza with tomato and mozzarella",
+            "price": 14.99
+          },
+          "amount": 1
+        },
+        {
+          "id": 102,
+          "addOns": [
+            {
+              "id": 203,
+              "name": "Mushrooms",
+              "price": 1.49,
+              "amount": 1
+            },
+            {
+              "id": 204,
+              "name": "Olives",
+              "price": 1.29,
+              "amount": 1
+            }
+          ],
+          "product": {
+            "id": 302,
+            "name": "Vegetarian Pizza",
+            "description": "Pizza loaded with fresh vegetables",
+            "price": 16.99
+          },
+          "amount": 1
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "wanted_for": "2023-12-02T20:30:00",
+      "customer": {
+        "name": "Jane Smith",
+        "phone": "+9876543210"
+      },
+      "items": [
+        {
+          "id": 201,
+          "addOns": [
+            {
+              "id": 205,
+              "name": "Bacon",
+              "price": 2.99,
+              "amount": 1
+            },
+            {
+              "id": 206,
+              "name": "Green Peppers",
+              "price": 1.79,
+              "amount": 1
+            }
+          ],
+          "product": {
+            "id": 303,
+            "name": "Pepperoni Pizza",
+            "description": "Classic pepperoni pizza with tomato and mozzarella",
+            "price": 16.99
+          },
+          "amount": 1
+        },
+        {
+          "id": 202,
+          "addOns": [],
+          "product": {
+            "id": 304,
+            "name": "Soda",
+            "description": "Refreshing soda",
+            "price": 2.49
+          },
+          "amount": 1
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "wanted_for": "2023-12-02T21:00:00",
+      "customer": {
+        "name": "Alice Johnson",
+        "phone": "+5555555555"
+      },
+      "items": [
+        {
+          "id": 301,
+          "addOns": [
+            {
+              "id": 207,
+              "name": "Ham",
+              "price": 2.49,
+              "amount": 1
+            },
+            {
+              "id": 208,
+              "name": "Onions",
+              "price": 1.29,
+              "amount": 1
+            }
+          ],
+          "product": {
+            "id": 305,
+            "name": "Hawaiian Pizza",
+            "description": "Pizza with ham and pineapple",
+            "price": 17.99
+          },
+          "amount": 1
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "wanted_for": "2023-12-02T21:30:00",
+      "customer": {
+        "name": "Bob Miller",
+        "phone": "+3333333333"
+      },
+      "items": [
+        {
+          "id": 401,
+          "addOns": [
+            {
+              "id": 209,
+              "name": "Chicken",
+              "price": 2.99,
+              "amount": 1
+            },
+            {
+              "id": 210,
+              "name": "Spinach",
+              "price": 1.79,
+              "amount": 1
+            }
+          ],
+          "product": {
+            "id": 306,
+            "name": "Chicken Alfredo Pizza",
+            "description": "Pizza with chicken, Alfredo sauce, and spinach",
+            "price": 18.99
+          },
+          "amount": 1
+        }
+      ]
+    }
+  ]
+}

@@ -7,6 +7,9 @@ import React from "react";
 import BasketPage from "./pages/basketPage";
 import { BasketProvider } from "./providers/BasketProvider";
 import ProductPage from "./pages/ProductPage";
+import { EditMenuPage } from "./pages/EditMenuPage";
+import UpdateMenuPage from "./pages/ProductUpdatePage";
+import OrdersPage from "./pages/ordersPage";
 const App = () => {
   return (
     <BasketProvider>
@@ -18,6 +21,10 @@ const App = () => {
             <Route path="auth" element={<Auth />} />
             <Route path="basket" element={<BasketPage />} />
             <Route path="product/:id" element={<ProductPage />} />
+            <Route path="menu/edit" element={<EditMenuPage />} />
+            <Route path="menu/edit/update/:id" element={<UpdateMenuPage />} />
+            <Route path="menu/edit/add" element={<UpdateMenuPage />} />
+            <Route path="orders" element={<OrdersPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

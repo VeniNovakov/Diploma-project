@@ -9,7 +9,7 @@ export interface ProductProps {
 
 export interface BasketProps {
   item: BasketItem;
-  key: number;
+  key?: number;
 }
 
 export interface ProductType {
@@ -32,6 +32,7 @@ export interface AddOnBasketType extends AddOnType {
 }
 
 export interface BasketItem {
+  id:number;
   addOns?: AddOnBasketType[];
   product: ProductType;
   amount: number;
