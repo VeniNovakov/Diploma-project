@@ -4,7 +4,7 @@ import React from "react";
 import { BasketItem } from "../utilities/types";
 
 const ImageDialogContext = createContext({
-  showDialog: false, 
+  showDialog: false,
   setShowDialog: (amount: boolean) => {},
 });
 

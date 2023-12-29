@@ -33,7 +33,8 @@ const EditMenuContainer: React.FC = () => {
       </div>
       <div className="fixed flex flex-row bottom-0 right-0 p-4">
         <Link to={"/menu/edit/update/" + selectedProducts[0]?.id}>
-          <button disabled={selectedProducts.length !== 1}
+          <button
+            disabled={selectedProducts.length !== 1}
             className={
               selectedProducts.length === 1 ? "bg-blue-400" : "bg-gray-400"
             }

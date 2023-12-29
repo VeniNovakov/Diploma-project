@@ -10,6 +10,7 @@ import ProductPage from "./pages/ProductPage";
 import { EditMenuPage } from "./pages/EditMenuPage";
 import UpdateMenuPage from "./pages/ProductUpdatePage";
 import OrdersPage from "./pages/ordersPage";
+import PizzaManPage from "./pages/PizzaManPage";
 const App = () => {
   return (
     <BasketProvider>
@@ -25,6 +26,7 @@ const App = () => {
             <Route path="menu/edit/update/:id" element={<UpdateMenuPage />} />
             <Route path="menu/edit/add" element={<UpdateMenuPage />} />
             <Route path="orders" element={<OrdersPage />} />
+            <Route path="admin-profile" element={<PizzaManPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

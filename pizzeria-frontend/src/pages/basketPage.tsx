@@ -197,7 +197,7 @@ const Checkout = () => {
 
 const Total = () => {
   const { basketItems, setBasketItems } = useBasketContent();
-  
+
   const calcTotals = basketItems.map((item) => {
     return item.amount * item.product.price;
   }) as unknown as number[];
