@@ -19,9 +19,6 @@ export const EditMenuPage: React.FC = () => {
 const EditMenuContainer: React.FC = () => {
   const { selectedProducts, setSelectedProducts } = useSelectedProducts();
 
-  const tempPrint = () => {
-    console.log(selectedProducts);
-  };
   return (
     <div>
       <div className="flex items-center overflow-hidden justify-center border border-b-gray-300 ">
@@ -31,7 +28,7 @@ const EditMenuContainer: React.FC = () => {
           ))}
         </div>
       </div>
-      <div className="fixed flex flex-row bottom-0 right-0 p-4">
+      <div className="fixed flex flex-row bottom-0 right-0 p-4 justify-around items-stretch">
         <Link to={"/menu/edit/update/" + selectedProducts[0]?.id}>
           <button
             disabled={selectedProducts.length !== 1}
@@ -47,12 +44,21 @@ const EditMenuContainer: React.FC = () => {
             Add a Product
           </button>
         </Link>
-        <button
-          onClick={() => tempPrint()}
-          className="bg-green-500 hover:bg-green-600 rounded text-white"
-        >
-          print
-        </button>
+        <button           
+          disabled={selectedProducts.length <= 0}
+          className={
+            selectedProducts.length >= 1 ? "bg-red-500 hover:bg-red-600" : "bg-gray-400"
+          }>
+            Delete
+          </button>
+        <button            
+          disabled={selectedProducts.length <= 0}
+          className={
+            selectedProducts.length >= 1 ? "bg-rose-600 hover:bg-rose-700" : "bg-gray-400"
+          }
+          >
+            Remove from menu
+          </button>
       </div>
     </div>
   );

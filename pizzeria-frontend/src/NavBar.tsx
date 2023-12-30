@@ -2,12 +2,14 @@ import { useBasket } from "./providers/BasketCounterProvider";
 import shoppingCart from "./images/shopping-cart.png";
 import { Link } from "react-router-dom";
 import React from "react";
+import { NavItemProps } from "./utilities/types/navBar.interfaces";
 
 const NavBar = () => {
   const { basketCounter } = useBasket();
 
   return (
     <div className=" flex-start flex flex-row items-center justify-center bg-amber-200 h-full ">
+      <NavItem href="/admin-profile">Profile</NavItem>
       <NavItem href="/menu">Menu</NavItem>
       <NavItem
         href="/basket"
@@ -23,7 +25,7 @@ const NavBar = () => {
   );
 };
 
-function NavItem(props: any) {
+const NavItem: React.FC<NavItemProps> = (props) => {
   return (
     <div className=" flex h-full pl-12 m-0">
       <Link

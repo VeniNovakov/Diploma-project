@@ -18,6 +18,7 @@ export const BasketContentProvider = ({ children }: any) => {
   const [basketItems, setBasketItems] = useState<BasketItem[]>(
     JSON.parse(Cookies.get("basket") || "[]"),
   );
+
   const { basketCounter, setBasketCounter } = useBasket();
   useEffect(() => {
     Cookies.set("basket", JSON.stringify(basketItems));
@@ -26,6 +27,7 @@ export const BasketContentProvider = ({ children }: any) => {
       (JSON.parse(Cookies.get("basket") || "[]") as BasketItem[]).length,
     );
   }, [basketItems, setBasketCounter]);
+  
   return (
     <BasketContentContext.Provider value={{ basketItems, setBasketItems }}>
       {children}
