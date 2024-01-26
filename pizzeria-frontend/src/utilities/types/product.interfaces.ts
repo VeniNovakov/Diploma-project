@@ -9,7 +9,7 @@ export interface ProductProps {
 
 export interface BasketProps {
   item: BasketItem;
-  key: number;
+  key?: number;
 }
 
 export interface ProductType {
@@ -30,8 +30,18 @@ export interface AddOnType {
 export interface AddOnBasketType extends AddOnType {
   amount: number;
 }
+export interface Order {
+  id: number;
+  wanted_for: string;
+  customer: {
+    name: string;
+    phone: string;
+  };
+  items: BasketItem[];
+}
 
 export interface BasketItem {
+  id: number;
   addOns?: AddOnBasketType[];
   product: ProductType;
   amount: number;

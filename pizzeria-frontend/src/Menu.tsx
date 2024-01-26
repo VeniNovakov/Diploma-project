@@ -23,6 +23,7 @@ interface IFilterItem {
 const Menu = () => {
   const [selectedFilter, setSelectedFilter] = useState("");
   const [filteredMenu, setFilteredMenu] = useState(menu);
+
   const handleFilterClick = (filterType: string) => {
     setSelectedFilter(filterType);
   };
@@ -101,7 +102,11 @@ const Product = (props: ProductProps) => {
   const updateBasket = (product: ProductType) => {
     setBasketCounter(basketCounter + 1);
 
-    const newBasketObj: BasketItem = { product: product, amount: 1 };
+    const newBasketObj: BasketItem = {
+      id: product.id,
+      product: product,
+      amount: 1,
+    };
 
     if (basketItems.length === 0) {
       setBasketItems([...basketItems, newBasketObj]);
