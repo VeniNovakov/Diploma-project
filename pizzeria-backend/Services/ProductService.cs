@@ -30,7 +30,6 @@ namespace pizzeria_backend.Services
         public async Task<Product> GetProduct(int id)
         {
             var product = await _context.Products.FindAsync(id);
-            Console.WriteLine(product);
 
             return product;
 

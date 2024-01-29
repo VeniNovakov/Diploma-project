@@ -18,7 +18,7 @@ namespace pizzeria_backend.Controllers
         {
             if (product == null)
             {
-                return BadRequest("No body provided");
+                return BadRequest("message: " + "No body provided");
             }
 
             var pr = await _productService.AddProductAsync(ConvertToProduct(product));
@@ -26,7 +26,7 @@ namespace pizzeria_backend.Controllers
             return Ok(pr);
         }
 
-        private Product ConvertToProduct(ProductDto productDto)
+        private static Product ConvertToProduct(ProductDto productDto)
         {
             return new Product
             {
@@ -34,6 +34,8 @@ namespace pizzeria_backend.Controllers
                 Description = productDto.Description,
                 Category = productDto.Category,
                 Price = productDto.Price,
+                IsAvailable = productDto.IsAvailable,
+                IsInMenu = productDto.IsInMenu,
             };
         }
 
@@ -45,7 +47,7 @@ namespace pizzeria_backend.Controllers
             Console.WriteLine(pr);
             if (pr == null)
             {
-                return NotFound("Product not found");
+                return NotFound("message: " + "Product not found");
             }
             return Ok(pr);
         }
@@ -57,7 +59,7 @@ namespace pizzeria_backend.Controllers
             var pr = await _productService.DeleteProduct(id);
             if (pr == null)
             {
-                return NotFound("Product not found");
+                return NotFound("message: " + "Product not found");
             }
             return Ok(pr);
         }
@@ -69,7 +71,7 @@ namespace pizzeria_backend.Controllers
             var pr = await _productService.UpdateProduct(product);
             if (pr == null)
             {
-                return NotFound("Product not found");
+                return NotFound("message: " + "Product not found");
             }
             return Ok(pr);
         }

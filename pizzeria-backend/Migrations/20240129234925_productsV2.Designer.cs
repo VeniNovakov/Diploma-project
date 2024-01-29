@@ -11,8 +11,8 @@ using pizzeria_backend;
 namespace pizzeria_backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240126095359_products")]
-    partial class products
+    [Migration("20240129234925_productsV2")]
+    partial class productsV2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -39,6 +39,12 @@ namespace pizzeria_backend.Migrations
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsAvailable")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsInMenu")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
