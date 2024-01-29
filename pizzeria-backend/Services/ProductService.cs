@@ -5,6 +5,7 @@ namespace pizzeria_backend.Services
     {
         public Task<Product> AddProductAsync(Product product);
         public Task<Product> GetProduct(int id);
+        public Task<Product> UpdateProduct(Product product);
         public Task<Product> DeleteProduct(int id);
     }
 
@@ -19,7 +20,7 @@ namespace pizzeria_backend.Services
 
         public async Task<Product> AddProductAsync(Product product)
         {
-            _context.Products.Add(product);
+            await _context.Products.AddAsync(product);
             await _context.SaveChangesAsync();
 
             return await _context.Products.FindAsync(product.Id);
@@ -29,8 +30,20 @@ namespace pizzeria_backend.Services
         public async Task<Product> GetProduct(int id)
         {
             var product = await _context.Products.FindAsync(id);
+            Console.WriteLine(product);
 
             return product;
+
+        }
+
+        public async Task<Product> UpdateProduct(Product product)
+        {
+            _context.Products.Update(product);
+
+            await _context.SaveChangesAsync();
+
+            return await _context.Products.FindAsync(product.Id);
+
 
         }
         public async Task<Product> DeleteProduct(int id)

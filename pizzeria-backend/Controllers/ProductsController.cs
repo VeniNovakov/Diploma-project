@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using pizzeria_backend.Models;
+using pizzeria_backend.Models.Interfaces;
 using pizzeria_backend.Services;
 
 namespace pizzeria_backend.Controllers
@@ -10,12 +11,30 @@ namespace pizzeria_backend.Controllers
     {
         private readonly IProductService _productService = productService;
 
-        [HttpPost()]
-        public async Task<IActionResult> AddProductAsync([FromBody] Product product)
-        {
-            await _productService.AddProductAsync(product);
 
-            return Ok();
+        [HttpPost()]
+        [Produces("application/json")]
+        public async Task<IActionResult> AddProductAsync([FromBody] ProductDto? product)
+        {
+            if (product == null)
+            {
+                return BadRequest("No body provided");
+            }
+
+            var pr = await _productService.AddProductAsync(ConvertToProduct(product));
+
+            return Ok(pr);
+        }
+
+        private Product ConvertToProduct(ProductDto productDto)
+        {
+            return new Product
+            {
+                Name = productDto.Name,
+                Description = productDto.Description,
+                Category = productDto.Category,
+                Price = productDto.Price,
+            };
         }
 
         [HttpGet("{id}")]
@@ -23,9 +42,10 @@ namespace pizzeria_backend.Controllers
         public async Task<IActionResult> GetProduct(int id)
         {
             var pr = await _productService.GetProduct(id);
+            Console.WriteLine(pr);
             if (pr == null)
             {
-                return NotFound();
+                return NotFound("Product not found");
             }
             return Ok(pr);
         }
@@ -37,19 +57,19 @@ namespace pizzeria_backend.Controllers
             var pr = await _productService.DeleteProduct(id);
             if (pr == null)
             {
-                return NotFound();
+                return NotFound("Product not found");
             }
             return Ok(pr);
         }
 
         [HttpPatch("{id}")]
         [Produces("application/json")]
-        public async Task<IActionResult> UpdateProduct(int id)
+        public async Task<IActionResult> UpdateProduct([FromBody] Product product)
         {
-            var pr = await _productService.GetProduct(id);
+            var pr = await _productService.UpdateProduct(product);
             if (pr == null)
             {
-                return NotFound();
+                return NotFound("Product not found");
             }
             return Ok(pr);
         }

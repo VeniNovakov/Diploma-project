@@ -1,4 +1,5 @@
-﻿namespace pizzeria_backend.Models
+﻿
+namespace pizzeria_backend.Models
 {
     public class Product
     {
@@ -8,6 +9,7 @@
         public decimal Price { get; set; }
 
         public string Category { get; set; }
+
     }
 
 
