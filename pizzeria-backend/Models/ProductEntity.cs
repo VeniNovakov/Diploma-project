@@ -1,19 +1,17 @@
-﻿
-using pizzeria_backend.Models.Interfaces;
+﻿using pizzeria_backend.Models.Interfaces;
 
 namespace pizzeria_backend.Models
 {
-    public class Product : ProductDto
+    public class Product : IProductDto
     {
         public int Id { get; set; }
+        public string Image { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public decimal Price { get; set; }
         public string Category { get; set; }
         public bool IsInMenu { get; set; }
         public bool IsAvailable { get; set; }
-
-
     }
 
 
