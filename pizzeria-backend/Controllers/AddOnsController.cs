@@ -28,18 +28,18 @@ namespace pizzeria_backend.Controllers
             return Ok(await _addOnService.GetAddOn(Id));
         }
 
-        [HttpPatch("{id}")]
+        [HttpPatch()]
         [Produces("application/json")]
-        public async Task<IActionResult> UpdateAddOn(int id)
+        public async Task<IActionResult> UpdateAddOn([FromBody] AddOn addOn)
         {
-            return null;
+            return Ok(await _addOnService.UpdateAddOn(ConvertToAddOn(addOn)));
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{Id}")]
         [Produces("application/json")]
-        public async Task<IActionResult> DeleteAddOn(int id)
+        public async Task<IActionResult> DeleteAddOn(int Id)
         {
-            return null;
+            return Ok(await _addOnService.DeleteAddOn(Id));
         }
 
 
@@ -55,5 +55,6 @@ namespace pizzeria_backend.Controllers
             };
 
         }
+
     }
 }
