@@ -1,4 +1,5 @@
 ﻿using pizzeria_backend.Models.Interfaces;
+using System.Text.Json.Serialization;
 
 namespace pizzeria_backend.Models
 {
@@ -9,7 +10,10 @@ namespace pizzeria_backend.Models
         public string Name { get; set; }
         public string Description { get; set; }
         public decimal Price { get; set; }
-        public string Category { get; set; }
+        public int CategoryId { get; set; }
+        [JsonIgnore]
+        public ProductsCategory Category { get; set; }
+
         public bool IsInMenu { get; set; }
         public bool IsAvailable { get; set; }
     }

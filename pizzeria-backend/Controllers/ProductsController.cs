@@ -28,33 +28,6 @@ namespace pizzeria_backend.Controllers
             return Ok(pr);
         }
 
-        private static Product ConvertToProduct(ProductDto productDto, string image)
-        {
-            return new Product
-            {
-                Image = image,
-                Name = productDto.Name,
-                Description = productDto.Description,
-                Category = productDto.Category,
-                Price = productDto.Price,
-                IsAvailable = productDto.IsAvailable,
-                IsInMenu = productDto.IsInMenu,
-            };
-        }
-        private static Product ConvertToProduct(ProductDto productDto, string image, int id)
-        {
-            return new Product
-            {
-                Id = id,
-                Image = image,
-                Name = productDto.Name,
-                Description = productDto.Description,
-                Category = productDto.Category,
-                Price = productDto.Price,
-                IsAvailable = productDto.IsAvailable,
-                IsInMenu = productDto.IsInMenu,
-            };
-        }
 
         [HttpGet("{id}")]
         [Produces("application/json")]
@@ -66,6 +39,18 @@ namespace pizzeria_backend.Controllers
                 return NotFound("message: " + "Product not found");
             }
             return Ok(pr);
+        }
+
+        [HttpGet("menu")]
+        [Produces("application/json")]
+        public async Task<IActionResult> GetMenu()
+        {
+            var menu = await _productService.GetMenu();
+            if (menu == null)
+            {
+                return NotFound("message: " + "There are no items in the menu");
+            }
+            return Ok(menu);
         }
 
         [HttpDelete("{id}")]
@@ -101,6 +86,34 @@ namespace pizzeria_backend.Controllers
             }
 
             return Ok(pr);
+        }
+
+        private static Product ConvertToProduct(ProductDto productDto, string image)
+        {
+            return new Product
+            {
+                Image = image,
+                Name = productDto.Name,
+                Description = productDto.Description,
+                CategoryId = productDto.CategoryId,
+                Price = productDto.Price,
+                IsAvailable = productDto.IsAvailable,
+                IsInMenu = productDto.IsInMenu,
+            };
+        }
+        private static Product ConvertToProduct(ProductDto productDto, string image, int id)
+        {
+            return new Product
+            {
+                Id = id,
+                Image = image,
+                Name = productDto.Name,
+                Description = productDto.Description,
+                CategoryId = productDto.CategoryId,
+                Price = productDto.Price,
+                IsAvailable = productDto.IsAvailable,
+                IsInMenu = productDto.IsInMenu,
+            };
         }
     }
 }

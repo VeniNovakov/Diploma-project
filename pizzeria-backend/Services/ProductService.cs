@@ -1,4 +1,5 @@
-﻿using pizzeria_backend.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using pizzeria_backend.Models;
 namespace pizzeria_backend.Services
 {
     public interface IProductService
@@ -7,6 +8,7 @@ namespace pizzeria_backend.Services
         public Task<Product> GetProduct(int id);
         public Task<Product> UpdateProduct(Product product);
         public Task<Product> DeleteProduct(int id);
+        public Task<List<Product>> GetMenu();
     }
 
     public class ProductService : IProductService
@@ -23,15 +25,22 @@ namespace pizzeria_backend.Services
             await _context.Products.AddAsync(product);
             await _context.SaveChangesAsync();
 
-            return await _context.Products.FindAsync(product.Id);
+            return product;
 
         }
 
-        public async Task<Product> GetProduct(int id)
+        public async Task<Product> GetProduct(int Id)
         {
-            var product = await _context.Products.FindAsync(id);
+            var product = await _context.Products.Include(product => product.Category).Where(product => product.Id == Id).FirstAsync();
 
             return product;
+
+        }
+        public async Task<List<Product>> GetMenu()
+        {
+            var products = _context.Products.Include(product => product.Category).Where(product => product.IsInMenu).ToList();
+
+            return products;
 
         }
 
@@ -41,7 +50,7 @@ namespace pizzeria_backend.Services
 
             await _context.SaveChangesAsync();
 
-            return await _context.Products.FindAsync(product.Id);
+            return product;
 
 
         }
