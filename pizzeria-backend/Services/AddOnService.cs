@@ -50,12 +50,13 @@ namespace pizzeria_backend.Services
         public async Task<AddOn> DeleteAddOn(int Id)
         {
             var addOn = await _context.AddOns.FindAsync(Id);
-            if (addOn != null)
+            if (addOn == null)
             {
-                _context.AddOns.Remove(addOn);
-                await _context.SaveChangesAsync();
+                return null;
             }
 
+            _context.AddOns.Remove(addOn);
+            await _context.SaveChangesAsync();
             return addOn;
 
         }

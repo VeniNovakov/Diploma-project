@@ -24,22 +24,39 @@ namespace pizzeria_backend.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> GetAddOn(int Id)
         {
+            var addOn = await _addOnService.GetAddOn(Id);
+            if (addOn == null)
+            {
+                return BadRequest("Add on not found");
 
-            return Ok(await _addOnService.GetAddOn(Id));
+            }
+            return Ok(addOn);
         }
 
         [HttpPatch()]
         [Produces("application/json")]
-        public async Task<IActionResult> UpdateAddOn([FromBody] AddOn addOn)
+        public async Task<IActionResult> UpdateAddOn([FromBody] AddOn AddOn)
         {
-            return Ok(await _addOnService.UpdateAddOn(ConvertToAddOn(addOn)));
+            var addOn = await _addOnService.UpdateAddOn(ConvertToAddOn(AddOn));
+            if (addOn == null)
+            {
+                return BadRequest("Add on not found");
+
+            }
+
+            return Ok(addOn);
         }
 
         [HttpDelete("{Id}")]
         [Produces("application/json")]
         public async Task<IActionResult> DeleteAddOn(int Id)
         {
-            return Ok(await _addOnService.DeleteAddOn(Id));
+            var addOn = await _addOnService.DeleteAddOn(Id);
+            if (addOn == null)
+            {
+                return BadRequest("Add on not found");
+            }
+            return Ok(addOn);
         }
 
 
