@@ -27,7 +27,7 @@ namespace pizzeria_backend.Controllers
             var addOn = await _addOnService.GetAddOn(Id);
             if (addOn == null)
             {
-                return BadRequest("Add on not found");
+                return NotFound("Add on not found");
 
             }
             return Ok(addOn);
@@ -40,7 +40,7 @@ namespace pizzeria_backend.Controllers
             var addOn = await _addOnService.UpdateAddOn(ConvertToAddOn(AddOn));
             if (addOn == null)
             {
-                return BadRequest("Add on not found");
+                return NotFound("Add on not found");
 
             }
 
@@ -54,7 +54,7 @@ namespace pizzeria_backend.Controllers
             var addOn = await _addOnService.DeleteAddOn(Id);
             if (addOn == null)
             {
-                return BadRequest("Add on not found");
+                return NotFound("Add on not found");
             }
             return Ok(addOn);
         }
