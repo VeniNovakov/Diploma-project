@@ -17,12 +17,11 @@ namespace pizzeria_backend.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> AddProductAsync([FromForm] ProductDto? product)
         {
-            var imageLink = (await _azureBlobStorageService.UploadBlobAsync(product.Image.OpenReadStream(), product.Image.FileName)).ToString();
             if (product == null)
             {
-                return BadRequest("message: " + "No body provided");
+                return BadRequest("No body provided");
             }
-
+            var imageLink = (await _azureBlobStorageService.UploadBlobAsync(product.Image.OpenReadStream(), product.Image.FileName)).ToString();
             var pr = await _productService.AddProductAsync(ConvertToProduct(product, imageLink));
 
             return Ok(pr);
@@ -36,7 +35,7 @@ namespace pizzeria_backend.Controllers
             var pr = await _productService.GetProduct(id);
             if (pr == null)
             {
-                return NotFound("message: " + "Product not found");
+                return NotFound("Product not found");
             }
             return Ok(pr);
         }
@@ -48,7 +47,7 @@ namespace pizzeria_backend.Controllers
             var menu = await _productService.GetMenu();
             if (menu == null)
             {
-                return NotFound("message: " + "There are no items in the menu");
+                return NotFound("There are no items in the menu");
             }
             return Ok(menu);
         }
@@ -60,7 +59,7 @@ namespace pizzeria_backend.Controllers
             var pr = await _productService.DeleteProduct(id);
             if (pr == null)
             {
-                return NotFound("message: " + "Product not found");
+                return NotFound("Product not found");
             }
             return Ok(pr);
         }
@@ -70,20 +69,16 @@ namespace pizzeria_backend.Controllers
         public async Task<IActionResult> UpdateProduct(int id, [FromForm] ProductDto product)
         {
             var pr = await _productService.GetProduct(id);
-            if (pr != null)
+            if (pr == null)
             {
-                await _azureBlobStorageService.DeleteBlobAsync(pr.Image.Split("/").Last());
+                return NotFound("Product not found");
             }
 
 
+            await _azureBlobStorageService.DeleteBlobAsync(pr.Image.Split("/").Last());
             var image = (await _azureBlobStorageService.UploadBlobAsync(product.Image.OpenReadStream(), product.Image.FileName)).ToString();
             pr = ConvertToProduct(product, image, id);
             pr = await _productService.UpdateProduct(pr);
-
-            if (pr == null)
-            {
-                return NotFound("message: " + "Product not found");
-            }
 
             return Ok(pr);
         }

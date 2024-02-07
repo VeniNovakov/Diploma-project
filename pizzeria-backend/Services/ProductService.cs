@@ -31,14 +31,20 @@ namespace pizzeria_backend.Services
 
         public async Task<Product> GetProduct(int Id)
         {
-            var product = await _context.Products.Include(product => product.Category).Where(product => product.Id == Id).FirstAsync();
+            var product = await _context.Products
+                .Include(product => product.Category)
+                .Where(product => product.Id == Id)
+                .FirstAsync();
 
             return product;
 
         }
         public async Task<List<Product>> GetMenu()
         {
-            var products = _context.Products.Include(product => product.Category).Where(product => product.IsInMenu).ToList();
+            var products = _context.Products
+                .Include(product => product.Category)
+                .Where(product => product.IsInMenu)
+                .ToList();
 
             return products;
 
