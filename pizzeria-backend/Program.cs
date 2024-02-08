@@ -18,10 +18,14 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddNewtonsoftJson(options =>
+    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+
+
 builder.Services.AddScoped<IExampleService, Example>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IAzureBlobStorageService, AzureBlobStorageService>();
+builder.Services.AddScoped<IAddOnService, AddOnService>();
 builder.Services.AddSwaggerGen();
 builder.Services.AddEndpointsApiExplorer();
 

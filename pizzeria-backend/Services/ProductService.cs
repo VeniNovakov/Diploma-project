@@ -23,7 +23,7 @@ namespace pizzeria_backend.Services
             await _context.Products.AddAsync(product);
             await _context.SaveChangesAsync();
 
-            return await _context.Products.FindAsync(product.Id);
+            return product;
 
         }
 
@@ -41,7 +41,7 @@ namespace pizzeria_backend.Services
 
             await _context.SaveChangesAsync();
 
-            return await _context.Products.FindAsync(product.Id);
+            return product;
 
 
         }
