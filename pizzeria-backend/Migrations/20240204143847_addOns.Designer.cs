@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using pizzeria_backend;
 
@@ -10,9 +11,11 @@ using pizzeria_backend;
 namespace pizzeria_backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240204143847_addOns")]
+    partial class addOns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,7 +24,7 @@ namespace pizzeria_backend.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("pizzeria_backend.Models.Product", b =>
+            modelBuilder.Entity("pizzeria_backend.Models.AddOn", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -29,7 +32,39 @@ namespace pizzeria_backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Category")
+                    b.Property<int>("AmountInGrams")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("AddOns");
+                });
+
+            modelBuilder.Entity("pizzeria_backend.Models.AddOnsCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -68,8 +103,9 @@ namespace pizzeria_backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int");
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -93,7 +129,7 @@ namespace pizzeria_backend.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
-                    
+
                     b.ToTable("Products");
                 });
 
@@ -112,67 +148,6 @@ namespace pizzeria_backend.Migrations
                 {
                     b.Navigation("AddOns");
                 });
-
-            modelBuilder.Entity("pizzeria_backend.Models.ProductsCategory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ProductsCategories");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Pizza"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Burger"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Salad"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "Pasta"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Name = "Rice"
-                        });
-                });
-
-            modelBuilder.Entity("pizzeria_backend.Models.Product", b =>
-                {
-                    b.HasOne("pizzeria_backend.Models.ProductsCategory", "Category")
-                        .WithMany("Products")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Category");
-                });
-
-            modelBuilder.Entity("pizzeria_backend.Models.ProductsCategory", b =>
-                {
-                    b.Navigation("Products");
-                });
-
 #pragma warning restore 612, 618
         }
     }

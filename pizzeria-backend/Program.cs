@@ -23,6 +23,7 @@ builder.Services.AddControllers().AddNewtonsoftJson(options =>
 builder.Services.AddScoped<IExampleService, Example>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IAzureBlobStorageService, AzureBlobStorageService>();
+builder.Services.AddScoped<IAddOnService, AddOnService>();
 builder.Services.AddSwaggerGen();
 builder.Services.AddEndpointsApiExplorer();
 
