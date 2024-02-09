@@ -1,30 +1,35 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using pizzeria_backend.Models.Interfaces;
+using pizzeria_backend.Services;
 
 namespace pizzeria_backend.Controllers
 {
     [Route("api/orders/v1.0")]
     [ApiController]
-    public class OrderController : Controller
+    public class OrderController(IOrderService orderService) : Controller
     {
+        private readonly IOrderService _orderService = orderService;
 
 
         [HttpPost()]
-        public IActionResult PostOrder()
+        public async Task<ActionResult> Order([FromBody] OrderDto Order)
         {
-            return null;
+
+            return Ok(await _orderService.MakeOrder(Order));
         }
 
 
-        [HttpGet("{id}")]
-        public IActionResult GetOrder()
+        [HttpGet("{Id}")]
+        public async Task<IActionResult> GetOrder(int Id)
         {
-            return null;
+            return Ok(await _orderService.GetOrder(Id));
         }
 
-        [HttpGet("complete/{id}")]
-        public IActionResult CompleteOrder()
+        [HttpGet("complete/{Id}")]
+        public async Task<IActionResult> CompleteOrder(int Id)
         {
-            return null;
+            return Ok(await _orderService.ChangeOrderCompletion(Id));
         }
+
     }
 }
