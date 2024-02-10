@@ -9,6 +9,7 @@ namespace pizzeria_backend.Services
         public Task<Order> MakeOrder(OrderDto Order);
         public Task<Order> GetOrder(int Id);
         public Task<Order> ChangeOrderCompletion(int Id);
+        public Task<List<Order>> GetOrders(bool IsCompleted);
 
     }
     public class OrdersService : IOrderService
@@ -51,16 +52,20 @@ namespace pizzeria_backend.Services
             return dbOrder;
         }
 
-        public async Task<Order> GetOrder(int Id)
+        public Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<Order, ProductsCategory> GetOrderRelations()
         {
-            var order = await _context.Order
+            return _context.Order
                 .Include(order => order.OrderedProducts)
                 .ThenInclude(op => op.AddOns)
                 .ThenInclude(oa => oa.AddOn)
                 .ThenInclude(oa => oa.Category)
                 .Include(order => order.OrderedProducts)
                 .ThenInclude(op => op.Product)
-                .ThenInclude(pr => pr.Category)
+                .ThenInclude(pr => pr.Category);
+        }
+        public async Task<Order> GetOrder(int Id)
+        {
+            var order = await GetOrderRelations()
                 .Where(ord => ord.Id == Id).FirstAsync();
             return order;
         }
@@ -76,6 +81,13 @@ namespace pizzeria_backend.Services
 
             await _context.SaveChangesAsync();
 
+            return order;
+        }
+
+        public async Task<List<Order>> GetOrders(bool IsCompleted)
+        {
+            var order = await GetOrderRelations()
+                .Where(ord => ord.IsCompleted == IsCompleted).ToListAsync();
             return order;
         }
 

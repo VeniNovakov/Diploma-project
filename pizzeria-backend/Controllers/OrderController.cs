@@ -22,13 +22,37 @@ namespace pizzeria_backend.Controllers
         [HttpGet("{Id}")]
         public async Task<IActionResult> GetOrder(int Id)
         {
-            return Ok(await _orderService.GetOrder(Id));
+            var ord = await _orderService.GetOrder(Id);
+            if (ord == null)
+            {
+                return NotFound("Order not found");
+            }
+            return Ok(ord);
         }
 
-        [HttpGet("complete/{Id}")]
-        public async Task<IActionResult> CompleteOrder(int Id)
+        [HttpGet("change-status/{Id}")]
+        public async Task<IActionResult> ChangeCompletion(int Id)
         {
-            return Ok(await _orderService.ChangeOrderCompletion(Id));
+            var ord = await _orderService.ChangeOrderCompletion(Id);
+            if (ord == null)
+            {
+                return NotFound("Order not found");
+            }
+            return Ok(ord);
+
+        }
+
+        [HttpGet("completed/{IsCompleted}")]
+        [Produces("application/json")]
+        public async Task<IActionResult> GetOrders(bool IsCompleted)
+        {
+            var ord = await _orderService.GetOrders(IsCompleted);
+
+            if (ord == null)
+            {
+                return NotFound("Order not found");
+            }
+            return Ok(ord);
         }
 
     }
