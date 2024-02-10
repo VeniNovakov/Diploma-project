@@ -21,8 +21,16 @@ namespace pizzeria_backend.Services
             _context = context;
         }
 
+
+
         public async Task<Order> MakeOrder(OrderDto order)
         {
+
+            if (!(await ValidateOrder(order)))
+            {
+                return null;
+            }
+
             var dbOrder = new Order { WantedFor = order.WantedFor };
             _context.Order.Add(dbOrder);
 
@@ -91,30 +99,19 @@ namespace pizzeria_backend.Services
             return order;
         }
 
-        private OrderedAddOn ConvertToOrderedAddOns(OrderedAddOnsDto AddOn, int productId)
+        private async Task<bool> ValidateOrder(OrderDto order)
         {
-            return new OrderedAddOn
+
+            foreach (OrderedProductsDto op in order.Items)
             {
-                ProductId = productId,
-                AddOnId = AddOn.AddOnId,
-                Amount = AddOn.Amount,
-            };
-        }
-        private OrderedProduct ConvertToOrderedProduct(OrderedProductsDto product, int orderId)
-        {
-            return new OrderedProduct
-            {
-                OrderId = orderId,
-                ProductId = product.ProductId,
-                Amount = product.Amount,
-            };
-        }
-        private Order ConvertToOrder(OrderDto order)
-        {
-            return new Order
-            {
-                WantedFor = order.WantedFor,
-            };
+                var opp = await _context.Products.FindAsync(op.ProductId);
+                if (opp.IsInMenu == false || opp.IsAvailable == false)
+                {
+                    return false;
+                }
+            }
+            return true;
+
         }
     }
 }

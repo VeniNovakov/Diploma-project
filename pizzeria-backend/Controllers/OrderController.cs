@@ -15,7 +15,12 @@ namespace pizzeria_backend.Controllers
         public async Task<ActionResult> Order([FromBody] OrderDto Order)
         {
 
-            return Ok(await _orderService.MakeOrder(Order));
+            var ord = await _orderService.MakeOrder(Order);
+            if (ord == null)
+            {
+                return BadRequest("One or more of the items are not available or in the menu");
+            }
+            return Ok(ord);
         }
 
 
