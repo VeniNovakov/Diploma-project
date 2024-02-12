@@ -2,6 +2,7 @@
 using pizzeria_backend.Models.Interfaces;
 using pizzeria_backend.Services;
 using System.Web.Http;
+using AuthorizeAttribute = Microsoft.AspNetCore.Authorization.AuthorizeAttribute;
 using FromBodyAttribute = Microsoft.AspNetCore.Mvc.FromBodyAttribute;
 using HttpPostAttribute = Microsoft.AspNetCore.Mvc.HttpPostAttribute;
 
@@ -55,6 +56,16 @@ namespace pizzeria_backend.Controllers
                 return Unauthorized();
             }
             return Ok(tokens);
+
+
+        }
+
+        [Authorize(Policy = "Admin")]
+        [HttpPost("prot")]
+        public async Task<IActionResult> ProtectedEndpoint([FromBody] RefreshDto refresh)
+        {
+
+            return Ok("Oh so you are an admin, cool");
 
 
         }

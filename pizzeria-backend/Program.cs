@@ -46,6 +46,10 @@ builder.Services.AddAuthentication(options =>
         opt.Authority = Configuration["JWT:Issuer"];
     }
     );
+builder.Services.AddAuthorization(opt =>
+{
+    opt.AddPolicy("Admin", policy => policy.RequireClaim("IsAdmin", "True"));
+});
 
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
