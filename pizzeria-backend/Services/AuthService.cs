@@ -8,11 +8,10 @@ namespace pizzeria_backend.Services
 
     public interface IAuthService
     {
-        public (string refreshToken, string accessToken) Register(RegisterDto user);
-        public void Login();
-        public void Revoke();
-        public void Logout();
-        public string Refresh(string token);
+        public Task<RefreshDto> Register(RegisterDto user);
+        public Task<RefreshDto> Login(LoginDto loginInfo);
+        public Task<RefreshDto> Revoke(RefreshDto tokens);
+        public Task<RefreshDto> Refresh(RefreshDto tokens);
 
     }
     public class AuthService : IAuthService
@@ -26,11 +25,18 @@ namespace pizzeria_backend.Services
             _context = context;
             _tokenService = tokenService;
         }
-        public (string refreshToken, string accessToken) Register(RegisterDto user)
+        public async Task<RefreshDto> Register(RegisterDto user)
         {
+            /*  var IsUser = (await FindByEmail(user.Email));
+              if (user is not null)
+              {
+                  return null;
+              }
+            */
+
             if (user.Password != user.ConfirmPassword)
             {
-                return (" ", " ");
+                return null;
             }
 
             var refreshToken = _tokenService.GenerateRefreshToken();
@@ -46,29 +52,84 @@ namespace pizzeria_backend.Services
 
             var accessToken = _tokenService.GenerateJWTAccess(newUser);
 
-            return (refreshToken, accessToken);
+            return new RefreshDto
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken
+            };
 
 
         }
-        public void Login()
+        public async Task<RefreshDto> Login(LoginDto loginInfo)
         {
 
-        }
-        public string Refresh(string token)
-        {
-            var pr = _tokenService.GetPrincipalTokenExpiredToken(token).Identity as ClaimsIdentity;
+            var user = (await FindByEmail(loginInfo.Email));
 
-            Console.WriteLine(pr);
-            return " ";
-        }
-        public void Revoke()
-        {
+            if (BCrypt.Net.BCrypt.EnhancedVerify(loginInfo.Password, user.Password) is false)
+            {
+                return null;
+            }
+
+
+            //when table is added update refresh token
+
+            var accessToken = _tokenService.GenerateJWTAccess(user);
+            var refreshToken = _tokenService.GenerateRefreshToken();
+
+            return new RefreshDto
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken
+            };
 
         }
-        public void Logout()
+        public async Task<RefreshDto> Refresh(RefreshDto tokens)
         {
+            var pr = _tokenService.GetPrincipalTokenExpiredToken(tokens.AccessToken).Identity as ClaimsIdentity;
+            if (pr?.FindFirst("Email")?.Value is null)
+            {
+                return null;
+            }
+            /*
+            var user = (await FindByEmail(pr.FindFirst("Email")!.Value!));
+            if (user is not null)
+            {
+                return null;
+            }
+            //when table implemented add check if refresh token is the same as the refresh stored for the user
+            */
+
+            return null; //not permanent thing, code below is the thing its supposed to be
+
+            /*return new RefreshDto
+            {
+                AccessToken = _tokenService.GenerateJWTAccess(user),
+                RefreshToken = tokens.RefreshToken
+            };
+            */
+        }
+        public async Task<RefreshDto> Revoke(RefreshDto tokens)
+        {
+            var pr = _tokenService.GetPrincipalTokenExpiredToken(tokens.AccessToken).Identity as ClaimsIdentity;
+            if (pr?.FindFirst("Email")?.Value is null)
+            {
+                return null;
+            }
+            /*
+            var user = (await FindByEmail(pr.FindFirst("Email")!.Value!));
+            if (user is not null)
+            {
+                return null;
+            }
+            // if user.RefreshToken != tokens.refreshToken => null
+            user.RefreshToken = null;
+
+            //save
+            */
+            return null;
 
         }
+
         private async Task<User> FindByEmail(string Email)
         {
             return await _context.Users.Where(u => u.Email == Email).FirstOrDefaultAsync();

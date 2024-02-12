@@ -2,9 +2,7 @@
 using pizzeria_backend.Models.Interfaces;
 using pizzeria_backend.Services;
 using System.Web.Http;
-using AuthorizeAttribute = Microsoft.AspNetCore.Authorization.AuthorizeAttribute;
 using FromBodyAttribute = Microsoft.AspNetCore.Mvc.FromBodyAttribute;
-using HttpGetAttribute = Microsoft.AspNetCore.Mvc.HttpGetAttribute;
 using HttpPostAttribute = Microsoft.AspNetCore.Mvc.HttpPostAttribute;
 
 namespace pizzeria_backend.Controllers
@@ -16,31 +14,49 @@ namespace pizzeria_backend.Controllers
 
         private readonly IAuthService _authService = authService;
         [HttpPost("register")]
-        public IActionResult Register([FromBody] RegisterDto? user)
+        public async Task<IActionResult> Register([FromBody] RegisterDto? user)
         {
-            var obj = _authService.Register(user);
-
-            return Ok(obj);
+            RefreshDto tokens = await _authService.Register(user);
+            if (tokens is null)
+            {
+                return BadRequest("Email is already in use or passwords dont match");
+            }
+            return Ok(tokens);
         }
 
         [HttpPost("login")]
-        public IActionResult Login()
+        public async Task<IActionResult> Login([FromBody] LoginDto login)
         {
+            RefreshDto tokens = await _authService.Login(login);
+            if (tokens is null)
+            {
+                return BadRequest("Bad credentials");
+            }
             return Ok();
         }
 
         [HttpPost("refresh")]
-        public IActionResult Refresh([FromBody] RefreshDto refresh)
+        public async Task<IActionResult> Refresh([FromBody] RefreshDto refresh)
         {
-            _authService.Refresh(refresh.AccessToken);
-            return Ok();
+            RefreshDto tokens = await _authService.Refresh(refresh);
+            if (tokens is null)
+            {
+                return Unauthorized();
+            }
+            return Ok(tokens);
         }
 
-        [Authorize]
-        [HttpGet("protected")]
-        public IActionResult prot()
+        [HttpPost("revoke")]
+        public async Task<IActionResult> Revoke([FromBody] RefreshDto refresh)
         {
-            return Ok(HttpContext.User.Claims.ToList());
+            RefreshDto tokens = await _authService.Revoke(refresh);
+            if (tokens is null)
+            {
+                return Unauthorized();
+            }
+            return Ok(tokens);
+
+
         }
 
     }
