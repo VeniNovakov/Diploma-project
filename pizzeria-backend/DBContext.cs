@@ -16,6 +16,7 @@ namespace pizzeria_backend
         public DbSet<AddOn> AddOns { get; set; }
         public DbSet<AddOnsCategory> AddOnsCategory { get; set; }
 
+        public DbSet<User> Users { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -27,7 +28,7 @@ namespace pizzeria_backend
                 new ProductsCategory { Id = 3, Name = "Salad" },
                 new ProductsCategory { Id = 4, Name = "Pasta" },
                 new ProductsCategory { Id = 5, Name = "Rice" });
-                
+
             modelBuilder.Entity<ProductsCategory>().HasMany(cat => cat.Products).WithOne(pr => pr.Category);
 
             modelBuilder.Entity<AddOnsCategory>().HasData(
@@ -38,6 +39,8 @@ namespace pizzeria_backend
 
             modelBuilder.Entity<AddOnsCategory>().HasMany(cat => cat.AddOns).WithOne(addOn => addOn.Category).HasForeignKey(addon
                 => addon.CategoryId).IsRequired();
+
+
         }
 
     }
