@@ -26,7 +26,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme; ;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 }
     ).AddJwtBearer(opt =>
@@ -48,6 +48,7 @@ builder.Services.AddAuthentication(options =>
     );
 builder.Services.AddAuthorization(opt =>
 {
+    opt.AddPolicy("refreshToken", policy => policy.RequireClaim("randGuid"));
     opt.AddPolicy("Admin", policy => policy.RequireClaim("IsAdmin", "True"));
 });
 

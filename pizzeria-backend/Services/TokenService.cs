@@ -12,8 +12,9 @@ namespace pizzeria_backend.Services
     {
 
         public string GenerateJWTAccess(User user);
-        public string GenerateRefreshToken();
+        public string Generate64String();
         public ClaimsPrincipal GetPrincipalTokenExpiredToken(string token);
+        public string GenerateJwtRefreshToken(User user);
     }
     public class TokenService(IConfiguration config) : ITokenService
     {
@@ -34,7 +35,7 @@ namespace pizzeria_backend.Services
                 audience: _config["JWT:Audience"],
                 issuer: _config["JWT:Issuer"],
                 notBefore: DateTime.UtcNow,
-                expires: DateTime.UtcNow.AddMinutes(30),
+                expires: DateTime.UtcNow.AddMinutes(5),
                 signingCredentials: new SigningCredentials(
                     new SymmetricSecurityKey(
                        Encoding.UTF8.GetBytes(config["JWT:Key"]!)
@@ -44,12 +45,37 @@ namespace pizzeria_backend.Services
             var accToken = new JwtSecurityTokenHandler().WriteToken(JwtAcc);
             return accToken;
         }
-        public string GenerateRefreshToken()
+        public string Generate64String()
         {
             var refresh = new byte[64];
             using var generator = RandomNumberGenerator.Create();
             generator.GetBytes(refresh);
             return Convert.ToBase64String(refresh);
+
+        }
+
+
+        public string GenerateJwtRefreshToken(User user)
+        {
+            var claims = new List<Claim> {
+                new Claim("Id", user.Id.ToString()),
+                new Claim("randGuid", this.Generate64String())
+            };
+
+            var JwtAcc = new JwtSecurityToken(
+                claims: claims,
+                audience: _config["JWT:Audience"],
+                issuer: _config["JWT:Issuer"],
+                notBefore: DateTime.UtcNow,
+                expires: DateTime.UtcNow.AddDays(30),
+                signingCredentials: new SigningCredentials(
+                    new SymmetricSecurityKey(
+                       Encoding.UTF8.GetBytes(config["JWT:Key"]!)
+                        ),
+                    SecurityAlgorithms.HmacSha256Signature)
+                );
+            var refreshToken = new JwtSecurityTokenHandler().WriteToken(JwtAcc);
+            return refreshToken;
 
         }
         public ClaimsPrincipal GetPrincipalTokenExpiredToken(string token)

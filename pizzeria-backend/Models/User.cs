@@ -10,13 +10,6 @@ namespace pizzeria_backend.Models
         public string Password { get; set; }
         public bool IsAdmin { get; set; }
         public string RefreshToken { get; set; }
-        public DateTime RefreshTokenExpiry { get; set; }
-
-
-        public void a()
-        {
-
-        }
 
     }
 }

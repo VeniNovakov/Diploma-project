@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using pizzeria_backend.Models.Interfaces;
 using pizzeria_backend.Services;
+using System.Security.Claims;
+using System.Security.Principal;
 using System.Web.Http;
-using AuthorizeAttribute = Microsoft.AspNetCore.Authorization.AuthorizeAttribute;
-using FromBodyAttribute = Microsoft.AspNetCore.Mvc.FromBodyAttribute;
-using HttpPostAttribute = Microsoft.AspNetCore.Mvc.HttpPostAttribute;
+using Authorize = Microsoft.AspNetCore.Authorization.AuthorizeAttribute;
+using FromBody = Microsoft.AspNetCore.Mvc.FromBodyAttribute;
+using HttpPost = Microsoft.AspNetCore.Mvc.HttpPostAttribute;
 
 namespace pizzeria_backend.Controllers
 {
@@ -20,7 +22,7 @@ namespace pizzeria_backend.Controllers
             RefreshDto tokens = await _authService.Register(user);
             if (tokens is null)
             {
-                return BadRequest("Email is already in use or passwords dont match");
+                return BadRequest("Email is already in use or passwords don't match");
             }
             return Ok(tokens);
         }
@@ -37,9 +39,13 @@ namespace pizzeria_backend.Controllers
         }
 
         [HttpPost("refresh")]
-        public async Task<IActionResult> Refresh([FromBody] RefreshDto refresh)
+        [@Authorize(Policy = "refreshToken")]
+        public async Task<IActionResult> Refresh()
         {
-            RefreshDto tokens = await _authService.Refresh(refresh);
+
+            var refreshObj = DecodeRefreshToken(HttpContext.User.Identity);
+
+            RefreshDto tokens = await _authService.Refresh(refreshObj);
             if (tokens is null)
             {
                 return Unauthorized();
@@ -48,9 +54,12 @@ namespace pizzeria_backend.Controllers
         }
 
         [HttpPost("revoke")]
-        public async Task<IActionResult> Revoke([FromBody] RefreshDto refresh)
+        [@Authorize(Policy = "refreshToken")]
+        public async Task<IActionResult> Revoke()
         {
-            RefreshDto tokens = await _authService.Revoke(refresh);
+            var refreshObj = DecodeRefreshToken(HttpContext.User.Identity);
+
+            RefreshDto tokens = await _authService.Revoke(refreshObj);
             if (tokens is null)
             {
                 return Unauthorized();
@@ -60,7 +69,7 @@ namespace pizzeria_backend.Controllers
 
         }
 
-        [Authorize(Policy = "Admin")]
+        [@Authorize(Policy = "Admin")]
         [HttpPost("prot")]
         public async Task<IActionResult> ProtectedEndpoint([FromBody] RefreshDto refresh)
         {
@@ -68,6 +77,21 @@ namespace pizzeria_backend.Controllers
             return Ok("Oh so you are an admin, cool");
 
 
+        }
+
+        private JWTRefreshDto DecodeRefreshToken(IIdentity identity)
+        {
+            var claimsRepo = identity as ClaimsIdentity;
+            if (claimsRepo.FindFirst("Id") == null)
+            {
+                return null;
+            }
+            var refreshObj = new JWTRefreshDto
+            {
+                Id = Int32.Parse(claimsRepo.FindFirst("Id").Value),
+                randGuid = claimsRepo.FindFirst("randGuid").Value
+            };
+            return refreshObj;
         }
 
     }

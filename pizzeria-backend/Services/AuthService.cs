@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using pizzeria_backend.Models;
 using pizzeria_backend.Models.Interfaces;
-using System.Security.Claims;
 
 namespace pizzeria_backend.Services
 {
@@ -10,8 +9,8 @@ namespace pizzeria_backend.Services
     {
         public Task<RefreshDto> Register(RegisterDto user);
         public Task<RefreshDto> Login(LoginDto loginInfo);
-        public Task<RefreshDto> Revoke(RefreshDto tokens);
-        public Task<RefreshDto> Refresh(RefreshDto tokens);
+        public Task<RefreshDto> Revoke(JWTRefreshDto tokens);
+        public Task<RefreshDto> Refresh(JWTRefreshDto jwtObj);
 
     }
     public class AuthService : IAuthService
@@ -27,7 +26,7 @@ namespace pizzeria_backend.Services
         }
         public async Task<RefreshDto> Register(RegisterDto user)
         {
-            /*  var IsUser = (await FindByEmail(user.Email));
+            /*var IsUser = (await FindByEmail(user.Email));
               if (user is not null)
               {
                   return null;
@@ -39,16 +38,15 @@ namespace pizzeria_backend.Services
                 return null;
             }
 
-            var refreshToken = _tokenService.GenerateRefreshToken();
             var newUser = new User
             {
                 Name = user.Name,
                 Email = user.Email,
                 Password = BCrypt.Net.BCrypt.EnhancedHashPassword(user.Password),
-                RefreshToken = refreshToken,
-                RefreshTokenExpiry = DateTime.UtcNow.AddDays(30),
                 IsAdmin = false
             };
+            var refreshToken = _tokenService.GenerateJwtRefreshToken(newUser);
+            newUser.RefreshToken = refreshToken;
 
             var accessToken = _tokenService.GenerateJWTAccess(newUser);
 
@@ -74,7 +72,7 @@ namespace pizzeria_backend.Services
             //when table is added update refresh token
 
             var accessToken = _tokenService.GenerateJWTAccess(user);
-            var refreshToken = _tokenService.GenerateRefreshToken();
+            var refreshToken = _tokenService.GenerateJwtRefreshToken(user);
 
             return new RefreshDto
             {
@@ -83,15 +81,12 @@ namespace pizzeria_backend.Services
             };
 
         }
-        public async Task<RefreshDto> Refresh(RefreshDto tokens)
+        public async Task<RefreshDto> Refresh(JWTRefreshDto jwtObj)
         {
-            var pr = _tokenService.GetPrincipalTokenExpiredToken(tokens.AccessToken).Identity as ClaimsIdentity;
-            if (pr?.FindFirst("Email")?.Value is null)
-            {
-                return null;
-            }
+            //var pr = _tokenService.GetPrincipalTokenExpiredToken(tokens.AccessToken).Identity as ClaimsIdentity;
+
             /*
-            var user = (await FindByEmail(pr.FindFirst("Email")!.Value!));
+            var user = (await FindById(jwtObj.Id);
             if (user is not null)
             {
                 return null;
@@ -108,19 +103,17 @@ namespace pizzeria_backend.Services
             };
             */
         }
-        public async Task<RefreshDto> Revoke(RefreshDto tokens)
+        public async Task<RefreshDto> Revoke(JWTRefreshDto jwtObj)
         {
-            var pr = _tokenService.GetPrincipalTokenExpiredToken(tokens.AccessToken).Identity as ClaimsIdentity;
-            if (pr?.FindFirst("Email")?.Value is null)
-            {
-                return null;
-            }
-            /*
-            var user = (await FindByEmail(pr.FindFirst("Email")!.Value!));
+
+
+            var user = (await FindById(jwtObj.Id));
+
             if (user is not null)
             {
                 return null;
             }
+            /*
             // if user.RefreshToken != tokens.refreshToken => null
             user.RefreshToken = null;
 
@@ -133,6 +126,12 @@ namespace pizzeria_backend.Services
         private async Task<User> FindByEmail(string Email)
         {
             return await _context.Users.Where(u => u.Email == Email).FirstOrDefaultAsync();
+        }
+
+        private async Task<User> FindById(int Id)
+        {
+            return await _context.Users.Where(u => u.Id == Id).FirstOrDefaultAsync();
+
         }
 
     }

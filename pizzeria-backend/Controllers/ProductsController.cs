@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using pizzeria_backend.Models;
 using pizzeria_backend.Models.Interfaces;
 using pizzeria_backend.Services;
@@ -14,6 +15,7 @@ namespace pizzeria_backend.Controllers
 
 
         [HttpPost()]
+        [Authorize]
         [Produces("application/json")]
         public async Task<IActionResult> AddProductAsync([FromForm] ProductDto? product)
         {
@@ -53,6 +55,7 @@ namespace pizzeria_backend.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         [Produces("application/json")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
@@ -65,6 +68,7 @@ namespace pizzeria_backend.Controllers
         }
 
         [HttpPatch("{id}")]
+        [Authorize]
         [Produces("application/json")]
         public async Task<IActionResult> UpdateProduct(int id, [FromForm] ProductDto product)
         {
