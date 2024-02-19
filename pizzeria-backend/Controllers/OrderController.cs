@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using pizzeria_backend.Hubs;
 using pizzeria_backend.Models.Interfaces;
 using pizzeria_backend.Services;
 
@@ -6,10 +7,16 @@ namespace pizzeria_backend.Controllers
 {
     [Route("api/orders/v1.0")]
     [ApiController]
-    public class OrderController(IOrderService orderService) : Controller
+    public class OrderController : Controller
     {
-        private readonly IOrderService _orderService = orderService;
+        private readonly IOrderService _orderService;
+        private readonly IOrderHub _hubContext;
 
+        public OrderController(IOrderService orderService, IOrderHub hubContext)
+        {
+            _orderService = orderService;
+            _hubContext = hubContext;
+        }
 
         [HttpPost()]
         public async Task<ActionResult> Order([FromBody] OrderDto Order)
@@ -20,6 +27,8 @@ namespace pizzeria_backend.Controllers
             {
                 return BadRequest("One or more of the items are not available or in the menu");
             }
+            var orders = await _orderService.GetOrders();
+            await _hubContext.UpdateOrders(orders);
             return Ok(ord);
         }
 
@@ -32,6 +41,7 @@ namespace pizzeria_backend.Controllers
             {
                 return NotFound("Order not found");
             }
+
             return Ok(ord);
         }
 
@@ -43,21 +53,27 @@ namespace pizzeria_backend.Controllers
             {
                 return NotFound("Order not found");
             }
+            var orders = await _orderService.GetOrders();
+            await _hubContext.UpdateOrders(orders);
+
             return Ok(ord);
 
         }
 
-        [HttpGet("completed/{IsCompleted}")]
+        [HttpGet()]
         [Produces("application/json")]
-        public async Task<IActionResult> GetOrders(bool IsCompleted)
+        public async Task<IActionResult> GetOrders()
         {
-            var ord = await _orderService.GetOrders(IsCompleted);
+            var orders = await _orderService.GetOrders();
 
-            if (ord == null)
+            if (orders == null)
             {
                 return NotFound("Order not found");
             }
-            return Ok(ord);
+
+            await _hubContext.UpdateOrders(orders);
+
+            return Ok(orders);
         }
 
     }

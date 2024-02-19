@@ -9,7 +9,7 @@ namespace pizzeria_backend.Services
         public Task<Order> MakeOrder(OrderDto Order);
         public Task<Order> GetOrder(int Id);
         public Task<Order> ChangeOrderCompletion(int Id);
-        public Task<List<Order>> GetOrders(bool IsCompleted);
+        public Task<List<Order>> GetOrders();
 
     }
     public class OrdersService : IOrderService
@@ -92,10 +92,9 @@ namespace pizzeria_backend.Services
             return order;
         }
 
-        public async Task<List<Order>> GetOrders(bool IsCompleted)
+        public async Task<List<Order>> GetOrders()
         {
-            var order = await GetOrderRelations()
-                .Where(ord => ord.IsCompleted == IsCompleted).ToListAsync();
+            var order = await GetOrderRelations().ToListAsync();
             return order;
         }
 

@@ -12,6 +12,7 @@
 	<PackageReference Include="Azure.Identity" Version="1.10.4" />
 	<PackageReference Include="Azure.Storage.Blobs" Version="12.19.1" />
 	<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.1" />
+	<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.2" />
 	<PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="8.0.1" />
 	<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.1">
 	  <PrivateAssets>all</PrivateAssets>
@@ -24,6 +25,7 @@
 	<PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="6.5.0" />
 	<PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.5.0" />
 	<PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.5.0" />
+	<FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
 	<Target Name="NpmInstall" Inputs="package.json" Outputs="../pizzeria-frontend/node_modules/.install-stamp">

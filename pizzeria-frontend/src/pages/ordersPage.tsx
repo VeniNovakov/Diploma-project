@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import ordersJson from "../json/orders.json";
 import { Order } from "../utilities/types";
+import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
 
 const OrderDetails: React.FC<{
   selectedOrder: Order | null;
@@ -18,15 +19,12 @@ const OrderDetails: React.FC<{
 
   return (
     <div className="mb-8 p-4 border rounded shadow">
-      <h2 className="text-lg font-semibold mb-2">Order #{selectedOrder.id}</h2>
-      <p>Wanted for: {selectedOrder.wanted_for}</p>
-      <p>
-        Customer: {selectedOrder.customer.name} - Phone:{" "}
-        {selectedOrder.customer.phone}
-      </p>
+      <h2 className="text-lg font-semibold mb-2">Order #{selectedOrder.Id}</h2>
+      <p>Wanted for: {selectedOrder.wantedFor}</p>
+
       <div className="mt-4">
         <h3 className="text-md font-semibold mb-2">Items</h3>
-        {selectedOrder.items.map((item) => {
+        {selectedOrder.orderedProducts.map((item) => {
           const itemTotal = item.product.price * item.amount;
           total += itemTotal;
 
@@ -38,12 +36,12 @@ const OrderDetails: React.FC<{
               {item.addOns?.length && (
                 <ul className="list-disc pl-4">
                   {item.addOns.map((addOn) => {
-                    const addOnTotal = addOn.price * addOn.amount;
+                    const addOnTotal = addOn.addOn.price * addOn.amount;
                     total += addOnTotal;
 
                     return (
                       <li key={addOn.id}>
-                        {addOn.amount}x {addOn.name} - ${addOnTotal.toFixed(2)}
+                        {addOn.amount}x {addOn.addOn.name} - ${addOnTotal.toFixed(2)}
                       </li>
                     );
                   })}
@@ -65,17 +63,68 @@ const OrderDetails: React.FC<{
 };
 
 const OrdersPage: React.FC = () => {
-  const [orders, setOrders] = useState<Order[]>(ordersJson.orders as Order[]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [connectionRef, setConnection] = useState < HubConnection > ();
 
+  function createHubConnection() {
+    const con = new HubConnectionBuilder()
+      .withUrl("https://localhost:7010/ws")
+      .withAutomaticReconnect()
+      .build();
+    setConnection(con);
+
+  }
   const ref = useRef(false);
+  useEffect(()=>{
+    createHubConnection();
+  }, [])
   useEffect(() => {
-    if (!ref.current) setOrders(ordersJson.orders as Order[]);
+    if (!ref.current) {
+      fetch('https://localhost:7010/api/orders/v1.0', {
+        headers:{
+          "Accepts":"application/json"
+        }, 
+        mode:"cors"
+      }
+        )
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log(data[0]);
+          setOrders(data as Order[]);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+    }
     ref.current = true;
-  }, []);
+
+    if (connectionRef) {
+      try {
+        connectionRef
+          .start()
+          .then(() => {
+            connectionRef.on('GetOrders', (data) => {
+              setOrders(data as Order[]);
+            });
+          })
+          .catch((err) => {
+            console.log(`Error: ${err}`);
+          });
+      } catch (error) {
+        console.log(error as Error);
+      }
+    }
+  }, [connectionRef]);
 
   const handleOrderClick = (order: Order) => {
     setSelectedOrder(order);
+    console.log(orders)
   };
 
   const handleCompleteOrder = () => {
@@ -87,21 +136,21 @@ const OrdersPage: React.FC = () => {
       <div className="w-1/3 pr-4">
         <h1 className="text-2xl font-bold mb-4">Orders</h1>
         <div>
-          {orders.map((order) => (
-            <div
-              key={order.id}
+        {Array.isArray(orders) && orders.length > 0 ? (
+    orders.map((order) => ( 
+      <div
+              key={order.Id}
               className={`mb-8 p-4 border rounded cursor-pointer ${
                 selectedOrder === order ? "bg-blue-200" : ""
               }`}
               onClick={() => handleOrderClick(order)}
             >
-              <h2 className="text-lg font-semibold mb-2">Order #{order.id}</h2>
-              <p>Wanted for: {order.wanted_for}</p>
-              <p>
-                Customer: {order.customer.name} - Phone: {order.customer.phone}
-              </p>
+              <h2 className="text-lg font-semibold mb-2">Order #{order.Id}</h2>
+              <p>Wanted for: {order.wantedFor}</p>
             </div>
-          ))}
+          ))): (
+            <p>No orders available</p>
+          )}
         </div>
       </div>
       <div className="flex-grow p-4">

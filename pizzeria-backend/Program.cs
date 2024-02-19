@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using pizzeria_backend;
+using pizzeria_backend.Hubs;
 using pizzeria_backend.Services;
-
 var builder = WebApplication.CreateBuilder(args);
 
 var Configuration = builder.Configuration;
@@ -10,13 +10,11 @@ var configuration = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .Build();
-builder.Services.AddSingleton<IConfiguration>(configuration);
 
+builder.Services.AddSingleton<IConfiguration>(configuration);
 
 builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-
-// Add services to the container.
 
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
@@ -25,13 +23,22 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IAzureBlobStorageService, AzureBlobStorageService>();
 builder.Services.AddScoped<IAddOnService, AddOnService>();
 builder.Services.AddScoped<IOrderService, OrdersService>();
+builder.Services.AddScoped<IOrderHub, OrderHubService>();
+
+builder.Services.AddSignalR();
 builder.Services.AddSwaggerGen();
 builder.Services.AddEndpointsApiExplorer();
-
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: "lmao",
+                     policy =>
+                     {
+                         policy.AllowAnyHeader()
+                               .AllowAnyMethod()
+                               .AllowAnyOrigin();
+                     });
+});
 var app = builder.Build();
-app.UseWebSockets();
-
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -41,6 +48,7 @@ if (!app.Environment.IsDevelopment())
 }
 app.UseSwagger();
 app.UseSwaggerUI();
+app.UseCors("lmao");
 
 app.UseHttpsRedirection();
 
@@ -50,12 +58,12 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
-
 app.MapSwagger();
 app.MapControllerRoute(
     name: "default",
     pattern: "/{controller=Home}/{action=Index}/{id?}");
 
+app.MapHub<OrderHub>("/ws");
 
 app.MapFallbackToFile("index.html");
 
