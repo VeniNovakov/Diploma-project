@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using pizzeria_backend.Hubs;
 using pizzeria_backend.Models.Interfaces;
 using pizzeria_backend.Services;
@@ -10,9 +13,9 @@ namespace pizzeria_backend.Controllers
     public class OrderController : Controller
     {
         private readonly IOrderService _orderService;
-        private readonly IOrderHub _hubContext;
+        private readonly IHubContext<OrderHub> _hubContext;
 
-        public OrderController(IOrderService orderService, IOrderHub hubContext)
+        public OrderController(IOrderService orderService, IHubContext<OrderHub> hubContext)
         {
             _orderService = orderService;
             _hubContext = hubContext;
@@ -23,12 +26,20 @@ namespace pizzeria_backend.Controllers
         {
 
             var ord = await _orderService.MakeOrder(Order);
+
             if (ord == null)
             {
                 return BadRequest("One or more of the items are not available or in the menu");
             }
-            var orders = await _orderService.GetOrders();
-            await _hubContext.UpdateOrders(orders);
+
+            string orderString = JsonConvert.SerializeObject(ord, new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                Formatting = Formatting.Indented,
+                ContractResolver = new DefaultContractResolver { NamingStrategy = new CamelCaseNamingStrategy() }
+            });
+
+            await _hubContext.Clients.All.SendAsync("NewOrder", orderString);
             return Ok(ord);
         }
 
@@ -49,29 +60,34 @@ namespace pizzeria_backend.Controllers
         public async Task<IActionResult> ChangeCompletion(int Id)
         {
             var ord = await _orderService.ChangeOrderCompletion(Id);
+
             if (ord == null)
             {
                 return NotFound("Order not found");
             }
-            var orders = await _orderService.GetOrders();
-            await _hubContext.UpdateOrders(orders);
+
+            string orderString = JsonConvert.SerializeObject(ord, new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                Formatting = Formatting.Indented,
+                ContractResolver = new DefaultContractResolver { NamingStrategy = new CamelCaseNamingStrategy() }
+            });
+
+            await _hubContext.Clients.All.SendAsync("UpdateOrder", orderString);
 
             return Ok(ord);
-
         }
 
         [HttpGet()]
         [Produces("application/json")]
         public async Task<IActionResult> GetOrders()
         {
-            var orders = await _orderService.GetOrders();
 
+            var orders = await _orderService.GetOrders();
             if (orders == null)
             {
                 return NotFound("Order not found");
             }
-
-            await _hubContext.UpdateOrders(orders);
 
             return Ok(orders);
         }

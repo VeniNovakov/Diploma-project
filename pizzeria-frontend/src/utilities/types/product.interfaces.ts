@@ -39,16 +39,18 @@ export interface AddOnBasketType extends AddOnType {
 
 }
 export interface Order {
-  Id: number;
+  id: number;
+
   wantedFor: string;
   orderedProducts: BasketItem[];
+  isCompleted: boolean;
 }
 interface Category{
   id: number;
   name: string;
 }
 export interface BasketItem {
-  id: number;
+  Id: number;
   productId:number;
   addOns?: AddOnBasketType[];
   product: ProductType;

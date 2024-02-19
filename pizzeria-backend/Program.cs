@@ -18,12 +18,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+
 builder.Services.AddScoped<IExampleService, Example>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IAzureBlobStorageService, AzureBlobStorageService>();
 builder.Services.AddScoped<IAddOnService, AddOnService>();
 builder.Services.AddScoped<IOrderService, OrdersService>();
-builder.Services.AddScoped<IOrderHub, OrderHubService>();
+builder.Services.AddSingleton<IOrderHub, OrderHubService>();
 
 builder.Services.AddSignalR();
 builder.Services.AddSwaggerGen();

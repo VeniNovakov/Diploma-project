@@ -19,7 +19,7 @@ const OrderDetails: React.FC<{
 
   return (
     <div className="mb-8 p-4 border rounded shadow">
-      <h2 className="text-lg font-semibold mb-2">Order #{selectedOrder.Id}</h2>
+      <h2 className="text-lg font-semibold mb-2">Order #{selectedOrder.id}</h2>
       <p>Wanted for: {selectedOrder.wantedFor}</p>
 
       <div className="mt-4">
@@ -29,7 +29,7 @@ const OrderDetails: React.FC<{
           total += itemTotal;
 
           return (
-            <div key={item.id} className="mb-2">
+            <div key={item.Id} className="mb-2">
               <p>
                 {item.amount}x {item.product.name} - {itemTotal}
               </p>
@@ -66,10 +66,11 @@ const OrdersPage: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [connectionRef, setConnection] = useState < HubConnection > ();
+  const [showCompleted, setShowCompleted] = useState<boolean>(false);
 
   function createHubConnection() {
     const con = new HubConnectionBuilder()
-      .withUrl("https://localhost:7010/ws")
+      .withUrl(window.location.origin+"ws")
       .withAutomaticReconnect()
       .build();
     setConnection(con);
@@ -78,10 +79,8 @@ const OrdersPage: React.FC = () => {
   const ref = useRef(false);
   useEffect(()=>{
     createHubConnection();
-  }, [])
-  useEffect(() => {
     if (!ref.current) {
-      fetch('https://localhost:7010/api/orders/v1.0', {
+      fetch(window.location.origin+"/api/orders/v1.0", {
         headers:{
           "Accepts":"application/json"
         }, 
@@ -104,13 +103,33 @@ const OrdersPage: React.FC = () => {
     }
     ref.current = true;
 
+  }, [])
+
+  useEffect(() => {
     if (connectionRef) {
       try {
         connectionRef
           .start()
           .then(() => {
-            connectionRef.on('GetOrders', (data) => {
-              setOrders(data as Order[]);
+            connectionRef.on("NewOrder", (data) => {
+              const newOrder = JSON.parse(data) as Order;
+              console.log(orders);
+              console.log(newOrder)
+              setOrders(prevOrders => [...prevOrders, newOrder]); // Append the new order to the existing orders
+            });
+
+            connectionRef.on('UpdateOrder', (data) => {
+              const updatedOrder = JSON.parse(data) as Order;
+  
+              setOrders(prevOrders => {
+                const updatedOrders = prevOrders.map(ord => {
+                  if (ord.id === updatedOrder.id) {
+                    return { ...ord, isCompleted: updatedOrder.isCompleted };
+                  }
+                  return ord;
+                });
+                return updatedOrders; 
+              });
             });
           })
           .catch((err) => {
@@ -124,11 +143,20 @@ const OrdersPage: React.FC = () => {
 
   const handleOrderClick = (order: Order) => {
     setSelectedOrder(order);
-    console.log(orders)
   };
 
   const handleCompleteOrder = () => {
+
+    fetch(window.location.origin+"/api/orders/v1.0/change-status/"+selectedOrder?.id, {method:"GET"})
     setSelectedOrder(null);
+  };
+  const filteredOrders = showCompleted
+    ? orders.filter(order => order.isCompleted)
+    : orders.filter(order => !order.isCompleted);
+
+  const handleToggle = () => {
+    setShowCompleted(prev => !prev);
+    setSelectedOrder(null); // Clear selected order when toggling
   };
 
   return (
@@ -136,20 +164,24 @@ const OrdersPage: React.FC = () => {
       <div className="w-1/3 pr-4">
         <h1 className="text-2xl font-bold mb-4">Orders</h1>
         <div>
-        {Array.isArray(orders) && orders.length > 0 ? (
-    orders.map((order) => ( 
-      <div
-              key={order.Id}
-              className={`mb-8 p-4 border rounded cursor-pointer ${
-                selectedOrder === order ? "bg-blue-200" : ""
-              }`}
-              onClick={() => handleOrderClick(order)}
-            >
-              <h2 className="text-lg font-semibold mb-2">Order #{order.Id}</h2>
-              <p>Wanted for: {order.wantedFor}</p>
-            </div>
-          ))): (
-            <p>No orders available</p>
+          <button className="mb-2" onClick={handleToggle}>
+            {showCompleted ? 'Completed Orders' : 'Pending Orders'}
+          </button>
+          {filteredOrders.length > 0 ? (
+            filteredOrders.map((order) => (
+              <div
+                key={order.id}
+                className={`mb-8 p-4 border rounded cursor-pointer ${
+                  selectedOrder === order ? "bg-blue-200" : ""
+                }`}
+                onClick={() => handleOrderClick(order)}
+              >
+                <h2 className="text-lg font-semibold mb-2">Order #{order.id}</h2>
+                <p>Wanted for: {order.wantedFor}</p>
+              </div>
+            ))
+          ) : (
+            <p>No {showCompleted ? 'completed' : 'pending'} orders</p>
           )}
         </div>
       </div>
@@ -162,5 +194,4 @@ const OrdersPage: React.FC = () => {
     </div>
   );
 };
-
 export default OrdersPage;
