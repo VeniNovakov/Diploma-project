@@ -55,6 +55,7 @@ namespace pizzeria_backend.Controllers
 
             return Ok(ord);
         }
+
         [HttpDelete("{Id}")]
         public async Task<IActionResult> DeleteOrder(int Id)
         {
@@ -72,6 +73,7 @@ namespace pizzeria_backend.Controllers
             await _hubContext.Clients.All.SendAsync("DeleteOrder", orderString);
             return Ok(orderString);
         }
+
 
         [HttpGet("change-status/{Id}")]
         public async Task<IActionResult> ChangeCompletion(int Id)

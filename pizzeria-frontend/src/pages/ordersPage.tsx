@@ -17,6 +17,10 @@ const OrderDetails: React.FC<{
 
   let total = 0;
 
+  const deleteOrder = () =>{
+    console.log(selectedOrder.id);
+    fetch(window.location.origin+"/api/orders/v1.0/"+ selectedOrder.id, {method:"DELETE"}).then(data => data.json()).then(d => console.log(d));
+  }
   return (
     <div className="mb-8 p-4 border rounded shadow">
       <h2 className="text-lg font-semibold mb-2">Order #{selectedOrder.id}</h2>
@@ -58,6 +62,9 @@ const OrderDetails: React.FC<{
       >
         Complete
       </button>
+      {selectedOrder.isCompleted && <button 
+       className="bg-gray-300 hover:bg-gray-500 text-black px-4 py-2 rounded mt-4"
+      onClick={()=>deleteOrder()}>Remove</button>}
     </div>
   );
 };
