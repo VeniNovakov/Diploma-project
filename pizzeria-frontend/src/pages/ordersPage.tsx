@@ -6,7 +6,8 @@ import toast, { Toaster } from 'react-hot-toast';
 const OrderDetails: React.FC<{
   selectedOrder: Order | null;
   onCompleteOrder: () => void;
-}> = ({ selectedOrder, onCompleteOrder }) => {
+  setSelectedOrder: (order: Order | null) => void;
+}> = ({ selectedOrder, onCompleteOrder, setSelectedOrder }) => {
   if (!selectedOrder) {
     return (
       <p className="text-center text-gray-500">
@@ -18,13 +19,17 @@ const OrderDetails: React.FC<{
   let total = 0;
 
   const deleteOrder = () =>{
-    console.log(selectedOrder.id);
-    fetch(window.location.origin+"/api/orders/v1.0/"+ selectedOrder.id, {method:"DELETE"}).then(data => data.json()).then(d => console.log(d));
+    fetch(window.location.origin+"/api/orders/v1.0/"+ selectedOrder.id, {method:"DELETE"})
+    .then(data => data.json())
+    .then(d =>{ console.log(d); setSelectedOrder(null)});
   }
   return (
-    <div className="mb-8 p-4 border rounded shadow">
+    <div className="mb-8 p-8 border rounded shadow fixed w-2/3">
       <h2 className="text-lg font-semibold mb-2">Order #{selectedOrder.id}</h2>
-      <p>Wanted for: {selectedOrder.wantedFor}</p>
+      <p>Wanted for: {
+              new Date(
+                  Date.parse(selectedOrder.wantedFor)
+                ).toString()}</p>
 
       <div className="mt-4">
         <h3 className="text-md font-semibold mb-2">Items</h3>
@@ -40,7 +45,7 @@ const OrderDetails: React.FC<{
               {item.addOns?.length && (
                 <ul className="list-disc pl-4">
                   {item.addOns.map((addOn) => {
-                    const addOnTotal = addOn.addOn.price * addOn.amount;
+                    const addOnTotal = addOn.addOn.price * addOn.amount * item.amount;
                     total += addOnTotal;
 
                     return (
@@ -125,7 +130,7 @@ const OrdersPage: React.FC = () => {
               const infoString = "New order #"+ newOrder.id + " came";
               toast(infoString,
                 {
-                  duration:4000,
+                  duration:3000,
                   position:"top-right"
               });
 
@@ -197,23 +202,28 @@ const OrdersPage: React.FC = () => {
 
   return (
     <div className="container mx-auto mt-8 flex">
-      <div className="w-1/3 pr-4">
+      <div className="w-1/3 pr-4 overflow-y-auto">
         <h1 className="text-2xl font-bold mb-4">Orders</h1>
-        <div>
-          <button className="mb-2" onClick={handleToggle}>
+        <div className="flex flex-col space-y-4">
+          <button onClick={handleToggle} className="mb-2">
             {showCompleted ? 'Completed Orders' : 'Pending Orders'}
           </button>
           {filteredOrders.length > 0 ? (
             filteredOrders.map((order) => (
               <div
                 key={order.id}
-                className={`mb-8 p-4 border rounded cursor-pointer ${
+                className={`p-4 border rounded cursor-pointer ${
                   selectedOrder === order ? "bg-blue-200" : ""
                 }`}
                 onClick={() => handleOrderClick(order)}
               >
                 <h2 className="text-lg font-semibold mb-2">Order #{order.id}</h2>
-                <p>Wanted for: {order.wantedFor}</p>
+                <p>Wanted for: {
+
+               new Date(
+                  Date.parse(order.wantedFor)
+                ).toString()
+                }</p>
               </div>
             ))
           ) : (
@@ -225,6 +235,7 @@ const OrdersPage: React.FC = () => {
         <OrderDetails
           selectedOrder={selectedOrder}
           onCompleteOrder={handleCompleteOrder}
+          setSelectedOrder={setSelectedOrder}
         />
       </div>
       <Toaster />

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { BasketItem, BasketProps, ProductType } from "../utilities/types";
 import Cookies from "js-cookie";
 import NavBar from "../NavBar";
@@ -10,8 +10,80 @@ import toast,{Toaster} from "react-hot-toast";
 const BasketPage = () => {
   const { basketItems, setBasketItems } = useBasketContent();
 
+  const ref = useRef(false);
   console.log(basketItems)
+  useEffect(() => {
 
+    if(ref.current == false){
+    fetch(window.location.origin + "/api/orders/v1.0/validate", {
+      method:"POST", 
+      body:JSON.stringify(MapBasket()),     
+      headers:{
+      "Content-Type":"application/json"
+    }})
+    .then(resp => resp.json())
+    .then(data => {
+       const ValidatedItems = basketItems.filter(it => {
+        if((data.productIds as number[]).includes(it.product.id)){
+          toast.error(it.product.name + " was excluded from the menu, was made unavailable or removed entirely and we removed it from the your basket\n Sorry for the inconvience")
+          return false;
+        } 
+        return true;
+       }
+        )
+        const newBasketItems = ValidatedItems.map((it) => {
+          return {
+            ...it,
+            addOns: it?.addOns?.filter((add) => {
+              if (data.addOnIds.includes(add.id)) {
+                toast.error(
+                  it.product.name +
+                    " add-on: " +
+                    add.name +
+                    " was removed, and we removed it from your basket.\nSorry for the inconvenience."
+                );
+                return false;
+              }
+              return true;
+            }),
+          };
+        });
+
+        setBasketItems(newBasketItems);
+      }
+      )
+      ref.current = true;
+    }
+
+
+  },[])
+  const MapBasket = () => {
+    var newArray:any = [];
+    basketItems.forEach(item => {
+
+        const productId = item.product.id;
+        const productAddOns = item.addOns;
+        const productAmount = item.amount;
+
+        const mappedObject = {
+            "productId": productId,
+            "addOns": productAddOns?.map(addOn => ({
+                "addOnId": addOn.id,
+                "amount": addOn.amount
+            })),
+            "amount": productAmount
+        };
+
+        newArray.push(mappedObject);
+    });
+
+    const mappedJSON = {
+        "wantedFor": new Date(Date.now()).toISOString(),
+        "Items": newArray,
+    };
+    return mappedJSON;
+
+}
   return (
     <div>
       <NavBar></NavBar>
@@ -181,6 +253,7 @@ const ProductOrdered = (props: BasketProps) => {
 
 const Checkout = () => {
   const { basketItems, setBasketItems } = useBasketContent();
+
   const MapBasketAndFetch = () => {
     var newArray:any = [];
     basketItems.forEach(item => {
@@ -202,7 +275,7 @@ const Checkout = () => {
     });
 
     const mappedJSON = {
-        "wantedFor": "2024-02-21T01:24:50.415Z",
+        "wantedFor": new Date(Date.now()).toISOString(),
         "Items": newArray,
     };
 

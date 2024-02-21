@@ -10,6 +10,7 @@ namespace pizzeria_backend.Services
         public Task<Order> GetOrder(int Id);
         public Task<Order> DeleteOrder(int Id);
         public Task<Order> ChangeOrderCompletion(int Id);
+        public Task<(List<int> productIds, List<int> addOnIds)> ValidateOrder(OrderDto Order);
         public Task<List<Order>> GetOrders();
 
     }
@@ -24,8 +25,9 @@ namespace pizzeria_backend.Services
 
         public async Task<Order> MakeOrder(OrderDto order)
         {
+            var orderValidation = (await ValidateOrder(order));
 
-            if (!(await ValidateOrder(order)))
+            if (orderValidation.productIds.Count != 0 && orderValidation.addOnIds.Count != 0)
             {
                 return null;
             }
@@ -110,19 +112,36 @@ namespace pizzeria_backend.Services
             return order;
         }
 
-        private async Task<bool> ValidateOrder(OrderDto order)
+        public async Task<(List<int> productIds, List<int> addOnIds)> ValidateOrder(OrderDto order)
         {
 
+
+            List<int> productIds = [];
+            List<int> addOnIds = [];
             foreach (OrderedProductsDto op in order.Items)
             {
                 var opp = await _context.Products.FindAsync(op.ProductId);
-                if (opp.IsInMenu == false || opp.IsAvailable == false)
+                if (opp is null)
                 {
-                    return false;
-                }
-            }
-            return true;
+                    productIds.Add(op.ProductId);
 
+                }
+                else if (opp.IsInMenu == false || opp.IsAvailable == false)
+                {
+                    productIds.Add(op.ProductId);
+                }
+                foreach (OrderedAddOnsDto oa in op.AddOns)
+                {
+                    var oao = await _context.AddOns.FindAsync(oa.AddOnId);
+                    if (oao is null)
+                    {
+                        addOnIds.Add(oa.AddOnId);
+                    }
+                }
+
+            }
+            return (productIds = productIds, addOnIds = addOnIds);
         }
     }
+
 }

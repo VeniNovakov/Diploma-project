@@ -142,15 +142,21 @@ const ProductPage: React.FC = () => {
   const { basketItems, setBasketItems } = useBasketContent();
   const { tempProduct, setTempProduct } = useProduct();
 
-  const [ product, setProduct ] = useState<ProductType>();
-  const [ addOns, setAddOns ] = useState<AddOnType[]>([]);
+  const [product, setProduct] = useState<ProductType | null>(null);
+  const [addOns, setAddOns] = useState<AddOnType[]>([]);
+
+  useEffect(() => {
+    setTempProduct(JSON.parse(Cookies.get("tempProduct")|| "{}") as TempProduct);
+  }, [numericId]);
 
   const submitOrder = async() => {
     const tempProduct = JSON.parse(Cookies.get("tempProduct") || "{}") as TempProduct;
     Cookies.set("tempProduct", "{}");
-    toast.success("Added " + tempProduct.product.name + " with add ons to basket", {position:"top-right", duration:4000})
+    toast.success("Added " + tempProduct.product.name + " with add ons to basket", {position:"top-right", duration:1500})
     setBasketItems([...basketItems, tempProduct]);
+
     await delay(1000);
+
     window.location.href = window.location.origin +"/menu";
   };
 
@@ -187,7 +193,7 @@ const ProductPage: React.FC = () => {
   useEffect(() => {
     const tempProductFromCookie = JSON.parse(Cookies.get("tempProduct") || "{}") as TempProduct;
     const hasOldEntry = !!tempProductFromCookie.product;
-  
+    
     if (firstRender.current || !hasOldEntry || tempProductFromCookie.product.id !== numericId) {
       fetchProduct();
       fetchAddOns();

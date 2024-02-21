@@ -43,6 +43,22 @@ namespace pizzeria_backend.Controllers
             return Ok(ord);
         }
 
+        [HttpPost("validate")]
+        public async Task<ActionResult> ValidateOrder([FromBody] OrderDto Order)
+        {
+
+            var Ids = await _orderService.ValidateOrder(Order);
+
+            string orderString = JsonConvert.SerializeObject(Ids, new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                Formatting = Formatting.Indented,
+                ContractResolver = new DefaultContractResolver { NamingStrategy = new CamelCaseNamingStrategy() }
+            });
+
+            return Ok(new { productIds = Ids.productIds, addOnIds = Ids.addOnIds });
+        }
+
 
         [HttpGet("{Id}")]
         public async Task<IActionResult> GetOrder(int Id)
@@ -98,6 +114,7 @@ namespace pizzeria_backend.Controllers
 
             return Ok(ord);
         }
+
 
         [HttpGet()]
         [Produces("application/json")]
