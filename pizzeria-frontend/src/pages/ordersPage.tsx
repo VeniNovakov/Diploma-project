@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import ordersJson from "../json/orders.json";
 import { Order } from "../utilities/types";
 import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
-
+import toast, { Toaster } from 'react-hot-toast';
 const OrderDetails: React.FC<{
   selectedOrder: Order | null;
   onCompleteOrder: () => void;
@@ -87,6 +87,7 @@ const OrdersPage: React.FC = () => {
   useEffect(()=>{
     createHubConnection();
     if (!ref.current) {
+      toast.loading("Loading orders", {position: "top-center"})
       fetch(window.location.origin+"/api/orders/v1.0", {
         headers:{
           "Accepts":"application/json"
@@ -100,7 +101,7 @@ const OrdersPage: React.FC = () => {
           return response.json();
         })
         .then(data => {
-          console.log(data[0]);
+          toast.dismiss()
           setOrders(data as Order[]);
         })
         .catch(error => {
@@ -120,13 +121,26 @@ const OrdersPage: React.FC = () => {
             connectionRef.on("NewOrder", (data) => {
               const newOrder = JSON.parse(data) as Order;
               console.log(orders);
-              console.log(newOrder)
-              setOrders(prevOrders => [...prevOrders, newOrder]); // Append the new order to the existing orders
+              console.log(newOrder);
+              const infoString = "New order #"+ newOrder.id + " came";
+              toast(infoString,
+                {
+                  duration:4000,
+                  position:"top-right"
+              });
+
+              setOrders(prevOrders => [...prevOrders, newOrder]);
             });
 
             connectionRef.on('UpdateOrder', (data) => {
               const updatedOrder = JSON.parse(data) as Order;
-  
+              const infoString = "Order #"+ updatedOrder.id + " changed status to " + (updatedOrder.isCompleted?"Completed":"Pending");
+              toast(infoString,
+              {
+                duration:4000,
+                position:"top-right"
+            })
+              
               setOrders(prevOrders => {
                 const updatedOrders = prevOrders.map(ord => {
                   if (ord.id === updatedOrder.id) {
@@ -140,7 +154,12 @@ const OrdersPage: React.FC = () => {
 
             connectionRef.on('DeleteOrder', (data) => {
               const orderToDelete = JSON.parse(data) as Order;
-  
+              const infoString = "Order #"+ orderToDelete.id + " removed"; 
+              toast(infoString,
+              {
+                duration:4000,
+                position:"top-right"
+            })
               setOrders(prevOrders => {
                 const updatedOrders = prevOrders.filter(ord => {
                   return ord.id !== orderToDelete.id;
@@ -208,6 +227,7 @@ const OrdersPage: React.FC = () => {
           onCompleteOrder={handleCompleteOrder}
         />
       </div>
+      <Toaster />
     </div>
   );
 };

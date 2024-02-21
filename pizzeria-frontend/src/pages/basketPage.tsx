@@ -6,7 +6,7 @@ import { useBasketContent } from "../providers/BasketContentProvider";
 import pizza from "../images/pizza.jpg";
 import { useBasket } from "../providers/BasketCounterProvider";
 import { round } from "../utilities/functions/math";
-
+import toast,{Toaster} from "react-hot-toast";
 const BasketPage = () => {
   const { basketItems, setBasketItems } = useBasketContent();
 
@@ -39,6 +39,7 @@ const BasketPage = () => {
           ></textarea>
         </div>
       </div>
+      <Toaster/>
     </div>
   );
 };
@@ -183,7 +184,7 @@ const Checkout = () => {
   const MapBasketAndFetch = () => {
     var newArray:any = [];
     basketItems.forEach(item => {
-        // Extracting product details from the current object
+
         const productId = item.product.id;
         const productAddOns = item.addOns;
         const productAmount = item.amount;
@@ -205,17 +206,29 @@ const Checkout = () => {
         "Items": newArray,
     };
 
+    toast.loading("Sending order", {position: "top-center"});
     fetch(window.location.origin+ "/api/orders/v1.0", 
-    {method:"POST",
-     body:JSON.stringify(mappedJSON),
-    headers:{"Content-Type":"application/json"}
-    }).then(resp => resp.json()).then(data => {
-      if(data.status != 200){
-          console.assert(data)
+    {
+      method:"POST",
+      body:JSON.stringify(mappedJSON),
+      headers:{
+        "Content-Type":"application/json"
       }
+    }).then(resp => {
+      toast.dismiss();
+      if(resp.status != 200 ){
+        toast.error("Error when sending order");
+        return;
+      }
+      return resp.json()
+    }).then(data => {
+ 
+      toast.success("Order successfully sent Order #" + data.id, {position:"top-right", duration:4000});
+
     }
       )
 }
+
   return (
     <div>
       {basketItems.length && (

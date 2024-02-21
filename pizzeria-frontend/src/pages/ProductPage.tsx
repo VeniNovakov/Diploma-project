@@ -11,6 +11,7 @@ import { round } from "../utilities/functions/math";
 import { TempProduct } from "../utilities/types/provider.interfaces";
 import { AddOnsSection } from "../utilities/types/addOns.interfaces";
 import { parse } from "path";
+import toast, { Toaster } from "react-hot-toast";
 
 interface ChangeAmountProps {
   item: AddOnType | ProductType;
@@ -18,7 +19,9 @@ interface ChangeAmountProps {
   amount: number;
   setAmount: React.Dispatch<React.SetStateAction<number>>;
 }
-
+const delay = (ms: number | undefined)  => new Promise(
+  resolve => setTimeout(resolve, ms)
+);
 const ChangeAmount: React.FC<ChangeAmountProps> = ({
   item,
   className,
@@ -142,13 +145,17 @@ const ProductPage: React.FC = () => {
   const [ product, setProduct ] = useState<ProductType>();
   const [ addOns, setAddOns ] = useState<AddOnType[]>([]);
 
-  const submitOrder = () => {
-    const tempProduct = JSON.parse(Cookies.get("tempProduct") || "{}");
+  const submitOrder = async() => {
+    const tempProduct = JSON.parse(Cookies.get("tempProduct") || "{}") as TempProduct;
     Cookies.set("tempProduct", "{}");
+    toast.success("Added " + tempProduct.product.name + " with add ons to basket", {position:"top-right", duration:4000})
     setBasketItems([...basketItems, tempProduct]);
+    await delay(1000);
+    window.location.href = window.location.origin +"/menu";
   };
 
   const firstRender = useRef(true);
+
   const fetchProduct = () =>{
     fetch(window.location.origin+ "/api/products/v1.0/" + numericId)
     .then(response => response.json())
@@ -183,7 +190,7 @@ const ProductPage: React.FC = () => {
   
     if (firstRender.current || !hasOldEntry || tempProductFromCookie.product.id !== numericId) {
       fetchProduct();
-      fetchAddOns()
+      fetchAddOns();
       firstRender.current = false;
     }
 
@@ -216,6 +223,7 @@ const ProductPage: React.FC = () => {
             />
           </div>
         </div>
+        <Toaster/>
       </div>
       </>
   );

@@ -8,6 +8,7 @@ import { ProductProps } from "./utilities/types";
 import { useBasketContent } from "./providers/BasketContentProvider";
 import { Link } from "react-router-dom";
 import { useProduct } from "./providers/TempProductProvider";
+import toast, { Toaster } from "react-hot-toast";
 interface IFilter {
   onFilterClick: (filterType: string) => void;
 }
@@ -25,14 +26,18 @@ const Menu = () => {
   const [selectedFilter, setSelectedFilter] = useState("");
   const [filteredMenu, setFilteredMenu] = useState<ProductType[]>([]);
   const [menu, setMenu] = useState<ProductType[]>([]);
-  const {tempProduct, setTempProduct} = useProduct();
   const firstRender = useRef(true);
   const handleFilterClick = (filterType: string) => {
     setSelectedFilter(filterType);
   };
   useEffect(() => {
     if(firstRender.current){
-    fetch(window.location.origin+ "/api/products/v1.0/menu").then(resp => resp.json()).then(data => setFilteredMenu(data))
+      fetch(window.location.origin+ "/api/products/v1.0/menu")
+      .then(resp => resp.json())
+      .then(data => {
+        setFilteredMenu(data);
+        setMenu(data);
+      })
       firstRender.current=false;
   }
   })
@@ -120,6 +125,8 @@ const Product = (props: ProductProps) => {
     };
 
     if (basketItems.length === 0) {
+      toast("Added " + newBasketObj.product.name + " to the basket", {position: "top-right",duration: 4000})
+
       setBasketItems([...basketItems, newBasketObj]);
       return;
     } else {
@@ -136,8 +143,12 @@ const Product = (props: ProductProps) => {
       });
 
       if (JSON.stringify(updatedList) === JSON.stringify(basketItems)) {
+        toast("Added " + newBasketObj.product.name + " to the basket", {position: "top-right",duration: 4000})
+
         setBasketItems([...updatedList, newBasketObj]);
       } else {
+        toast("Added amount to" + newBasketObj.product.name + " in the basket", {position: "top-right",duration: 4000})
+
         setBasketItems([...updatedList]);
       }
     }
@@ -184,6 +195,7 @@ const Product = (props: ProductProps) => {
           Add to Basket
         </button>
       </div>
+      <Toaster/>
     </div>
   );
 };
