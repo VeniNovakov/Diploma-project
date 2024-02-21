@@ -8,6 +8,7 @@ namespace pizzeria_backend.Services
     {
         public Task<Order> MakeOrder(OrderDto Order);
         public Task<Order> GetOrder(int Id);
+        public Task<Order> DeleteOrder(int Id);
         public Task<Order> ChangeOrderCompletion(int Id);
         public Task<List<Order>> GetOrders();
 
@@ -20,8 +21,6 @@ namespace pizzeria_backend.Services
         {
             _context = context;
         }
-
-
 
         public async Task<Order> MakeOrder(OrderDto order)
         {
@@ -90,6 +89,19 @@ namespace pizzeria_backend.Services
             await _context.SaveChangesAsync();
 
             return order;
+        }
+
+        public async Task<Order> DeleteOrder(int id)
+        {
+            var order = await _context.Order.FindAsync(id);
+            if (order != null)
+            {
+                _context.Order.Remove(order);
+                await _context.SaveChangesAsync();
+            }
+
+            return order;
+
         }
 
         public async Task<List<Order>> GetOrders()

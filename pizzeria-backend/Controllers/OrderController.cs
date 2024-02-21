@@ -55,6 +55,23 @@ namespace pizzeria_backend.Controllers
 
             return Ok(ord);
         }
+        [HttpDelete("{Id}")]
+        public async Task<IActionResult> DeleteOrder(int Id)
+        {
+            var ord = await _orderService.DeleteOrder(Id);
+            if (ord == null)
+            {
+                return NotFound("Order not found");
+            }
+            string orderString = JsonConvert.SerializeObject(ord, new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                Formatting = Formatting.Indented,
+                ContractResolver = new DefaultContractResolver { NamingStrategy = new CamelCaseNamingStrategy() }
+            });
+            await _hubContext.Clients.All.SendAsync("DeleteOrder", orderString);
+            return Ok(orderString);
+        }
 
         [HttpGet("change-status/{Id}")]
         public async Task<IActionResult> ChangeCompletion(int Id)

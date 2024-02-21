@@ -130,6 +130,17 @@ const OrdersPage: React.FC = () => {
                 return updatedOrders; 
               });
             });
+
+            connectionRef.on('DeleteOrder', (data) => {
+              const orderToDelete = JSON.parse(data) as Order;
+  
+              setOrders(prevOrders => {
+                const updatedOrders = prevOrders.filter(ord => {
+                  return ord.id !== orderToDelete.id;
+                });
+                return updatedOrders; 
+              });
+            });
           })
           .catch((err) => {
             console.log(`Error: ${err}`);

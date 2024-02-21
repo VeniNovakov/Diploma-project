@@ -180,6 +180,42 @@ const ProductOrdered = (props: BasketProps) => {
 
 const Checkout = () => {
   const { basketItems, setBasketItems } = useBasketContent();
+  const MapBasketAndFetch = () => {
+    var newArray:any = [];
+    basketItems.forEach(item => {
+        // Extracting product details from the current object
+        const productId = item.product.id;
+        const productAddOns = item.addOns;
+        const productAmount = item.amount;
+
+        const mappedObject = {
+            "productId": productId,
+            "addOns": productAddOns?.map(addOn => ({
+                "addOnId": addOn.id,
+                "amount": addOn.amount
+            })),
+            "amount": productAmount
+        };
+
+        newArray.push(mappedObject);
+    });
+
+    const mappedJSON = {
+        "wantedFor": "2024-02-21T01:24:50.415Z",
+        "Items": newArray,
+    };
+
+    fetch(window.location.origin+ "/api/orders/v1.0", 
+    {method:"POST",
+     body:JSON.stringify(mappedJSON),
+    headers:{"Content-Type":"application/json"}
+    }).then(resp => resp.json()).then(data => {
+      if(data.status != 200){
+          console.assert(data)
+      }
+    }
+      )
+}
   return (
     <div>
       {basketItems.length && (
@@ -187,6 +223,7 @@ const Checkout = () => {
           <Total></Total>
           <button
             type="button"
+            onClick={() => MapBasketAndFetch()}
             className="shadow-md hover:shadow-inner hover:bg-slate-100 rounded-md border-slate-400 border"
           >
             ORDER
