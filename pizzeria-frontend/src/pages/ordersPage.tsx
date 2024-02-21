@@ -70,7 +70,7 @@ const OrdersPage: React.FC = () => {
 
   function createHubConnection() {
     const con = new HubConnectionBuilder()
-      .withUrl(window.location.origin+"ws")
+      .withUrl(window.location.origin+"/ws")
       .withAutomaticReconnect()
       .build();
     setConnection(con);
@@ -84,7 +84,6 @@ const OrdersPage: React.FC = () => {
         headers:{
           "Accepts":"application/json"
         }, 
-        mode:"cors"
       }
         )
         .then(response => {

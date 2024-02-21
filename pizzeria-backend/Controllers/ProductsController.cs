@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using pizzeria_backend.Models;
 using pizzeria_backend.Models.Interfaces;
 using pizzeria_backend.Services;
@@ -37,7 +39,14 @@ namespace pizzeria_backend.Controllers
             {
                 return NotFound("Product not found");
             }
-            return Ok(pr);
+            var prString = JsonConvert.SerializeObject(pr, new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                Formatting = Formatting.Indented,
+                ContractResolver = new DefaultContractResolver { NamingStrategy = new CamelCaseNamingStrategy() }
+            });
+
+            return Ok(prString);
         }
 
         [HttpGet("menu")]
@@ -96,6 +105,8 @@ namespace pizzeria_backend.Controllers
                 IsInMenu = productDto.IsInMenu,
             };
         }
+
+
         private static Product ConvertToProduct(ProductDto productDto, string image, int id)
         {
             return new Product

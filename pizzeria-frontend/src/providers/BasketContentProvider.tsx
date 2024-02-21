@@ -20,6 +20,7 @@ export const BasketContentProvider = ({ children }: any) => {
   );
 
   const { basketCounter, setBasketCounter } = useBasket();
+  
   useEffect(() => {
     Cookies.set("basket", JSON.stringify(basketItems));
 

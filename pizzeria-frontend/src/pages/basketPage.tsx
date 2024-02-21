@@ -10,6 +10,8 @@ import { round } from "../utilities/functions/math";
 const BasketPage = () => {
   const { basketItems, setBasketItems } = useBasketContent();
 
+  console.log(basketItems)
+
   return (
     <div>
       <NavBar></NavBar>
@@ -20,7 +22,7 @@ const BasketPage = () => {
               return (
                 <ProductOrdered
                   item={item}
-                  key={item.product.id}
+                  key={item.Id}
                 ></ProductOrdered>
               );
             })
@@ -121,7 +123,7 @@ const ProductOrdered = (props: BasketProps) => {
       onMouseLeave={() => setIsHovered(false)}
     >
       <img
-        src={pizza}
+        src={props.item.product.image}
         className="object-scale-down h-16 w-16 border-black"
         alt="pizza"
       ></img>

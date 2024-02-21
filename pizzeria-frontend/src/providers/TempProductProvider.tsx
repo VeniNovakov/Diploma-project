@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { createContext, useContext, useState } from "react";
 import {
   TempProductProvider,
@@ -19,6 +19,10 @@ export const ProductProvider = ({ children }: any) => {
   const [tempProduct, setTempProduct] = useState<TempProduct>(
     JSON.parse(Cookies.get("tempProduct") || "{}"),
   );
+
+  useEffect(() => {
+    Cookies.set("tempProduct", JSON.stringify(tempProduct));
+  }, [tempProduct, setTempProduct]);
 
   return (
     <TempProductContext.Provider value={{ tempProduct, setTempProduct }}>
