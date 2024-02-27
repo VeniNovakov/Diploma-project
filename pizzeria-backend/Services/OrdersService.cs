@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using pizzeria_backend.Models;
 using pizzeria_backend.Models.Interfaces;
+using System.ComponentModel.DataAnnotations;
 
 namespace pizzeria_backend.Services
 {
@@ -10,7 +11,7 @@ namespace pizzeria_backend.Services
         public Task<Order> GetOrder(int Id);
         public Task<Order> DeleteOrder(int Id);
         public Task<Order> ChangeOrderCompletion(int Id);
-        public Task<(List<int> productIds, List<int> addOnIds)> ValidateOrder(OrderDto Order);
+        public Task<InvalidOrdersDto> ValidateOrder(OrderDto Order);
         public Task<List<Order>> GetOrders();
 
     }
@@ -27,35 +28,13 @@ namespace pizzeria_backend.Services
         {
             var orderValidation = (await ValidateOrder(order));
 
-            if (orderValidation.productIds.Count != 0 && orderValidation.addOnIds.Count != 0)
+            if (orderValidation.ProductIds.Count != 0 && orderValidation.AddOnIds.Count != 0)
             {
-                return null;
+                throw new ValidationException();
             }
 
             var dbOrder = new Order { WantedFor = order.WantedFor };
             _context.Order.Add(dbOrder);
-
-            foreach (var item in order.Items)
-            {
-                var dbOrderedProduct = new OrderedProduct
-                {
-                    ProductId = item.ProductId,
-                    Amount = item.Amount,
-                    Order = dbOrder
-                };
-                _context.OrderedProducts.Add(dbOrderedProduct);
-
-                foreach (var addOn in item.AddOns)
-                {
-                    var dbOrderedAddOn = new OrderedAddOn
-                    {
-                        Amount = addOn.Amount,
-                        AddOnId = addOn.AddOnId,
-                        Product = dbOrderedProduct,
-                    };
-                    _context.OrderedAddOns.Add(dbOrderedAddOn);
-                }
-            }
 
             await _context.SaveChangesAsync();
             return dbOrder;
@@ -65,12 +44,12 @@ namespace pizzeria_backend.Services
         {
             return _context.Order
                 .Include(order => order.OrderedProducts)
-                .ThenInclude(op => op.AddOns)
-                .ThenInclude(oa => oa.AddOn)
-                .ThenInclude(oa => oa.Category)
+                    .ThenInclude(op => op.AddOns)
+                    .ThenInclude(oa => oa.AddOn)
+                    .ThenInclude(oa => oa.Category)
                 .Include(order => order.OrderedProducts)
-                .ThenInclude(op => op.Product)
-                .ThenInclude(pr => pr.Category);
+                    .ThenInclude(op => op.Product)
+                    .ThenInclude(pr => pr.Category);
         }
         public async Task<Order> GetOrder(int Id)
         {
@@ -112,7 +91,7 @@ namespace pizzeria_backend.Services
             return order;
         }
 
-        public async Task<(List<int> productIds, List<int> addOnIds)> ValidateOrder(OrderDto order)
+        public async Task<InvalidOrdersDto> ValidateOrder(OrderDto order)
         {
 
 
@@ -140,7 +119,11 @@ namespace pizzeria_backend.Services
                 }
 
             }
-            return (productIds = productIds, addOnIds = addOnIds);
+            return new InvalidOrdersDto
+            {
+                ProductIds = productIds,
+                AddOnIds = addOnIds
+            };
         }
     }
 

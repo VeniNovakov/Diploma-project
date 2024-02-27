@@ -161,7 +161,7 @@ const Product = (props: ProductProps) => {
     .then(parsed =>{
       setTempProduct({
           addOns: [],
-          product: JSON.parse(parsed) as ProductType,
+          product: parsed as ProductType,
           amount: 1,
         },
       );
@@ -169,8 +169,6 @@ const Product = (props: ProductProps) => {
     }
     )
    }
-
-
 
   return (
     <div className="font-medium flex flex-col items-center justify-center m-2 h-60 w-60 border rounded-md max-h-full ">

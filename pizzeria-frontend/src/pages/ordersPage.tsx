@@ -82,7 +82,7 @@ const OrdersPage: React.FC = () => {
 
   function createHubConnection() {
     const con = new HubConnectionBuilder()
-      .withUrl(window.location.origin+"/ws")
+      .withUrl(window.location.origin+"/ordersHub")
       .withAutomaticReconnect()
       .build();
     setConnection(con);
@@ -124,8 +124,9 @@ const OrdersPage: React.FC = () => {
           .start()
           .then(() => {
             connectionRef.on("NewOrder", (data) => {
-              const newOrder = JSON.parse(data) as Order;
+              const newOrder = data as Order;
               console.log(orders);
+              console.log(data)
               console.log(newOrder);
               const infoString = "New order #"+ newOrder.id + " came";
               toast(infoString,
@@ -138,7 +139,7 @@ const OrdersPage: React.FC = () => {
             });
 
             connectionRef.on('UpdateOrder', (data) => {
-              const updatedOrder = JSON.parse(data) as Order;
+              const updatedOrder = data as Order;
               const infoString = "Order #"+ updatedOrder.id + " changed status to " + (updatedOrder.isCompleted?"Completed":"Pending");
               toast(infoString,
               {
@@ -158,7 +159,7 @@ const OrdersPage: React.FC = () => {
             });
 
             connectionRef.on('DeleteOrder', (data) => {
-              const orderToDelete = JSON.parse(data) as Order;
+              const orderToDelete = data as Order;
               const infoString = "Order #"+ orderToDelete.id + " removed"; 
               toast(infoString,
               {

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Serialization;
 using pizzeria_backend;
 using pizzeria_backend.Hubs;
 using pizzeria_backend.Services;
@@ -17,28 +18,26 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
-    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+{
+    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+    options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
+    options.SerializerSettings.ContractResolver = new DefaultContractResolver
+    {
+        NamingStrategy = new CamelCaseNamingStrategy()
+    };
+}
+    );
 
 builder.Services.AddScoped<IExampleService, Example>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IAzureBlobStorageService, AzureBlobStorageService>();
 builder.Services.AddScoped<IAddOnService, AddOnService>();
 builder.Services.AddScoped<IOrderService, OrdersService>();
-builder.Services.AddSingleton<IOrderHub, OrderHubService>();
 
 builder.Services.AddSignalR();
 builder.Services.AddSwaggerGen();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(name: "lmao",
-                     policy =>
-                     {
-                         policy.AllowAnyHeader()
-                               .AllowAnyMethod()
-                               .AllowAnyOrigin();
-                     });
-});
+
 var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
@@ -49,7 +48,6 @@ if (!app.Environment.IsDevelopment())
 }
 app.UseSwagger();
 app.UseSwaggerUI();
-app.UseCors("lmao");
 
 app.UseHttpsRedirection();
 
@@ -64,7 +62,7 @@ app.MapControllerRoute(
     name: "default",
     pattern: "/{controller=Home}/{action=Index}/{id?}");
 
-app.MapHub<OrderHub>("/ws");
+app.MapHub<OrderHub>("/ordersHub");
 
 app.MapFallbackToFile("index.html");
 

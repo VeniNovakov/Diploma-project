@@ -23,15 +23,23 @@ const BasketPage = () => {
     }})
     .then(resp => resp.json())
     .then(data => {
-       const ValidatedItems = basketItems.filter(it => {
-        if((data.productIds as number[]).includes(it.product.id)){
-          toast.error(it.product.name + " was excluded from the menu, was made unavailable or removed entirely and we removed it from the your basket\n Sorry for the inconvience")
-          return false;
-        } 
-        return true;
-       }
-        )
-        const newBasketItems = ValidatedItems.map((it) => {
+      console.log(data);
+      
+      var ValidatedItems: BasketItem[] = basketItems;
+      if(Array.isArray(data.productIds as number[]) && (data.productIds as number[]).length !== 0){
+
+        ValidatedItems = basketItems.filter(it => {
+          if((data.productIds as number[]).includes(it.product.id)){
+            toast.error(it.product.name + " was excluded from the menu, was made unavailable or removed entirely and we removed it from the your basket\n Sorry for the inconvience")
+            return false;
+          } 
+          return true;
+         })
+
+      }
+      if(Array.isArray(data.addOnIds) && (data.addOnIds as number[]).length !== 0){
+
+        ValidatedItems = ValidatedItems.map((it) => {
           return {
             ...it,
             addOns: it?.addOns?.filter((add) => {
@@ -49,7 +57,8 @@ const BasketPage = () => {
           };
         });
 
-        setBasketItems(newBasketItems);
+      }
+        setBasketItems(ValidatedItems);
       }
       )
       ref.current = true;
@@ -57,6 +66,7 @@ const BasketPage = () => {
 
 
   },[])
+
   const MapBasket = () => {
     var newArray:any = [];
     basketItems.forEach(item => {
@@ -280,7 +290,7 @@ const Checkout = () => {
     };
 
     toast.loading("Sending order", {position: "top-center"});
-    fetch(window.location.origin+ "/api/orders/v1.0", 
+    fetch(window.location.origin+ "/api/orders/v1.0/create", 
     {
       method:"POST",
       body:JSON.stringify(mappedJSON),

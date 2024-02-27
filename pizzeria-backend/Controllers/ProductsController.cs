@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using pizzeria_backend.Models;
 using pizzeria_backend.Models.Interfaces;
 using pizzeria_backend.Services;
@@ -23,7 +21,7 @@ namespace pizzeria_backend.Controllers
             {
                 return BadRequest("No body provided");
             }
-            var imageLink = (await _azureBlobStorageService.UploadBlobAsync(product.Image.OpenReadStream(), product.Image.FileName)).ToString();
+            var imageLink = (await _azureBlobStorageService.UploadBlobAsync(product.Image.OpenReadStream(), product.Image.FileName + Guid.NewGuid().ToString())).ToString();
             var pr = await _productService.AddProductAsync(ConvertToProduct(product, imageLink));
 
             return Ok(pr);
@@ -39,14 +37,9 @@ namespace pizzeria_backend.Controllers
             {
                 return NotFound("Product not found");
             }
-            var prString = JsonConvert.SerializeObject(pr, new JsonSerializerSettings
-            {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                Formatting = Formatting.Indented,
-                ContractResolver = new DefaultContractResolver { NamingStrategy = new CamelCaseNamingStrategy() }
-            });
 
-            return Ok(prString);
+
+            return Ok(pr);
         }
 
         [HttpGet("menu")]

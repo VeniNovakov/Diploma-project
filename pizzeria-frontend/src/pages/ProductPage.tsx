@@ -169,7 +169,7 @@ const ProductPage: React.FC = () => {
       setProduct(parsedData as ProductType);
       setTempProduct({
         addOns: [],
-        product: JSON.parse(parsedData) as ProductType,
+        product: parsedData,
         amount: 1,
     });
 

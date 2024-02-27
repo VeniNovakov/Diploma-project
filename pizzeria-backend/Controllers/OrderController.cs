@@ -1,10 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using pizzeria_backend.Hubs;
 using pizzeria_backend.Models.Interfaces;
 using pizzeria_backend.Services;
+using System.ComponentModel.DataAnnotations;
 
 namespace pizzeria_backend.Controllers
 {
@@ -21,26 +20,22 @@ namespace pizzeria_backend.Controllers
             _hubContext = hubContext;
         }
 
-        [HttpPost()]
+
+
+        [HttpPost("create")]
         public async Task<ActionResult> Order([FromBody] OrderDto Order)
         {
+            try
+            {
+                var ord = await _orderService.MakeOrder(Order);
 
-            var ord = await _orderService.MakeOrder(Order);
-
-            if (ord == null)
+                await _hubContext.Clients.All.SendAsync("NewOrder", ord);
+                return Ok(ord);
+            }
+            catch (ValidationException ex)
             {
                 return BadRequest("One or more of the items are not available or in the menu");
             }
-
-            string orderString = JsonConvert.SerializeObject(ord, new JsonSerializerSettings
-            {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                Formatting = Formatting.Indented,
-                ContractResolver = new DefaultContractResolver { NamingStrategy = new CamelCaseNamingStrategy() }
-            });
-
-            await _hubContext.Clients.All.SendAsync("NewOrder", orderString);
-            return Ok(ord);
         }
 
         [HttpPost("validate")]
@@ -49,21 +44,15 @@ namespace pizzeria_backend.Controllers
 
             var Ids = await _orderService.ValidateOrder(Order);
 
-            string orderString = JsonConvert.SerializeObject(Ids, new JsonSerializerSettings
-            {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                Formatting = Formatting.Indented,
-                ContractResolver = new DefaultContractResolver { NamingStrategy = new CamelCaseNamingStrategy() }
-            });
 
-            return Ok(new { productIds = Ids.productIds, addOnIds = Ids.addOnIds });
+            return Ok(Ids);
         }
 
 
-        [HttpGet("{Id}")]
-        public async Task<IActionResult> GetOrder(int Id)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetOrder(int id)
         {
-            var ord = await _orderService.GetOrder(Id);
+            var ord = await _orderService.GetOrder(id);
             if (ord == null)
             {
                 return NotFound("Order not found");
@@ -72,47 +61,34 @@ namespace pizzeria_backend.Controllers
             return Ok(ord);
         }
 
-        [HttpDelete("{Id}")]
-        public async Task<IActionResult> DeleteOrder(int Id)
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteOrder(int id)
         {
-            var ord = await _orderService.DeleteOrder(Id);
+            var ord = await _orderService.DeleteOrder(id);
             if (ord == null)
             {
                 return NotFound("Order not found");
             }
-
-            string orderString = JsonConvert.SerializeObject(ord, new JsonSerializerSettings
-            {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                Formatting = Formatting.Indented,
-                ContractResolver = new DefaultContractResolver { NamingStrategy = new CamelCaseNamingStrategy() }
-            });
-
-            await _hubContext.Clients.All.SendAsync("DeleteOrder", orderString);
-            return Ok(orderString);
+            await _hubContext.Clients.All.SendAsync("DeleteOrder", ord);
+            return Ok(ord);
         }
 
 
-        [HttpGet("change-status/{Id}")]
-        public async Task<IActionResult> ChangeCompletion(int Id)
+        [HttpGet("change-status/{id}")]
+        public async Task<IActionResult> ChangeCompletion(int id)
         {
-            var ord = await _orderService.ChangeOrderCompletion(Id);
+            var ord = await _orderService.ChangeOrderCompletion(id);
 
             if (ord == null)
             {
                 return NotFound("Order not found");
             }
 
-            string orderString = JsonConvert.SerializeObject(ord, new JsonSerializerSettings
-            {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                Formatting = Formatting.Indented,
-                ContractResolver = new DefaultContractResolver { NamingStrategy = new CamelCaseNamingStrategy() }
-            });
-
-            await _hubContext.Clients.All.SendAsync("UpdateOrder", orderString);
+            await _hubContext.Clients.All.SendAsync("UpdateOrder", ord);
 
             return Ok(ord);
+
         }
 
 
