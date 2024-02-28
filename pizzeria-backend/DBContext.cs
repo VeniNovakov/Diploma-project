@@ -15,6 +15,9 @@ namespace pizzeria_backend
         public DbSet<Product> Products { get; set; }
         public DbSet<AddOn> AddOns { get; set; }
         public DbSet<AddOnsCategory> AddOnsCategory { get; set; }
+        public DbSet<OrderedProduct> OrderedProducts { get; set; }
+        public DbSet<OrderedAddOn> OrderedAddOns { get; set; }
+        public DbSet<Order> Order { get; set; }
 
         public DbSet<User> Users { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -29,7 +32,8 @@ namespace pizzeria_backend
                 new ProductsCategory { Id = 4, Name = "Pasta" },
                 new ProductsCategory { Id = 5, Name = "Rice" });
 
-            modelBuilder.Entity<ProductsCategory>().HasMany(cat => cat.Products).WithOne(pr => pr.Category);
+            modelBuilder.Entity<ProductsCategory>().HasMany(cat => cat.Products).WithOne(pr => pr.Category).HasForeignKey(pr => pr.CategoryId);
+
 
             modelBuilder.Entity<AddOnsCategory>().HasData(
                 new AddOnsCategory { Id = 1, Name = "Meat" },
@@ -40,6 +44,12 @@ namespace pizzeria_backend
             modelBuilder.Entity<AddOnsCategory>().HasMany(cat => cat.AddOns).WithOne(addOn => addOn.Category).HasForeignKey(addon
                 => addon.CategoryId).IsRequired();
 
+            modelBuilder.Entity<OrderedProduct>().HasMany(op => op.AddOns).WithOne(oa => oa.Product).HasForeignKey(oa => oa.ProductId);
+
+            modelBuilder.Entity<OrderedProduct>().HasOne(op => op.Product).WithMany(pr => pr.OrderedProducts).HasForeignKey(op => op.ProductId);
+            modelBuilder.Entity<OrderedAddOn>().HasOne(op => op.AddOn).WithMany(pr => pr.OrderedAddOns).HasForeignKey(op => op.AddOnId);
+
+            modelBuilder.Entity<Order>().HasMany(ord => ord.OrderedProducts).WithOne(pr => pr.Order).HasForeignKey(op => op.OrderId);
 
         }
 

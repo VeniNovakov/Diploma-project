@@ -1,12 +1,14 @@
 import { useBasket } from "./providers/BasketCounterProvider";
 import pizza from "./images/pizza.jpg";
 import menu from "./json/menu.json";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { ProductType, BasketItem } from "./utilities/types";
 import Cookies from "js-cookie";
 import { ProductProps } from "./utilities/types";
 import { useBasketContent } from "./providers/BasketContentProvider";
 import { Link } from "react-router-dom";
+import { useProduct } from "./providers/TempProductProvider";
+import toast, { Toaster } from "react-hot-toast";
 interface IFilter {
   onFilterClick: (filterType: string) => void;
 }
@@ -22,16 +24,27 @@ interface IFilterItem {
 
 const Menu = () => {
   const [selectedFilter, setSelectedFilter] = useState("");
-  const [filteredMenu, setFilteredMenu] = useState(menu);
-
+  const [filteredMenu, setFilteredMenu] = useState<ProductType[]>([]);
+  const [menu, setMenu] = useState<ProductType[]>([]);
+  const firstRender = useRef(true);
   const handleFilterClick = (filterType: string) => {
     setSelectedFilter(filterType);
   };
-
+  useEffect(() => {
+    if(firstRender.current){
+      fetch(window.location.origin+ "/api/products/v1.0/menu")
+      .then(resp => resp.json())
+      .then(data => {
+        setFilteredMenu(data);
+        setMenu(data);
+      })
+      firstRender.current=false;
+  }
+  })
   useEffect(() => {
     if (selectedFilter.length) {
       setFilteredMenu(
-        menu.filter((product) => product.category === selectedFilter),
+        menu.filter((product) => product.category.name === selectedFilter),
       );
     } else {
       setFilteredMenu(menu);
@@ -42,7 +55,7 @@ const Menu = () => {
     <div>
       <Filter onFilterClick={handleFilterClick} />
       <div className="flex flex-wrap items-center justify-center">
-        {filteredMenu.map((product) => (
+        {Array.isArray(filteredMenu) && filteredMenu.map((product) => (
           <Product product={product} key={product.id} />
         ))}
       </div>
@@ -90,10 +103,13 @@ const FilterItem: React.FC<IFilterItem> = ({ item, onFilterClick }) => {
 const Product = (props: ProductProps) => {
   const { basketItems, setBasketItems } = useBasketContent();
   const { basketCounter, setBasketCounter } = useBasket();
-
+  const { tempProduct, setTempProduct } = useProduct();
+  useEffect(() => {
+    Cookies.set("tempProduct", JSON.stringify(tempProduct));
+  }, [tempProduct, setTempProduct]);
+  
   useEffect(() => {
     Cookies.set("basket", JSON.stringify(basketItems));
-
     setBasketCounter(
       (JSON.parse(Cookies.get("basket") || "[]") as BasketItem[]).length,
     );
@@ -103,12 +119,14 @@ const Product = (props: ProductProps) => {
     setBasketCounter(basketCounter + 1);
 
     const newBasketObj: BasketItem = {
-      id: product.id,
+      productId: product.id,
       product: product,
       amount: 1,
     };
 
     if (basketItems.length === 0) {
+      toast("Added " + newBasketObj.product.name + " to the basket", {position: "top-right",duration: 4000})
+
       setBasketItems([...basketItems, newBasketObj]);
       return;
     } else {
@@ -125,27 +143,36 @@ const Product = (props: ProductProps) => {
       });
 
       if (JSON.stringify(updatedList) === JSON.stringify(basketItems)) {
+        toast("Added " + newBasketObj.product.name + " to the basket", {position: "top-right",duration: 4000})
+
         setBasketItems([...updatedList, newBasketObj]);
       } else {
+        toast("Added amount to" + newBasketObj.product.name + " in the basket", {position: "top-right",duration: 4000})
+
         setBasketItems([...updatedList]);
       }
     }
   };
 
   const btnHandle = () => {
-    Cookies.set(
-      "tempProduct",
-      JSON.stringify({
-        addOns: [],
-        product: menu[props.product.id - 1],
-        amount: 1,
-      }),
-    );
-  };
+   
+   fetch(window.location.origin+ "/api/products/v1.0/" + props.product.id)
+   .then(data => data.json())
+    .then(parsed =>{
+      setTempProduct({
+          addOns: [],
+          product: parsed as ProductType,
+          amount: 1,
+        },
+      );
+
+    }
+    )
+   }
 
   return (
     <div className="font-medium flex flex-col items-center justify-center m-2 h-60 w-60 border rounded-md max-h-full ">
-      <img src={pizza} className="h-3/6 w-4/6 object-cover" alt="pizza"></img>
+      <img src={props.product.image} className="h-3/6 w-4/6 object-cover" alt="pizza"></img>
       <p className="mt-2 text-center text-lg font-semibold">
         {props.product.name}
       </p>
@@ -166,6 +193,7 @@ const Product = (props: ProductProps) => {
           Add to Basket
         </button>
       </div>
+      <Toaster/>
     </div>
   );
 };

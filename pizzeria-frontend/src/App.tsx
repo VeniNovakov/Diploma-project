@@ -11,9 +11,12 @@ import { EditMenuPage } from "./pages/EditMenuPage";
 import UpdateMenuPage from "./pages/ProductUpdatePage";
 import OrdersPage from "./pages/ordersPage";
 import PizzaManPage from "./pages/PizzaManPage";
+import { ProductProvider } from "./providers/TempProductProvider";
+
 const App = () => {
   return (
     <BasketProvider>
+      <ProductProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/">
@@ -30,6 +33,8 @@ const App = () => {
           </Route>
         </Routes>
       </BrowserRouter>
+  
+      </ProductProvider>
     </BasketProvider>
   );
 };

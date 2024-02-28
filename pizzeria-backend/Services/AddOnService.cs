@@ -8,6 +8,7 @@ namespace pizzeria_backend.Services
     {
         public Task<AddOn> AddAddOn(AddOn addOn);
         public Task<AddOn> GetAddOn(int Id);
+        public Task<List<AddOn>> GetAllAddOns();
         public Task<AddOn> UpdateAddOn(AddOn addOn);
         public Task<AddOn> DeleteAddOn(int Id);
     }
@@ -36,6 +37,28 @@ namespace pizzeria_backend.Services
                 .FirstOrDefault(a => a.Id == Id);
 
             return addOn;
+        }
+
+        public async Task<List<AddOn>> GetAllAddOns()
+        {
+            List<AddOn> addOns = await _context.AddOns
+                .Include(a => a.Category)
+                .Select(a => new AddOn
+                {
+                    Id = a.Id,
+                    Name = a.Name,
+                    AmountInGrams = a.AmountInGrams,
+                    Description = a.Description,
+                    Price = a.Price,
+                    CategoryId = a.CategoryId,
+                    Category = new AddOnsCategory
+                    {
+                        Id = a.Category.Id,
+                        Name = a.Category.Name
+                    }
+                }).ToListAsync();
+
+            return addOns;
         }
         public async Task<AddOn> UpdateAddOn(AddOn addOn)
         {
