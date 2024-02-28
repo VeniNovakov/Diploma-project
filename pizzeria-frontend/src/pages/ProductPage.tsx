@@ -10,6 +10,8 @@ import { ProductProvider, useProduct } from "../providers/TempProductProvider";
 import { round } from "../utilities/functions/math";
 import { TempProduct } from "../utilities/types/provider.interfaces";
 import { AddOnsSection } from "../utilities/types/addOns.interfaces";
+import { parse } from "path";
+import toast, { Toaster } from "react-hot-toast";
 
 interface ChangeAmountProps {
   item: AddOnType | ProductType;
@@ -17,7 +19,9 @@ interface ChangeAmountProps {
   amount: number;
   setAmount: React.Dispatch<React.SetStateAction<number>>;
 }
-
+const delay = (ms: number | undefined)  => new Promise(
+  resolve => setTimeout(resolve, ms)
+);
 const ChangeAmount: React.FC<ChangeAmountProps> = ({
   item,
   className,
@@ -33,13 +37,27 @@ const ChangeAmount: React.FC<ChangeAmountProps> = ({
       "name" in object &&
       "price" in object &&
       "description" in object &&
-      "category" in object
+      "category" in object &&
+      "isInMenu" in object
     );
   }
 
   useEffect(() => {
+
     Cookies.set("tempProduct", JSON.stringify(tempProduct));
   }, [amount, item, setTempProduct, tempProduct]);
+
+  useEffect(() => {
+    const updatedAddOns = tempProduct.addOns?.map((addOn) => {
+      if (addOn.id === item.id && amount!=0) {
+        return { ...addOn, amount };
+      }
+      return addOn;
+    });
+    setTempProduct({ ...tempProduct, addOns: updatedAddOns });
+
+    setIsDisabled(amount === 0);
+  }, [amount, item]);
 
   const removeAddOn = () => {
     setIsDisabled(true);
@@ -77,7 +95,7 @@ const ChangeAmount: React.FC<ChangeAmountProps> = ({
       setTempProduct({ ...tempProduct, amount });
       setIsDisabled(true && amount === 1);
     } else if (!instanceOfProduct(item)) {
-      const updatedAddOns = amount ? updateAddOn() : removeAddOn();
+      const updatedAddOns = amount !== 0 ? updateAddOn() : removeAddOn();
 
       setTempProduct({ ...tempProduct, addOns: updatedAddOns });
       setIsDisabled(amount === 0);
@@ -124,44 +142,68 @@ const ProductPage: React.FC = () => {
   const { basketItems, setBasketItems } = useBasketContent();
   const { tempProduct, setTempProduct } = useProduct();
 
-  const selectedItem: ProductType | undefined = menu.find(
-    (item) => item.id === numericId,
-  );
+  const [product, setProduct] = useState<ProductType | null>(null);
+  const [addOns, setAddOns] = useState<AddOnType[]>([]);
 
-  const submitOrder = () => {
-    const tempProduct = JSON.parse(Cookies.get("tempProduct") || "{}");
+  useEffect(() => {
+    setTempProduct(JSON.parse(Cookies.get("tempProduct")|| "{}") as TempProduct);
+  }, [numericId]);
+
+  const submitOrder = async() => {
+    const tempProduct = JSON.parse(Cookies.get("tempProduct") || "{}") as TempProduct;
     Cookies.set("tempProduct", "{}");
+    toast.success("Added " + tempProduct.product.name + " with add ons to basket", {position:"top-right", duration:1500})
     setBasketItems([...basketItems, tempProduct]);
+
+    await delay(1000);
+
+    window.location.href = window.location.origin +"/menu";
   };
 
   const firstRender = useRef(true);
+
+  const fetchProduct = () =>{
+    fetch(window.location.origin+ "/api/products/v1.0/" + numericId)
+    .then(response => response.json())
+    .then(parsedData =>{
+      setProduct(parsedData as ProductType);
+      setTempProduct({
+        addOns: [],
+        product: parsedData,
+        amount: 1,
+    });
+
+    })
+    .catch(error => {
+      console.error('Error fetching product data:', error);
+    });
+  }
+
+  const fetchAddOns = () => {
+    fetch(window.location.origin+ "/api/add-ons/v1.0/", { method: "GET" })
+      .then(resp => resp.json())
+      .then(data => {
+        setAddOns(data as AddOnType[]);
+      })
+      .catch(error => {
+        console.error('Error fetching add-ons data:', error);
+      });
+
+  }
   useEffect(() => {
-    const tempProductFromCookie = JSON.parse(
-      Cookies.get("tempProduct") || "{}",
-    ) as TempProduct;
-
+    const tempProductFromCookie = JSON.parse(Cookies.get("tempProduct") || "{}") as TempProduct;
     const hasOldEntry = !!tempProductFromCookie.product;
-
-    if (
-      firstRender.current ||
-      !hasOldEntry ||
-      tempProductFromCookie.product.id !== numericId - 1
-    ) {
-      Cookies.set(
-        "tempProduct",
-        JSON.stringify({ addOns: [], product: menu[numericId - 1], amount: 1 }),
-      );
-
-      setTempProduct({ addOns: [], product: menu[numericId - 1], amount: 1 });
-
+    
+    if (firstRender.current || !hasOldEntry || tempProductFromCookie.product.id !== numericId) {
+      fetchProduct();
+      fetchAddOns();
       firstRender.current = false;
-    } else {
-      setTempProduct(tempProductFromCookie);
     }
-  }, [numericId, setTempProduct]);
+
+  }, []);
 
   return (
-    <ProductProvider>
+    <>
       <Link
         to="/menu"
         className="absolute right-0 mr-4 border hover:bg-slate-300"
@@ -169,9 +211,9 @@ const ProductPage: React.FC = () => {
         <button>X</button>
       </Link>
       <div className="flex flex-row justify-around">
-        <Additions sections={add_ons.toppingSections} />
+        <Additions addOns={addOns} />
         <div className="flex flex-col justify-center">
-          {selectedItem && <Product />}
+          {product && <Product />}
           <div className="flex flex-col">
             <button
               onClick={submitOrder}
@@ -180,23 +222,40 @@ const ProductPage: React.FC = () => {
               order
             </button>
             <ChangeAmount
-              item={menu[numericId - 1]}
+              item={tempProduct.product as ProductType}
               className="justify-center"
               amount={productAmount}
               setAmount={SetProductAmount}
             />
           </div>
         </div>
+        <Toaster/>
       </div>
-    </ProductProvider>
+      </>
   );
 };
 
-const Additions: React.FC<{ sections: AddOnsSection[] }> = ({ sections }) => {
+const Additions: React.FC<{ addOns: AddOnType[] }> = ({ addOns }) => {
+
+  const addOnsByCategory: { [key: string]: AddOnType[] } = {};
+  addOns.forEach((addOn) => {
+    if (!addOnsByCategory[addOn.category.id]) {
+      addOnsByCategory[addOn.category.id] = [];
+    }
+    addOnsByCategory[addOn.category.id].push(addOn);
+  });
+
+  const addOnSections = Object.entries(addOnsByCategory).map(
+    ([categoryId, addOns]) => ({
+      sectionName: addOns[0].category.name, 
+      toppings: addOns,
+    })
+  );
+
   return (
     <div className="flex flex-col">
-      {sections.map((section) => (
-        <AdditionsSection key={section.sectionName} section={section} />
+      {addOnSections.map((section, index) => (
+        <AdditionsSection key={index} section={section} />
       ))}
     </div>
   );
@@ -208,13 +267,15 @@ const AdditionsSection: React.FC<{ section: AddOnsSection }> = ({
   return (
     <div className="flex-col border rounded-md p-12 bg-amber-100">
       <h3 className="font-bold self-start">{section.sectionName}</h3>
-      {section.toppings.map((topping, index) => (
+      {section.toppings.map((addOn, index) => (
         <AdditionElement
-          id={topping.id}
+          id={addOn.id}
           key={index}
-          name={topping.name}
-          description={topping.description}
-          price={topping.price}
+          name={addOn.name}
+          category={addOn.category}
+          categoryId={addOn.categoryId}
+          description={addOn.description}
+          price={addOn.price}
         />
       ))}
     </div>
@@ -237,7 +298,13 @@ const AdditionElement = (topping: AddOnType) => {
 };
 
 const Product = () => {
-  const { tempProduct } = useProduct();
+  const {tempProduct, setTempProduct} = useProduct();
+
+
+  if (!tempProduct || !tempProduct.product) {
+    return <div>Loading...</div>;
+  }
+
   const addOnsPrices = tempProduct.addOns?.map((addOn) => {
     if (isNaN(addOn.price) || isNaN(addOn.amount)) {
       return 0;
@@ -245,25 +312,26 @@ const Product = () => {
     return addOn.price * addOn.amount;
   });
 
+  // Calculate total price
   const total = addOnsPrices?.length
     ? round(
         addOnsPrices.reduce((acc, curr) => {
           return acc + curr;
         }),
-        2,
+        2
       )
     : 0;
 
   return (
     <div className="flex flex-col border border-gray-300 rounded p-4 max-w-md self-end">
-      <img src={pizza} alt="pizza" className="max-w-full h-auto rounded mb-2" />
+      <img src={tempProduct.product.image} alt="pizza" className="max-w-full h-auto rounded mb-2" />
       <p className="font-bold">{tempProduct.product?.name}</p>
       <p className="text-gray-700">{tempProduct.product?.description}</p>
       <p className="text-blue-500 font-bold">
         {round(
           tempProduct.product?.price * tempProduct.amount +
             total * tempProduct.amount,
-          2,
+          2
         )}
       </p>
     </div>

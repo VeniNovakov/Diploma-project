@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { BasketItem, BasketProps, ProductType } from "../utilities/types";
 import Cookies from "js-cookie";
 import NavBar from "../NavBar";
@@ -6,10 +6,94 @@ import { useBasketContent } from "../providers/BasketContentProvider";
 import pizza from "../images/pizza.jpg";
 import { useBasket } from "../providers/BasketCounterProvider";
 import { round } from "../utilities/functions/math";
-
+import toast,{Toaster} from "react-hot-toast";
 const BasketPage = () => {
   const { basketItems, setBasketItems } = useBasketContent();
 
+  const ref = useRef(false);
+  console.log(basketItems)
+  useEffect(() => {
+
+    if(ref.current == false){
+    fetch(window.location.origin + "/api/orders/v1.0/validate", {
+      method:"POST", 
+      body:JSON.stringify(MapBasket()),     
+      headers:{
+      "Content-Type":"application/json"
+    }})
+    .then(resp => resp.json())
+    .then(data => {
+      console.log(data);
+      
+      var ValidatedItems: BasketItem[] = basketItems;
+      if(Array.isArray(data.productIds as number[]) && (data.productIds as number[]).length !== 0){
+
+        ValidatedItems = basketItems.filter(it => {
+          if((data.productIds as number[]).includes(it.product.id)){
+            toast.error(it.product.name + " was excluded from the menu, was made unavailable or removed entirely and we removed it from the your basket\n Sorry for the inconvience")
+            return false;
+          } 
+          return true;
+         })
+
+      }
+      if(Array.isArray(data.addOnIds) && (data.addOnIds as number[]).length !== 0){
+
+        ValidatedItems = ValidatedItems.map((it) => {
+          return {
+            ...it,
+            addOns: it?.addOns?.filter((add) => {
+              if (data.addOnIds.includes(add.id)) {
+                toast.error(
+                  it.product.name +
+                    " add-on: " +
+                    add.name +
+                    " was removed, and we removed it from your basket.\nSorry for the inconvenience."
+                );
+                return false;
+              }
+              return true;
+            }),
+          };
+        });
+
+      }
+        setBasketItems(ValidatedItems);
+      }
+      )
+      ref.current = true;
+    }
+
+
+  },[])
+
+  const MapBasket = () => {
+    var newArray:any = [];
+    basketItems.forEach(item => {
+
+        const productId = item.product.id;
+        const productAddOns = item.addOns;
+        const productAmount = item.amount;
+
+        const mappedObject = {
+            "productId": productId,
+            "addOns": productAddOns?.map(addOn => ({
+                "addOnId": addOn.id,
+                "amount": addOn.amount
+            })),
+            "amount": productAmount
+        };
+
+        newArray.push(mappedObject);
+    });
+
+    const mappedJSON = {
+        "wantedFor": new Date(Date.now()).toISOString(),
+        "Items": newArray,
+    };
+    return mappedJSON;
+
+}
   return (
     <div>
       <NavBar></NavBar>
@@ -20,7 +104,7 @@ const BasketPage = () => {
               return (
                 <ProductOrdered
                   item={item}
-                  key={item.product.id}
+                  key={item.Id}
                 ></ProductOrdered>
               );
             })
@@ -37,6 +121,7 @@ const BasketPage = () => {
           ></textarea>
         </div>
       </div>
+      <Toaster/>
     </div>
   );
 };
@@ -121,7 +206,7 @@ const ProductOrdered = (props: BasketProps) => {
       onMouseLeave={() => setIsHovered(false)}
     >
       <img
-        src={pizza}
+        src={props.item.product.image}
         className="object-scale-down h-16 w-16 border-black"
         alt="pizza"
       ></img>
@@ -178,6 +263,55 @@ const ProductOrdered = (props: BasketProps) => {
 
 const Checkout = () => {
   const { basketItems, setBasketItems } = useBasketContent();
+
+  const MapBasketAndFetch = () => {
+    var newArray:any = [];
+    basketItems.forEach(item => {
+
+        const productId = item.product.id;
+        const productAddOns = item.addOns;
+        const productAmount = item.amount;
+
+        const mappedObject = {
+            "productId": productId,
+            "addOns": productAddOns?.map(addOn => ({
+                "addOnId": addOn.id,
+                "amount": addOn.amount
+            })),
+            "amount": productAmount
+        };
+
+        newArray.push(mappedObject);
+    });
+
+    const mappedJSON = {
+        "wantedFor": new Date(Date.now()).toISOString(),
+        "Items": newArray,
+    };
+
+    toast.loading("Sending order", {position: "top-center"});
+    fetch(window.location.origin+ "/api/orders/v1.0/create", 
+    {
+      method:"POST",
+      body:JSON.stringify(mappedJSON),
+      headers:{
+        "Content-Type":"application/json"
+      }
+    }).then(resp => {
+      toast.dismiss();
+      if(resp.status != 200 ){
+        toast.error("Error when sending order");
+        return;
+      }
+      return resp.json()
+    }).then(data => {
+ 
+      toast.success("Order successfully sent Order #" + data.id, {position:"top-right", duration:4000});
+
+    }
+      )
+}
+
   return (
     <div>
       {basketItems.length && (
@@ -185,6 +319,7 @@ const Checkout = () => {
           <Total></Total>
           <button
             type="button"
+            onClick={() => MapBasketAndFetch()}
             className="shadow-md hover:shadow-inner hover:bg-slate-100 rounded-md border-slate-400 border"
           >
             ORDER

@@ -14,34 +14,43 @@ export interface BasketProps {
 
 export interface ProductType {
   id: number;
+  image: string;
   name: string;
   price: number;
   description: string;
-  category: string;
+  category: Category;
+  categorId: number;
+  isAvailable: boolean;
+  isInMenu: boolean;
 }
 
 export interface AddOnType {
   id: number;
   name: string;
   description: string;
+  category: Category
+  categoryId: number;
   price: number;
 }
 
 export interface AddOnBasketType extends AddOnType {
+  addOn: AddOnType;
   amount: number;
+
 }
 export interface Order {
   id: number;
-  wanted_for: string;
-  customer: {
-    name: string;
-    phone: string;
-  };
-  items: BasketItem[];
+  wantedFor: string;
+  orderedProducts: BasketItem[];
+  isCompleted: boolean;
 }
-
-export interface BasketItem {
+interface Category{
   id: number;
+  name: string;
+}
+export interface BasketItem {
+  Id?: number;
+  productId:number;
   addOns?: AddOnBasketType[];
   product: ProductType;
   amount: number;

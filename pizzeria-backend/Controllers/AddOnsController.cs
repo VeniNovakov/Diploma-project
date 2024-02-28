@@ -20,6 +20,16 @@ namespace pizzeria_backend.Controllers
             return Ok(await _addOnService.AddAddOn(ConvertToAddOn(addOn)));
         }
 
+
+
+        [HttpGet()]
+        [Produces("application/json")]
+        public async Task<IActionResult> GetAddOns(int Id)
+        {
+
+            return Ok(await _addOnService.GetAllAddOns());
+        }
+
         [HttpGet("{Id}")]
         [Produces("application/json")]
         public async Task<IActionResult> GetAddOn(int Id)
