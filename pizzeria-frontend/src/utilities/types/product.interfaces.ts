@@ -19,7 +19,7 @@ export interface ProductType {
   price: number;
   description: string;
   category: Category;
-  categorId: number;
+  categoryId: number;
   isAvailable: boolean;
   isInMenu: boolean;
 }
@@ -44,7 +44,7 @@ export interface Order {
   orderedProducts: BasketItem[];
   isCompleted: boolean;
 }
-interface Category{
+export interface Category{
   id: number;
   name: string;
 }

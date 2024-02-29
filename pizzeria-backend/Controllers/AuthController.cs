@@ -16,6 +16,7 @@ namespace pizzeria_backend.Controllers
     {
 
         private readonly IAuthService _authService = authService;
+
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto? user)
         {
@@ -35,17 +36,24 @@ namespace pizzeria_backend.Controllers
             {
                 return BadRequest("Bad credentials");
             }
-            return Ok();
+            return Ok(tokens);
         }
+
 
         [HttpPost("refresh")]
         [@Authorize(Policy = "refreshToken")]
         public async Task<IActionResult> Refresh()
         {
+            string token = HttpContext.Request!.Headers["Authorization"]!
+                    .FirstOrDefault(h => h.StartsWith("Bearer ")).Substring("Bearer ".Length);
 
+            if (token == null)
+            {
+                return Unauthorized();
+            }
             var refreshObj = DecodeRefreshToken(HttpContext.User.Identity);
 
-            RefreshDto tokens = await _authService.Refresh(refreshObj);
+            RefreshDto tokens = await _authService.Refresh(refreshObj, token);
             if (tokens is null)
             {
                 return Unauthorized();
@@ -57,27 +65,22 @@ namespace pizzeria_backend.Controllers
         [@Authorize(Policy = "refreshToken")]
         public async Task<IActionResult> Revoke()
         {
+            string token = HttpContext.Request!.Headers["Authorization"]!
+                .FirstOrDefault(h => h.StartsWith("Bearer ")).Substring("Bearer ".Length);
             var refreshObj = DecodeRefreshToken(HttpContext.User.Identity);
 
-            RefreshDto tokens = await _authService.Revoke(refreshObj);
+            RefreshDto tokens = await _authService.Revoke(refreshObj, token);
+
             if (tokens is null)
             {
                 return Unauthorized();
             }
+
             return Ok(tokens);
 
 
         }
 
-        [@Authorize(Policy = "Admin")]
-        [HttpPost("prot")]
-        public async Task<IActionResult> ProtectedEndpoint([FromBody] RefreshDto refresh)
-        {
-
-            return Ok("Oh so you are an admin, cool");
-
-
-        }
 
         private JWTRefreshDto DecodeRefreshToken(IIdentity identity)
         {

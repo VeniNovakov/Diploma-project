@@ -21,7 +21,6 @@ namespace pizzeria_backend.Controllers
         }
 
 
-
         [HttpPost("create")]
         public async Task<ActionResult> Order([FromBody] OrderDto Order)
         {
@@ -70,6 +69,7 @@ namespace pizzeria_backend.Controllers
             {
                 return NotFound("Order not found");
             }
+
             await _hubContext.Clients.All.SendAsync("DeleteOrder", ord);
             return Ok(ord);
         }

@@ -9,8 +9,8 @@ namespace pizzeria_backend.Services
     {
         public Task<RefreshDto> Register(RegisterDto user);
         public Task<RefreshDto> Login(LoginDto loginInfo);
-        public Task<RefreshDto> Revoke(JWTRefreshDto tokens);
-        public Task<RefreshDto> Refresh(JWTRefreshDto jwtObj);
+        public Task<RefreshDto> Revoke(JWTRefreshDto tokens, string refreshToken);
+        public Task<RefreshDto> Refresh(JWTRefreshDto jwtObj, string refreshToken);
 
     }
     public class AuthService : IAuthService
@@ -26,12 +26,11 @@ namespace pizzeria_backend.Services
         }
         public async Task<RefreshDto> Register(RegisterDto user)
         {
-            /*var IsUser = (await FindByEmail(user.Email));
-              if (user is not null)
-              {
-                  return null;
-              }
-            */
+            var IsUser = (await FindByEmail(user.Email));
+            if (IsUser is not null)
+            {
+                return null;
+            }
 
             if (user.Password != user.ConfirmPassword)
             {
@@ -45,10 +44,16 @@ namespace pizzeria_backend.Services
                 Password = BCrypt.Net.BCrypt.EnhancedHashPassword(user.Password),
                 IsAdmin = false
             };
+            await _context.Users.AddAsync(newUser);
             var refreshToken = _tokenService.GenerateJwtRefreshToken(newUser);
-            newUser.RefreshToken = refreshToken;
+            newUser.RefreshToken = BCrypt.Net.BCrypt.EnhancedHashPassword(refreshToken);
 
             var accessToken = _tokenService.GenerateJWTAccess(newUser);
+
+
+
+            await _context.SaveChangesAsync();
+            Console.WriteLine(accessToken, refreshToken);
 
             return new RefreshDto
             {
@@ -69,10 +74,11 @@ namespace pizzeria_backend.Services
             }
 
 
-            //when table is added update refresh token
-
             var accessToken = _tokenService.GenerateJWTAccess(user);
             var refreshToken = _tokenService.GenerateJwtRefreshToken(user);
+
+            user.RefreshToken = BCrypt.Net.BCrypt.EnhancedHashPassword(refreshToken);
+            await _context.SaveChangesAsync();
 
             return new RefreshDto
             {
@@ -81,29 +87,33 @@ namespace pizzeria_backend.Services
             };
 
         }
-        public async Task<RefreshDto> Refresh(JWTRefreshDto jwtObj)
+        public async Task<RefreshDto> Refresh(JWTRefreshDto jwtObj, string refreshToken)
         {
-            //var pr = _tokenService.GetPrincipalTokenExpiredToken(tokens.AccessToken).Identity as ClaimsIdentity;
 
-            /*
-            var user = (await FindById(jwtObj.Id);
-            if (user is not null)
+            var user = (await FindById(jwtObj.Id));
+            if (user is null)
             {
+                Console.WriteLine("Chupi 1");
                 return null;
             }
-            //when table implemented add check if refresh token is the same as the refresh stored for the user
-            */
 
-            return null; //not permanent thing, code below is the thing its supposed to be
-
-            /*return new RefreshDto
+            var accessToken = _tokenService.GenerateJWTAccess(user);
+            Console.WriteLine(refreshToken);
+            if (BCrypt.Net.BCrypt.EnhancedVerify(refreshToken, user.RefreshToken) is false)
             {
-                AccessToken = _tokenService.GenerateJWTAccess(user),
-                RefreshToken = tokens.RefreshToken
+                Console.WriteLine("Chupi 2");
+
+                return null;
+            }
+
+            return new RefreshDto
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken
             };
-            */
+
         }
-        public async Task<RefreshDto> Revoke(JWTRefreshDto jwtObj)
+        public async Task<RefreshDto> Revoke(JWTRefreshDto jwtObj, string refreshToken)
         {
 
 
@@ -113,12 +123,14 @@ namespace pizzeria_backend.Services
             {
                 return null;
             }
-            /*
-            // if user.RefreshToken != tokens.refreshToken => null
-            user.RefreshToken = null;
 
-            //save
-            */
+            if (BCrypt.Net.BCrypt.EnhancedVerify(user.RefreshToken, refreshToken) is false)
+            {
+                return null;
+            }
+
+            user.RefreshToken = null;
+            await _context.SaveChangesAsync();
             return null;
 
         }

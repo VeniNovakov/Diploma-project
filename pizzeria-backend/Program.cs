@@ -56,6 +56,7 @@ builder.Services.AddAuthentication(options =>
         opt.Authority = Configuration["JWT:Issuer"];
     }
     );
+
 builder.Services.AddAuthorization(opt =>
 {
     opt.AddPolicy("refreshToken", policy => policy.RequireClaim("randGuid"));
@@ -68,8 +69,12 @@ builder.Services.AddScoped<IExampleService, Example>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IAzureBlobStorageService, AzureBlobStorageService>();
 builder.Services.AddScoped<IAddOnService, AddOnService>();
+
+builder.Services.AddScoped<IProductCategoriesService, ProductCategoriesService>();
+
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+
 builder.Services.AddSwaggerGen(options =>
 {
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -94,6 +99,7 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSignalR();
+
 var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
@@ -114,6 +120,7 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapSwagger();
 app.MapControllerRoute(
     name: "default",

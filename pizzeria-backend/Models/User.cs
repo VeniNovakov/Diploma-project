@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
-
-namespace pizzeria_backend.Models
+﻿namespace pizzeria_backend.Models
 {
-    public class User : IdentityUser
+    public class User
     {
         public int Id { get; set; }
         public string Name { get; set; }

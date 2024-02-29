@@ -57,6 +57,7 @@ namespace pizzeria_backend.Services
 
         public string GenerateJwtRefreshToken(User user)
         {
+            Console.WriteLine(user);
             var claims = new List<Claim> {
                 new Claim("Id", user.Id.ToString()),
                 new Claim("randGuid", this.Generate64String())
