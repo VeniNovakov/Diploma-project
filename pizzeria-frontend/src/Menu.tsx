@@ -188,6 +188,7 @@ const Product = (props: ProductProps) => {
         </Link>
         <button
           className="mt-3 px-4 py-2 border-2 border-black hover:bg-slate-300 focus:outline-none focus:border-slate-300"
+          disabled={!props.product.isAvailable}
           onClick={() => updateBasket(props.product)}
         >
           Add to Basket

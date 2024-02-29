@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { BasketItem, BasketProps, ProductType } from "../utilities/types";
 import Cookies from "js-cookie";
-import NavBar from "../NavBar";
+import NavBar from "../components/NavBar";
 import { useBasketContent } from "../providers/BasketContentProvider";
 import pizza from "../images/pizza.jpg";
 import { useBasket } from "../providers/BasketCounterProvider";

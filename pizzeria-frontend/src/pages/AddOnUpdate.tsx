@@ -3,7 +3,6 @@ import { AddOnType, Category, ProductType } from "../utilities/types";
 import { useParams } from "react-router-dom";
 import { fetchDataWithRetry } from "../utilities/functions/fetchAndRefresh";
 import toast, { Toaster } from "react-hot-toast";
-import { wait } from "@testing-library/user-event/dist/utils";
 
 const UpdateAddOnPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();

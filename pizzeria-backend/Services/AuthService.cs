@@ -54,14 +54,12 @@ namespace pizzeria_backend.Services
 
 
             await _context.SaveChangesAsync();
-            Console.WriteLine(accessToken, refreshToken);
 
             return new RefreshDto
             {
                 AccessToken = accessToken,
                 RefreshToken = refreshToken
             };
-
 
         }
         public async Task<RefreshDto> Login(LoginDto loginInfo)

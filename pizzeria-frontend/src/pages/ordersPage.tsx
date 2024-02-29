@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import ordersJson from "../json/orders.json";
 import { Order } from "../utilities/types";
 import { HttpTransportType, HubConnection, HubConnectionBuilder, IHttpConnectionOptions } from "@microsoft/signalr";
 import toast, { Toaster } from 'react-hot-toast';

@@ -8,10 +8,15 @@ namespace pizzeria_backend.Controllers
 {
     [Route("api/add-ons/v1.0")]
     [ApiController]
-    public class AddOnsController(IAddOnService addOnService) : Controller
+    public class AddOnsController : Controller
     {
 
-        private readonly IAddOnService _addOnService = addOnService;
+        private readonly IAddOnService _addOnService;
+
+        public AddOnsController(IAddOnService addOnService)
+        {
+            _addOnService = addOnService;
+        }
 
         [HttpPost()]
         [Authorize(Policy = "Admin")]
@@ -26,7 +31,7 @@ namespace pizzeria_backend.Controllers
 
         [HttpGet()]
         [Produces("application/json")]
-        public async Task<IActionResult> GetAddOns(int Id)
+        public async Task<IActionResult> GetAddOns()
         {
             return Ok(await _addOnService.GetAllAddOns());
         }

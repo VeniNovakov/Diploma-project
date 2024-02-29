@@ -33,7 +33,21 @@ namespace pizzeria_backend.Services
                 throw new ValidationException();
             }
 
-            var dbOrder = new Order { WantedFor = order.WantedFor };
+            var dbOrder = new Order
+            {
+                WantedFor = order.WantedFor,
+                OrderedProducts = order.Items.Select(item => new OrderedProduct
+                {
+                    ProductId = item.ProductId,
+                    Amount = item.Amount,
+                    AddOns = item.AddOns?.Select(addon => new OrderedAddOn
+                    {
+                        AddOnId = addon.AddOnId,
+                        Amount = addon.Amount
+                    }).ToList()
+                }).ToList()
+            };
+
             _context.Order.Add(dbOrder);
 
             await _context.SaveChangesAsync();

@@ -65,9 +65,8 @@ builder.Services.AddAuthorization(opt =>
 
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
-builder.Services.AddScoped<IExampleService, Example>();
+
 builder.Services.AddScoped<IProductService, ProductService>();
-builder.Services.AddScoped<IAzureBlobStorageService, AzureBlobStorageService>();
 builder.Services.AddScoped<IAddOnService, AddOnService>();
 builder.Services.AddScoped<IOrderService, OrdersService>();
 
@@ -76,6 +75,8 @@ builder.Services.AddScoped<IAddOnCategoriesService, AddOnCategoriesService>();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IAzureBlobStorageService, AzureBlobStorageService>();
+
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -107,7 +108,6 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
 
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 app.UseSwagger();

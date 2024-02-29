@@ -30,7 +30,6 @@ const Auth: React.FC = () => {
 
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(formData.email) && isRegistering) {
-        // Display error message or handle invalid email format
         console.error("Invalid email format");
         return;
       }

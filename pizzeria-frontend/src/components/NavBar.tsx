@@ -1,8 +1,8 @@
-import { useBasket } from "./providers/BasketCounterProvider";
-import shoppingCart from "./images/shopping-cart.png";
+import { useBasket } from "../providers/BasketCounterProvider";
+import shoppingCart from "../images/shopping-cart.png";
 import { Link } from "react-router-dom";
 import React from "react";
-import { NavItemProps } from "./utilities/types/navBar.interfaces";
+import { NavItemProps } from "../utilities/types/navBar.interfaces";
 
 const NavBar = () => {
   const { basketCounter } = useBasket();

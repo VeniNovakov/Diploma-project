@@ -40,6 +40,7 @@ namespace pizzeria_backend.Services
             return product;
 
         }
+
         public async Task<List<Product>> GetMenu()
         {
             var products = await _context.Products

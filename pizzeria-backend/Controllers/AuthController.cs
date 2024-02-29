@@ -6,16 +6,21 @@ using System.Security.Principal;
 using System.Web.Http;
 using Authorize = Microsoft.AspNetCore.Authorization.AuthorizeAttribute;
 using FromBody = Microsoft.AspNetCore.Mvc.FromBodyAttribute;
+using HttpGet = Microsoft.AspNetCore.Mvc.HttpGetAttribute;
 using HttpPost = Microsoft.AspNetCore.Mvc.HttpPostAttribute;
 
 namespace pizzeria_backend.Controllers
 {
     [Route("api/auth/v1.0")]
     [ApiController]
-    public class Auth(IAuthService authService) : Controller
+    public class AuthController : Controller
     {
 
-        private readonly IAuthService _authService = authService;
+        private readonly IAuthService _authService;
+        public AuthController(IAuthService authService)
+        {
+            _authService = authService;
+        }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto? user)
@@ -83,6 +88,16 @@ namespace pizzeria_backend.Controllers
         }
 
 
+        [HttpGet("isAdmin")]
+        [@Authorize]
+        public async Task<IActionResult> IsAdmin()
+        {
+            var claimsRepo = HttpContext.User.Identity as ClaimsIdentity;
+
+            return Ok(Boolean.Parse(claimsRepo.FindFirst("IsAdmin").Value));
+        }
+
+
         private JWTRefreshDto DecodeRefreshToken(IIdentity identity)
         {
             var claimsRepo = identity as ClaimsIdentity;
@@ -97,6 +112,5 @@ namespace pizzeria_backend.Controllers
             };
             return refreshObj;
         }
-
     }
 }

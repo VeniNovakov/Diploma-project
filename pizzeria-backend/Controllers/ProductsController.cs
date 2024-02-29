@@ -8,13 +8,20 @@ namespace pizzeria_backend.Controllers
 {
     [Route("api/products/v1.0")]
     [ApiController]
-    public class ProductsController(IProductService productService, IAzureBlobStorageService azureBlobStorageService) : ControllerBase
+    public class ProductsController : ControllerBase
     {
-        private readonly IProductService _productService = productService;
-        private readonly IAzureBlobStorageService _azureBlobStorageService = azureBlobStorageService;
+        private readonly IProductService _productService;
+        private readonly IAzureBlobStorageService _azureBlobStorageService;
+
+        public ProductsController(IProductService productsService, IAzureBlobStorageService azureBlobStorageService)
+        {
+
+            _productService = productsService;
+            _azureBlobStorageService = azureBlobStorageService;
+        }
 
         [HttpPost()]
-        [Authorize]
+        [Authorize(Policy = "Admin")]
         [Produces("application/json")]
         public async Task<IActionResult> AddProductAsync([FromForm] ProductDto? product)
         {
@@ -143,19 +150,5 @@ namespace pizzeria_backend.Controllers
             };
         }
 
-        private static Product ConvertToProduct(ProductDto productDto, int id)
-        {
-
-            return new Product
-            {
-                Id = id,
-                Name = productDto.Name,
-                Description = productDto.Description,
-                CategoryId = productDto.CategoryId,
-                Price = productDto.Price,
-                IsAvailable = productDto.IsAvailable,
-                IsInMenu = productDto.IsInMenu,
-            };
-        }
     }
 }

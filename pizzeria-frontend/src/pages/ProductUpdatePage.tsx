@@ -9,6 +9,7 @@ const UpdateProductPage: React.FC = () => {
   const numericId = parseInt(id as string, 10);
   const [isPreview, setPreview] = useState(false);
   const [product, setProduct] = useState<ProductType>();
+  const [isAuth, setAuth] = useState<boolean>(true);
 
   useEffect(() => {
     if(numericId === null || isNaN(numericId)){
@@ -20,12 +21,15 @@ const UpdateProductPage: React.FC = () => {
         setProduct(data as ProductType);
       })
       .catch(error => {
+          setAuth(false);
         console.error('Error fetching product data:', error);
       });
 
   }, [numericId]);
 
   return (
+    isAuth?
+    (
     <ImageDialogProvider>
       <div
         className={
@@ -40,6 +44,10 @@ const UpdateProductPage: React.FC = () => {
         />
       </div>
     </ImageDialogProvider>
+    ):(
+    <div>Access prohibited</div>
+    )
+      
   );
 };
 
@@ -115,6 +123,7 @@ const Product: React.FC<{
   };
 
   return (
+    
     <>
       <div className={"flex flex-col justify-center items-center "}>
         <label>Insert image:</label>

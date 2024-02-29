@@ -13,7 +13,6 @@ namespace pizzeria_backend.Services
 
         public string GenerateJWTAccess(User user);
         public string Generate64String();
-        public ClaimsPrincipal GetPrincipalTokenExpiredToken(string token);
         public string GenerateJwtRefreshToken(User user);
     }
     public class TokenService(IConfiguration config) : ITokenService
@@ -78,20 +77,6 @@ namespace pizzeria_backend.Services
             var refreshToken = new JwtSecurityTokenHandler().WriteToken(JwtAcc);
             return refreshToken;
 
-        }
-        public ClaimsPrincipal GetPrincipalTokenExpiredToken(string token)
-        {
-
-            var validation = new TokenValidationParameters
-            {
-                ValidIssuer = config["JWT:Issuer"],
-                ValidAudience = config["JWT:Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JWT:Key"]!)),
-                ValidateAudience = true,
-                ValidateLifetime = false,
-                ValidateIssuer = true,
-            };
-            return new JwtSecurityTokenHandler().ValidateToken(token, validation, out _);
         }
     }
 
