@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import { ImageDialogProvider, useDialog } from "../providers/DialogProvider";
 import { fetchDataWithRetry } from "../utilities/functions/fetchAndRefresh";
 
-const UpdateMenuPage: React.FC = () => {
+const UpdateProductPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const numericId = parseInt(id as string, 10);
   const [isPreview, setPreview] = useState(false);
@@ -229,4 +229,4 @@ const Product: React.FC<{
   );
 };
 
-export default UpdateMenuPage;
+export default UpdateProductPage;

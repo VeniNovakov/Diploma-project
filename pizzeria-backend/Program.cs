@@ -69,8 +69,10 @@ builder.Services.AddScoped<IExampleService, Example>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IAzureBlobStorageService, AzureBlobStorageService>();
 builder.Services.AddScoped<IAddOnService, AddOnService>();
+builder.Services.AddScoped<IOrderService, OrdersService>();
 
 builder.Services.AddScoped<IProductCategoriesService, ProductCategoriesService>();
+builder.Services.AddScoped<IAddOnCategoriesService, AddOnCategoriesService>();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();

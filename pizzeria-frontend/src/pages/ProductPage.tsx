@@ -1,17 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
-import pizza from "../images/pizza.jpg";
-import menu from "../json/menu.json";
 import { AddOnType, ProductType } from "../utilities/types";
 import { Link, useParams } from "react-router-dom";
-import add_ons from "../json/add-ons.json";
 import Cookies from "js-cookie";
 import { useBasketContent } from "../providers/BasketContentProvider";
 import { ProductProvider, useProduct } from "../providers/TempProductProvider";
 import { round } from "../utilities/functions/math";
 import { TempProduct } from "../utilities/types/provider.interfaces";
 import { AddOnsSection } from "../utilities/types/addOns.interfaces";
-import { parse } from "path";
 import toast, { Toaster } from "react-hot-toast";
+import { delay } from "../utilities/functions/delay";
 
 interface ChangeAmountProps {
   item: AddOnType | ProductType;
@@ -19,9 +16,7 @@ interface ChangeAmountProps {
   amount: number;
   setAmount: React.Dispatch<React.SetStateAction<number>>;
 }
-const delay = (ms: number | undefined)  => new Promise(
-  resolve => setTimeout(resolve, ms)
-);
+
 const ChangeAmount: React.FC<ChangeAmountProps> = ({
   item,
   className,
@@ -276,6 +271,7 @@ const AdditionsSection: React.FC<{ section: AddOnsSection }> = ({
           categoryId={addOn.categoryId}
           description={addOn.description}
           price={addOn.price}
+          amountInGrams={addOn.amountInGrams}
         />
       ))}
     </div>

@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import ordersJson from "../json/orders.json";
 import { Order } from "../utilities/types";
-import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
+import { HttpTransportType, HubConnection, HubConnectionBuilder, IHttpConnectionOptions } from "@microsoft/signalr";
 import toast, { Toaster } from 'react-hot-toast';
+import { fetchDataWithRetry } from "../utilities/functions/fetchAndRefresh";
 const OrderDetails: React.FC<{
   selectedOrder: Order | null;
   onCompleteOrder: () => void;
@@ -19,8 +20,7 @@ const OrderDetails: React.FC<{
   let total = 0;
 
   const deleteOrder = () =>{
-    fetch(window.location.origin+"/api/orders/v1.0/"+ selectedOrder.id, {method:"DELETE"})
-    .then(data => data.json())
+    fetchDataWithRetry(window.location.origin+"/api/orders/v1.0/"+ selectedOrder.id, null, "DELETE")
     .then(d =>{ console.log(d); setSelectedOrder(null)});
   }
   return (
@@ -82,29 +82,23 @@ const OrdersPage: React.FC = () => {
 
   function createHubConnection() {
     const con = new HubConnectionBuilder()
-      .withUrl(window.location.origin+"/ordersHub")
+      .withUrl(window.location.origin + "/ordersHub",{
+        accessTokenFactory(){
+          return localStorage.getItem("authAccess");
+        }}as IHttpConnectionOptions)
       .withAutomaticReconnect()
       .build();
     setConnection(con);
-
   }
+
   const ref = useRef(false);
   useEffect(()=>{
     createHubConnection();
     if (!ref.current) {
       toast.loading("Loading orders", {position: "top-center"})
-      fetch(window.location.origin+"/api/orders/v1.0", {
-        headers:{
-          "Accepts":"application/json"
-        }, 
+      fetchDataWithRetry(window.location.origin+"/api/orders/v1.0", null,"GET",{
       }
         )
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-          return response.json();
-        })
         .then(data => {
           toast.dismiss()
           setOrders(data as Order[]);
@@ -125,9 +119,7 @@ const OrdersPage: React.FC = () => {
           .then(() => {
             connectionRef.on("NewOrder", (data) => {
               const newOrder = data as Order;
-              console.log(orders);
-              console.log(data)
-              console.log(newOrder);
+
               const infoString = "New order #"+ newOrder.id + " came";
               toast(infoString,
                 {
@@ -180,18 +172,41 @@ const OrdersPage: React.FC = () => {
       } catch (error) {
         console.log(error as Error);
       }
+      connectionRef.onclose(() => {
+        console.log("Connection closed. Attempting to reconnect...");
+        refreshAccessTokenAndReconnect();
+      });
     }
   }, [connectionRef]);
 
+  const refreshAccessTokenAndReconnect = () => {
+    fetchDataWithRetry(window.location.origin + '/api/auth/v1.0/refresh', 
+    {
+      headers:
+      {
+      "Authorization":"Bearer " + localStorage.getItem("authRefresh")
+      }
+    }
+    )
+    .then(data => data.json())
+    .then(data =>{
+      localStorage.setItem('authRefresh', data.accessToken)
+      createHubConnection()
+    }
+    ).catch(e =>{
+      console.log(e);
+    })
+  }
   const handleOrderClick = (order: Order) => {
     setSelectedOrder(order);
   };
 
   const handleCompleteOrder = () => {
 
-    fetch(window.location.origin+"/api/orders/v1.0/change-status/"+selectedOrder?.id, {method:"GET"})
+    fetchDataWithRetry(window.location.origin+"/api/orders/v1.0/change-status/"+selectedOrder?.id,null,"GET")
     setSelectedOrder(null);
   };
+
   const filteredOrders = showCompleted
     ? orders.filter(order => order.isCompleted)
     : orders.filter(order => !order.isCompleted);

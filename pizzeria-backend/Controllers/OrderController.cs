@@ -1,9 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using pizzeria_backend.Hubs;
 using pizzeria_backend.Models.Interfaces;
 using pizzeria_backend.Services;
 using System.ComponentModel.DataAnnotations;
+using System.Web.Http;
+using Authorize = Microsoft.AspNetCore.Authorization.AuthorizeAttribute;
+using FromBody = Microsoft.AspNetCore.Mvc.FromBodyAttribute;
+using HttpDelete = Microsoft.AspNetCore.Mvc.HttpDeleteAttribute;
+using HttpGet = Microsoft.AspNetCore.Mvc.HttpGetAttribute;
+using HttpPost = Microsoft.AspNetCore.Mvc.HttpPostAttribute;
 
 namespace pizzeria_backend.Controllers
 {
@@ -60,8 +67,8 @@ namespace pizzeria_backend.Controllers
             return Ok(ord);
         }
 
-
         [HttpDelete("{id}")]
+        [Authorize(Policy = "Admin")]
         public async Task<IActionResult> DeleteOrder(int id)
         {
             var ord = await _orderService.DeleteOrder(id);
@@ -76,6 +83,7 @@ namespace pizzeria_backend.Controllers
 
 
         [HttpGet("change-status/{id}")]
+        [Authorize(Policy = "Admin")]
         public async Task<IActionResult> ChangeCompletion(int id)
         {
             var ord = await _orderService.ChangeOrderCompletion(id);
@@ -91,13 +99,14 @@ namespace pizzeria_backend.Controllers
 
         }
 
-
         [HttpGet()]
+        [Authorize(Policy = "Admin")]
         [Produces("application/json")]
         public async Task<IActionResult> GetOrders()
         {
 
             var orders = await _orderService.GetOrders();
+
             if (orders == null)
             {
                 return NotFound("Order not found");

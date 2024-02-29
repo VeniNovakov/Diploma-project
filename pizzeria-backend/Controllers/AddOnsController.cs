@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using pizzeria_backend.Models;
 using pizzeria_backend.Models.Interfaces;
 using pizzeria_backend.Services;
@@ -13,6 +14,7 @@ namespace pizzeria_backend.Controllers
         private readonly IAddOnService _addOnService = addOnService;
 
         [HttpPost()]
+        [Authorize(Policy = "Admin")]
         [Produces("application/json")]
         public async Task<IActionResult> AddAddOn([FromBody] AddOnDto addOn)
         {
@@ -26,7 +28,6 @@ namespace pizzeria_backend.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> GetAddOns(int Id)
         {
-
             return Ok(await _addOnService.GetAllAddOns());
         }
 
@@ -43,11 +44,12 @@ namespace pizzeria_backend.Controllers
             return Ok(addOn);
         }
 
-        [HttpPatch()]
+        [HttpPatch("{id}")]
+        [Authorize(Policy = "Admin")]
         [Produces("application/json")]
-        public async Task<IActionResult> UpdateAddOn([FromBody] AddOn AddOn)
+        public async Task<IActionResult> UpdateAddOn(int id, [FromBody] AddOnDto AddOn)
         {
-            var addOn = await _addOnService.UpdateAddOn(ConvertToAddOn(AddOn));
+            var addOn = await _addOnService.UpdateAddOn(ConvertToAddOn(AddOn, id));
             if (addOn == null)
             {
                 return NotFound("Add on not found");
@@ -57,18 +59,20 @@ namespace pizzeria_backend.Controllers
             return Ok(addOn);
         }
 
-        [HttpDelete("{Id}")]
+        [HttpDelete("{id}")]
+        [Authorize(Policy = "Admin")]
         [Produces("application/json")]
-        public async Task<IActionResult> DeleteAddOn(int Id)
+        public async Task<IActionResult> DeleteAddOn(int id)
         {
-            var addOn = await _addOnService.DeleteAddOn(Id);
+            var addOn = await _addOnService.DeleteAddOn(id);
+
             if (addOn == null)
             {
                 return NotFound("Add on not found");
             }
+
             return Ok(addOn);
         }
-
 
         private static AddOn ConvertToAddOn(IAddOn addOn)
         {
@@ -80,7 +84,18 @@ namespace pizzeria_backend.Controllers
                 Price = addOn.Price,
                 AmountInGrams = addOn.AmountInGrams
             };
-
+        }
+        private static AddOn ConvertToAddOn(IAddOn addOn, int id)
+        {
+            return new AddOn
+            {
+                Id = id,
+                Name = addOn.Name,
+                Description = addOn.Description,
+                CategoryId = addOn.CategoryId,
+                Price = addOn.Price,
+                AmountInGrams = addOn.AmountInGrams
+            };
         }
 
     }

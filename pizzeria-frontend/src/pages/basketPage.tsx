@@ -109,7 +109,7 @@ const BasketPage = () => {
               );
             })
           ) : (
-            <div>NO items in basket</div>
+            <div>No items present in basket</div>
           )}
           <Checkout></Checkout>
         </div>

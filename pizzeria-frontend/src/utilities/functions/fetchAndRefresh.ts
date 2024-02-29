@@ -1,13 +1,11 @@
-export async function fetchDataWithRetry(url:string, body?:any, method?:string) {
+export async function fetchDataWithRetry(url:string, body?:any, method?:string, headers?:any) {
 
-  if(body == null){
-
-  }  
   const fetchOptions = {
     method:method,
     body,
-    headers: {
-      'Authorization': `Bearer `+localStorage.getItem("authAccess")
+    headers:{
+      'Authorization': `Bearer `+localStorage.getItem("authAccess"),
+      ...headers
     }
   };
 
@@ -56,9 +54,9 @@ async function refreshJWTToken() {
 
   if (response.ok) {
     const data = await response.json();
-    console.log(data);
     localStorage.setItem("authAccess", data.accessToken); 
   } else {
+    window.location.href = window.location.origin
     throw new Error(`Failed to refresh token: ${response.status}`);
   }
 }

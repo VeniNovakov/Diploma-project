@@ -67,6 +67,7 @@ namespace pizzeria_backend.Controllers
         {
             string token = HttpContext.Request!.Headers["Authorization"]!
                 .FirstOrDefault(h => h.StartsWith("Bearer ")).Substring("Bearer ".Length);
+
             var refreshObj = DecodeRefreshToken(HttpContext.User.Identity);
 
             RefreshDto tokens = await _authService.Revoke(refreshObj, token);

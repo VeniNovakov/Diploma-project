@@ -34,9 +34,24 @@ namespace pizzeria_backend.Services
         {
             AddOn addOn = _context.AddOns
                 .Include(a => a.Category)
+                .Select(a => new AddOn
+                {
+                    Id = a.Id,
+                    Name = a.Name,
+                    AmountInGrams = a.AmountInGrams,
+                    Description = a.Description,
+                    Price = a.Price,
+                    CategoryId = a.CategoryId,
+                    Category = new AddOnsCategory
+                    {
+                        Id = a.Category.Id,
+                        Name = a.Category.Name
+                    }
+                })
                 .FirstOrDefault(a => a.Id == Id);
 
             return addOn;
+
         }
 
         public async Task<List<AddOn>> GetAllAddOns()

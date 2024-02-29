@@ -51,6 +51,7 @@ namespace pizzeria_backend.Services
                     .ThenInclude(op => op.Product)
                     .ThenInclude(pr => pr.Category);
         }
+
         public async Task<Order> GetOrder(int Id)
         {
             var order = await GetOrderRelations()

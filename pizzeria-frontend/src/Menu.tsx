@@ -1,8 +1,6 @@
 import { useBasket } from "./providers/BasketCounterProvider";
-import pizza from "./images/pizza.jpg";
-import menu from "./json/menu.json";
 import React, { useEffect, useRef, useState } from "react";
-import { ProductType, BasketItem } from "./utilities/types";
+import { ProductType, BasketItem, Category } from "./utilities/types";
 import Cookies from "js-cookie";
 import { ProductProps } from "./utilities/types";
 import { useBasketContent } from "./providers/BasketContentProvider";
@@ -10,41 +8,43 @@ import { Link } from "react-router-dom";
 import { useProduct } from "./providers/TempProductProvider";
 import toast, { Toaster } from "react-hot-toast";
 interface IFilter {
-  onFilterClick: (filterType: string) => void;
+  onFilterClick: (filterType: Category | null) => void;
 }
 
 interface IFilterItem {
-  item: {
-    image: string;
-    alt: string;
-    name: string;
-  };
+  item: Category| null
   onFilterClick: () => void;
 }
 
 const Menu = () => {
-  const [selectedFilter, setSelectedFilter] = useState("");
+  const [selectedFilter, setSelectedFilter] = useState<Category>();
   const [filteredMenu, setFilteredMenu] = useState<ProductType[]>([]);
   const [menu, setMenu] = useState<ProductType[]>([]);
   const firstRender = useRef(true);
-  const handleFilterClick = (filterType: string) => {
-    setSelectedFilter(filterType);
+
+  const handleFilterClick = (filterType: Category | null) => {
+    setSelectedFilter(filterType as Category);
   };
   useEffect(() => {
+    toast.loading("loading data");
     if(firstRender.current){
-      fetch(window.location.origin+ "/api/products/v1.0/menu")
+      fetch(window.location.origin+ "/api/products/v1.0")
       .then(resp => resp.json())
       .then(data => {
+        toast.dismiss();
+
         setFilteredMenu(data);
         setMenu(data);
       })
-      firstRender.current=false;
   }
-  })
+  firstRender.current=false;
+
+  toast.dismiss();
+  },[])
   useEffect(() => {
-    if (selectedFilter.length) {
+    if (selectedFilter?.id) {
       setFilteredMenu(
-        menu.filter((product) => product.category.name === selectedFilter),
+        menu.filter((product) => product.category.id === selectedFilter.id && product.isInMenu),
       );
     } else {
       setFilteredMenu(menu);
@@ -64,22 +64,26 @@ const Menu = () => {
 };
 
 const Filter: React.FC<IFilter> = ({ onFilterClick }) => {
-  const filterItems = [
-    { image: "ds", alt: "", name: "" },
-    { image: "pizza", alt: "", name: "Pizza" },
-    { image: "img", alt: "", name: "Burger" },
-    { image: "img", alt: "", name: "Italian Delights" },
-  ];
-
+  const [ filterItems, setFilterItems ] = useState<Category[]>([]) 
+  const firstRender = useRef(false)
+  useEffect(() => {
+    if(!firstRender.current){
+    fetch(window.location.origin + "/api/product-categories/v1.0").then(data => data.json()).then(data =>{
+      setFilterItems(data as Category[]);
+    }
+    )
+    firstRender.current = true; 
+}},[])
   return (
     <div className="flex self-center items-center justify-center">
       {filterItems.map((item, index) => (
         <FilterItem
           item={item}
           key={index}
-          onFilterClick={() => onFilterClick(item.name)}
+          onFilterClick={() => onFilterClick(item)}
         />
       ))}
+      <button onClick={() => onFilterClick(null)}>reset</button>
     </div>
   );
 };
@@ -90,12 +94,8 @@ const FilterItem: React.FC<IFilterItem> = ({ item, onFilterClick }) => {
       className="flex flex-col self-center justify-self-center m-2 justify-center text-center items-center"
       onClick={onFilterClick}
     >
-      <img
-        className="h-12 w-12 justify-self-center"
-        src={item.image}
-        alt={item.alt}
-      ></img>
-      <div className="justify-self-center break-all">{item.name}</div>
+
+      <div className="justify-self-center break-all">{item?.name}</div>
     </button>
   );
 };

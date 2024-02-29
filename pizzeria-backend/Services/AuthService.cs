@@ -44,6 +44,7 @@ namespace pizzeria_backend.Services
                 Password = BCrypt.Net.BCrypt.EnhancedHashPassword(user.Password),
                 IsAdmin = false
             };
+
             await _context.Users.AddAsync(newUser);
             var refreshToken = _tokenService.GenerateJwtRefreshToken(newUser);
             newUser.RefreshToken = BCrypt.Net.BCrypt.EnhancedHashPassword(refreshToken);
@@ -98,7 +99,6 @@ namespace pizzeria_backend.Services
             }
 
             var accessToken = _tokenService.GenerateJWTAccess(user);
-            Console.WriteLine(refreshToken);
             if (BCrypt.Net.BCrypt.EnhancedVerify(refreshToken, user.RefreshToken) is false)
             {
                 Console.WriteLine("Chupi 2");

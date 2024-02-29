@@ -2,23 +2,31 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { SelectedProductsProvider, useSelectedProducts } from "../providers/SelectedProductsProvider";
 import { fetchDataWithRetry } from "../utilities/functions/fetchAndRefresh"; 
-import menu from "../json/menu.json";
-import { Category, ProductProps, ProductType } from "../utilities/types";
-import pizza from "../images/pizza.jpg";
+import { AddOnType, Category, ProductProps, ProductType } from "../utilities/types";
 interface FiltersProps {
   categories: Category[];
-  applyFilters: (category: Category | null, availability: boolean | null, inMenu: boolean | null) => void;
+  applyFilters: (category: Category | null, availability?: boolean | null, inMenu?: boolean | null) => void;
 }
 
 export const EditMenuPage: React.FC = () => {
+  const [selectedContainer, setSelectedContainer] = useState<"products" | "addOns">("products");
+
   return (
     <SelectedProductsProvider>
-      <EditMenuContainer />
+      {selectedContainer === "products" ? (
+        <EditProductsContainer />
+      ) : (
+        <EditAddOnsContainer />
+      )}
+      <div>
+        <button onClick={() => setSelectedContainer("products")}>Edit Products</button>
+        <button onClick={() => setSelectedContainer("addOns")}>Edit Add-Ons</button>
+      </div>
     </SelectedProductsProvider>
   );
 };
 
-const EditMenuContainer: React.FC = () => {
+const EditProductsContainer: React.FC = () => {
   const { selectedProducts, setSelectedProducts } = useSelectedProducts();
   const [products, setProducts] = useState<ProductType[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -54,10 +62,10 @@ const EditMenuContainer: React.FC = () => {
     })
   };
 
-  const applyFilters = (category: Category | null, availability: boolean | null, inMenu: boolean | null) => {
+  const applyFilters = (category: Category | null, availability?: boolean | null, inMenu?: boolean | null) => {
     setCategoryFilter(category);
-    setAvailabilityFilter(availability);
-    setInMenuFilter(inMenu);
+    setAvailabilityFilter(availability as boolean);
+    setInMenuFilter(inMenu as boolean);
   };
   const filteredProducts = products.filter(product => {
     if (categoryFilter && product.category.id !== categoryFilter.id) {
@@ -83,7 +91,7 @@ const EditMenuContainer: React.FC = () => {
         </div>
       </div>
       <div className="fixed flex flex-row bottom-0 right-0 p-4 justify-around items-stretch">
-        <Link to={"/menu/edit/update/" + selectedProducts[0]?.id}>
+        <Link to={"/menu/edit/product/update" + selectedProducts[0]?.id}>
           <button
             disabled={selectedProducts.length !== 1}
             className={
@@ -93,7 +101,7 @@ const EditMenuContainer: React.FC = () => {
             Edit Product
           </button>
         </Link>
-        <Link to="/menu/edit/add">
+        <Link to="/menu/edit/product/add">
           <button className="bg-green-500 hover:bg-green-600 rounded text-white">
             Add a Product
           </button>
@@ -159,6 +167,73 @@ const Product: React.FC<ProductProps> = (prop) => {
     </button>
   );
 };
+const EditAddOnsContainer: React.FC = () => {
+  const [addOns, setAddOns] = useState<AddOnType[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [categoryFilter, setCategoryFilter] = useState<Category | null>(null);
+
+  useEffect(() => {
+    const fetchAddOnsData = async () => {
+      try {
+        const url = `${window.location.origin}/api/add-ons/v1.0`;
+        const url2 = `${window.location.origin}/api/add-on-categories/v1.0`;
+        const data = await fetchDataWithRetry(url);
+        const data2 = await fetchDataWithRetry(url2);
+        setAddOns(data);
+        setCategories(data2);
+      } catch (error) {
+        console.error("Error fetching add-ons data:", error);
+      }
+    };
+    fetchAddOnsData();
+  }, []);
+
+  const applyFilters = (category: Category | null) => {
+    setCategoryFilter(category);
+  };
+
+  const filteredAddOns = addOns.filter(addOn => {
+    if (categoryFilter && addOn.category.id !== categoryFilter.id) {
+      return false;
+    }
+    return true;
+  });
+
+
+  return (
+    <div>
+      <Filters categories={categories} applyFilters={applyFilters} />
+      <div className="flex items-center overflow-hidden justify-center border border-b-gray-300">
+        <div className="flex flex-row overflow-scroll overflow-x-hidden flex-wrap items-center justify-center max-h-screen">
+          {filteredAddOns.map((addOn) => (
+            <Link to={"/menu/edit/addOn/update/"+addOn.id}>
+              <AddOn addOn={addOn} key={addOn.id} />
+            </Link>
+          ))}
+        </div>
+        
+      </div>
+        <Link to="/menu/edit/addOn/add">
+          <button className="bg-green-500 hover:bg-green-600 rounded text-white">
+            Add a Product
+          </button>
+        </Link>
+    </div>
+  );
+};
+
+const AddOn: React.FC<{ addOn: AddOnType}> = ({ addOn }) => {
+
+
+  return (
+    <div>
+      <div className={"font-medium flex flex-col items-center justify-center m-2 h-60 w-60 border rounded-md max-h-full "}>
+        <p className="mt-2 text-center text-lg font-semibold">{addOn.name}</p>
+        <p className="mt-1 text-center text-gray-600">${addOn.price}</p>
+      </div>
+    </div>
+  );
+};
 
 const Filters: React.FC<FiltersProps> = ({ categories, applyFilters }) => {
 
@@ -180,20 +255,19 @@ const Filters: React.FC<FiltersProps> = ({ categories, applyFilters }) => {
 
   return (
     <div className="flex items-center justify-between p-4">
-      {/* Category filter */}
       <select className="mr-4" onChange={handleCategoryChange}>
         <option value="">All Categories</option>
         {categories.map(category => (
           <option key={category.id} value={category.id}>{category.name}</option>
         ))}
       </select>
-      {/* Availability filter */}
+
       <select className="mr-4" onChange={handleAvailabilityChange}>
         <option value="">All Availability</option>
         <option value="true">Available</option>
         <option value="false">Not Available</option>
       </select>
-      {/* In menu filter */}
+
       <select onChange={handleInMenuChange}>
         <option value="">All In Menu</option>
         <option value="true">In Menu</option>

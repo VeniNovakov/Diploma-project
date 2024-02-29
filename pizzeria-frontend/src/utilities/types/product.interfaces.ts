@@ -31,6 +31,7 @@ export interface AddOnType {
   category: Category
   categoryId: number;
   price: number;
+  amountInGrams: number;
 }
 
 export interface AddOnBasketType extends AddOnType {

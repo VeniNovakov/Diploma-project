@@ -22,6 +22,7 @@ namespace pizzeria_backend.Controllers
             {
                 return BadRequest("No body provided");
             }
+
             var imageLink = (await _azureBlobStorageService.UploadBlobAsync(product.Image.OpenReadStream(), product.Image.FileName + Guid.NewGuid().ToString())).ToString();
             var pr = await _productService.AddProductAsync(ConvertToProduct(product, imageLink));
 
@@ -44,7 +45,6 @@ namespace pizzeria_backend.Controllers
         }
 
         [HttpGet("")]
-        [Authorize(Policy = "Admin")]
         [Produces("application/json")]
         public async Task<IActionResult> GetAllProduct()
         {
@@ -58,6 +58,7 @@ namespace pizzeria_backend.Controllers
         public async Task<IActionResult> GetMenu()
         {
             var menu = await _productService.GetMenu();
+
             if (menu == null)
             {
                 return NotFound("There are no items in the menu");

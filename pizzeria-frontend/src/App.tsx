@@ -12,6 +12,8 @@ import UpdateMenuPage from "./pages/ProductUpdatePage";
 import OrdersPage from "./pages/ordersPage";
 import PizzaManPage from "./pages/PizzaManPage";
 import { ProductProvider } from "./providers/TempProductProvider";
+import UpdateProductPage from "./pages/ProductUpdatePage";
+import UpdateAddOnPage from "./pages/AddOnUpdate";
 
 const App = () => {
   return (
@@ -26,8 +28,10 @@ const App = () => {
             <Route path="basket" element={<BasketPage />} />
             <Route path="product/:id" element={<ProductPage />} />
             <Route path="menu/edit" element={<EditMenuPage />} />
-            <Route path="menu/edit/update/:id" element={<UpdateMenuPage />} />
-            <Route path="menu/edit/add" element={<UpdateMenuPage />} />
+            <Route path="menu/edit/product/update/:id" element={<UpdateProductPage />} />
+            <Route path="menu/edit/product/add" element={<UpdateProductPage />} />
+            <Route path="menu/edit/addOn/update/:id" element={< UpdateAddOnPage/>} />
+            <Route path="menu/edit/addOn/add" element={<UpdateAddOnPage />} />
             <Route path="orders" element={<OrdersPage />} />
             <Route path="admin-profile" element={<PizzaManPage />} />
           </Route>
