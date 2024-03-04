@@ -14,6 +14,7 @@ import { ProductProvider } from "./providers/TempProductProvider";
 import UpdateProductPage from "./pages/ProductUpdatePage";
 import UpdateAddOnPage from "./pages/AddOnUpdate";
 import { fetchDataWithRetry } from "./utilities/functions/fetchAndRefresh";
+import { AuthProvider, useIsAdmin } from "./providers/AuthProvider";
 
 const App = () => {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -22,35 +23,38 @@ const App = () => {
     fetchDataWithRetry(window.location.origin+ '/api/auth/v1.0/isAdmin')
       .then(response => {setIsAdmin(response)})
       .catch(error => console.error('Error checking admin status:', error));
-  }, []);
-  return (
-    <BasketProvider>
-      <ProductProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/">
-            <Route index element={<LandingPage />} />
-            <Route path="menu" element={<MenuPage />} />
-            <Route path="auth" element={<Auth />} />
-            <Route path="basket" element={<BasketPage />} />
-            <Route path="product/:id" element={<ProductPage />} />
-            {isAdmin && (
-                <>
-                  <Route path="menu/edit" element={<EditMenuPage />} />
-                  <Route path="menu/edit/product/update/:id" element={<UpdateProductPage />} />
-                  <Route path="menu/edit/product/add" element={<UpdateProductPage />} />
-                  <Route path="menu/edit/addOn/update/:id" element={<UpdateAddOnPage />} />
-                  <Route path="menu/edit/addOn/add" element={<UpdateAddOnPage />} />
-                  <Route path="orders" element={<OrdersPage />} />
-                  <Route path="admin-profile" element={<PizzaManPage />} />
-                </>
-              )}
-          </Route>
-        </Routes>
-      </BrowserRouter>
+  }, [window.location.href]);
   
-      </ProductProvider>
-    </BasketProvider>
+  return (
+    <AuthProvider>
+      <BasketProvider>
+        <ProductProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/">
+              <Route index element={<LandingPage />} />
+              <Route path="menu" element={<MenuPage />} />
+              <Route path="auth" element={<Auth />} />
+              <Route path="basket" element={<BasketPage />} />
+              <Route path="product/:id" element={<ProductPage />} />
+              {isAdmin && (
+                  <>
+                    <Route path="menu/edit" element={<EditMenuPage />} />
+                    <Route path="menu/edit/product/update/:id" element={<UpdateProductPage />} />
+                    <Route path="menu/edit/product/add" element={<UpdateProductPage />} />
+                    <Route path="menu/edit/addOn/update/:id" element={<UpdateAddOnPage />} />
+                    <Route path="menu/edit/addOn/add" element={<UpdateAddOnPage />} />
+                    <Route path="orders" element={<OrdersPage />} />
+                    <Route path="profile" element={<PizzaManPage />} />
+                  </>
+                )}
+            </Route>
+          </Routes>
+        </BrowserRouter>
+    
+        </ProductProvider>
+      </BasketProvider>
+    </AuthProvider>
   );
 };
 

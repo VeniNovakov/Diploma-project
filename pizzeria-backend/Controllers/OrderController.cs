@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using pizzeria_backend.Hubs;
 using pizzeria_backend.Models.Interfaces;
 using pizzeria_backend.Services;
@@ -35,7 +37,18 @@ namespace pizzeria_backend.Controllers
             {
                 var ord = await _orderService.MakeOrder(Order);
 
-                await _hubContext.Clients.All.SendAsync("NewOrder", ord);
+                Console.WriteLine(ord);
+                await _hubContext.Clients.All.SendAsync("NewOrder", JsonConvert.SerializeObject(ord,
+                    new JsonSerializerSettings
+                    {
+                        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                        ContractResolver = new CamelCasePropertyNamesContractResolver
+                        {
+
+                            NamingStrategy = new CamelCaseNamingStrategy()
+                        }
+                    })
+                    );
                 return Ok(ord);
             }
             catch (ValidationException ex)
@@ -81,12 +94,12 @@ namespace pizzeria_backend.Controllers
             return Ok(ord);
         }
 
-
         [HttpGet("change-status/{id}")]
         [Authorize(Policy = "Admin")]
         public async Task<IActionResult> ChangeCompletion(int id)
         {
             var ord = await _orderService.ChangeOrderCompletion(id);
+
 
             if (ord == null)
             {

@@ -25,29 +25,36 @@ const Menu = () => {
   const handleFilterClick = (filterType: Category | null) => {
     setSelectedFilter(filterType as Category);
   };
+
   useEffect(() => {
-    toast.loading("loading data");
     if(firstRender.current){
+      toast.loading("loading data");
       fetch(window.location.origin+ "/api/products/v1.0")
       .then(resp => resp.json())
       .then(data => {
         toast.dismiss();
-
-        setFilteredMenu(data);
         setMenu(data);
+        setFilteredMenu(
+          data.filter((product:ProductType) => product.isInMenu),
+        );
       })
   }
+
   firstRender.current=false;
 
   toast.dismiss();
+
   },[])
+
   useEffect(() => {
     if (selectedFilter?.id) {
       setFilteredMenu(
         menu.filter((product) => product.category.id === selectedFilter.id && product.isInMenu),
       );
     } else {
-      setFilteredMenu(menu);
+      setFilteredMenu(
+        menu.filter((product) => product.isInMenu),
+      );
     }
   }, [selectedFilter, setFilteredMenu]);
 
@@ -65,7 +72,8 @@ const Menu = () => {
 
 const Filter: React.FC<IFilter> = ({ onFilterClick }) => {
   const [ filterItems, setFilterItems ] = useState<Category[]>([]) 
-  const firstRender = useRef(false)
+  const firstRender = useRef(false);
+
   useEffect(() => {
     if(!firstRender.current){
     fetch(window.location.origin + "/api/product-categories/v1.0").then(data => data.json()).then(data =>{
@@ -74,6 +82,7 @@ const Filter: React.FC<IFilter> = ({ onFilterClick }) => {
     )
     firstRender.current = true; 
 }},[])
+
   return (
     <div className="flex self-center items-center justify-center">
       {filterItems.map((item, index) => (
@@ -91,10 +100,9 @@ const Filter: React.FC<IFilter> = ({ onFilterClick }) => {
 const FilterItem: React.FC<IFilterItem> = ({ item, onFilterClick }) => {
   return (
     <button
-      className="flex flex-col self-center justify-self-center m-2 justify-center text-center items-center"
+      className="flex flex-col self-center justify-self-center m-2 justify-center text-center items-center border"
       onClick={onFilterClick}
     >
-
       <div className="justify-self-center break-all">{item?.name}</div>
     </button>
   );
@@ -104,10 +112,11 @@ const Product = (props: ProductProps) => {
   const { basketItems, setBasketItems } = useBasketContent();
   const { basketCounter, setBasketCounter } = useBasket();
   const { tempProduct, setTempProduct } = useProduct();
+
   useEffect(() => {
     Cookies.set("tempProduct", JSON.stringify(tempProduct));
   }, [tempProduct, setTempProduct]);
-  
+  console.log(props.product)
   useEffect(() => {
     Cookies.set("basket", JSON.stringify(basketItems));
     setBasketCounter(
@@ -147,7 +156,7 @@ const Product = (props: ProductProps) => {
 
         setBasketItems([...updatedList, newBasketObj]);
       } else {
-        toast("Added amount to" + newBasketObj.product.name + " in the basket", {position: "top-right",duration: 4000})
+        toast("Added amount to " + newBasketObj.product.name + " in the basket", {position: "top-right",duration: 4000})
 
         setBasketItems([...updatedList]);
       }
@@ -181,18 +190,20 @@ const Product = (props: ProductProps) => {
         <Link to={"/product/" + props.product.id}>
           <button
             onClick={btnHandle}
-            className="mt-3 px-4 py-2 border-2 border-black hover:bg-slate-300 focus:outline-none focus:border-slate-300"
+            disabled={!props.product.isAvailable}
+            className={"mt-3 px-4 py-2 border-2 border-black hover:bg-slate-300 focus:outline-none focus:border-slate-300"+ (props.product.isAvailable ? "  ": " hidden")}
           >
             change
           </button>
         </Link>
         <button
-          className="mt-3 px-4 py-2 border-2 border-black hover:bg-slate-300 focus:outline-none focus:border-slate-300"
+          className={"mt-3 px-4 py-2 border-2 border-black hover:bg-slate-300 focus:outline-none focus:border-slate-300" + (props.product.isAvailable ? " ": " hidden")}
           disabled={!props.product.isAvailable}
           onClick={() => updateBasket(props.product)}
         >
           Add to Basket
         </button>
+        <div className={"mt-3 px-4 py-2 border-2 border-black font-black w-full " +(props.product.isAvailable ? " hidden": " ")}>Unavailable</div>
       </div>
       <Toaster/>
     </div>

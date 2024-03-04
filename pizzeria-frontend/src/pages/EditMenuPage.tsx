@@ -91,7 +91,7 @@ const EditProductsContainer: React.FC = () => {
         </div>
       </div>
       <div className="fixed flex flex-row bottom-0 right-0 p-4 justify-around items-stretch">
-        <Link to={"/menu/edit/product/update" + selectedProducts[0]?.id}>
+        <Link to={"/menu/edit/product/update/" + selectedProducts[0]?.id}>
           <button
             disabled={selectedProducts.length !== 1}
             className={
@@ -215,7 +215,7 @@ const EditAddOnsContainer: React.FC = () => {
       </div>
         <Link to="/menu/edit/addOn/add">
           <button className="bg-green-500 hover:bg-green-600 rounded text-white">
-            Add a Product
+            Add an add on
           </button>
         </Link>
     </div>
@@ -223,8 +223,6 @@ const EditAddOnsContainer: React.FC = () => {
 };
 
 const AddOn: React.FC<{ addOn: AddOnType}> = ({ addOn }) => {
-
-
   return (
     <div>
       <div className={"font-medium flex flex-col items-center justify-center m-2 h-60 w-60 border rounded-md max-h-full "}>

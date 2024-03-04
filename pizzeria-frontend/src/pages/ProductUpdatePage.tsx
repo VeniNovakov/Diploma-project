@@ -9,7 +9,6 @@ const UpdateProductPage: React.FC = () => {
   const numericId = parseInt(id as string, 10);
   const [isPreview, setPreview] = useState(false);
   const [product, setProduct] = useState<ProductType>();
-  const [isAuth, setAuth] = useState<boolean>(true);
 
   useEffect(() => {
     if(numericId === null || isNaN(numericId)){
@@ -21,16 +20,13 @@ const UpdateProductPage: React.FC = () => {
         setProduct(data as ProductType);
       })
       .catch(error => {
-          setAuth(false);
         console.error('Error fetching product data:', error);
       });
 
   }, [numericId]);
 
   return (
-    isAuth?
-    (
-    <ImageDialogProvider>
+    <>
       <div
         className={
           "flex h-screen justify-center items-center " +
@@ -43,12 +39,8 @@ const UpdateProductPage: React.FC = () => {
           setPreview={setPreview}
         />
       </div>
-    </ImageDialogProvider>
-    ):(
-    <div>Access prohibited</div>
-    )
-      
-  );
+    </>
+    ) 
 };
 
 const Product: React.FC<{
@@ -86,7 +78,7 @@ const Product: React.FC<{
   }, []);
 
   const doChange = (property: Partial<ProductType>) => {
-    
+    console.log(property);
     setEditProduct({ ...editProduct, ...property });
   };
 
@@ -99,12 +91,13 @@ const Product: React.FC<{
     
     const formData = new FormData();
     formData.append('name', editProduct.name);
-    formData.append('categoryId', editProduct.category.id.toString());
+    formData.append('categoryId', editProduct.categoryId?.toString() ? editProduct.categoryId.toString() : "1");
     formData.append('description', editProduct.description);
     formData.append('price', editProduct.price.toString());
     formData.append('isInMenu', editProduct.isInMenu ? "true":"false");
     formData.append('isAvailable', editProduct.isAvailable ? "true": "false");
     formData.append('image', file as Blob);
+    console.log(formData);
 
     if(editProduct?.id === undefined){
       console.log("dasdsadsadsa")
@@ -132,7 +125,7 @@ const Product: React.FC<{
             className="border self-center flex flex-row text-center justify-center"
             onClick={handleDialog}
           >
-            {(editProduct?.id || !file) && (
+            {(editProduct?.id || file) && (
               <>
                 {file ? (
                   <img
@@ -155,7 +148,7 @@ const Product: React.FC<{
               alt="import image"
               onChange={(e) => imageChange(e.target.files?.item(0))}
               ref={setFileInputRef}
-              className="invisible absolute"
+              className="invisible"
             />
           </button>
         </div>

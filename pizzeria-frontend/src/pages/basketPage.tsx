@@ -3,7 +3,6 @@ import { BasketItem, BasketProps, ProductType } from "../utilities/types";
 import Cookies from "js-cookie";
 import NavBar from "../components/NavBar";
 import { useBasketContent } from "../providers/BasketContentProvider";
-import pizza from "../images/pizza.jpg";
 import { useBasket } from "../providers/BasketCounterProvider";
 import { round } from "../utilities/functions/math";
 import toast,{Toaster} from "react-hot-toast";
@@ -13,14 +12,15 @@ const BasketPage = () => {
   const ref = useRef(false);
   console.log(basketItems)
   useEffect(() => {
-
     if(ref.current == false){
-    fetch(window.location.origin + "/api/orders/v1.0/validate", {
-      method:"POST", 
-      body:JSON.stringify(MapBasket()),     
-      headers:{
-      "Content-Type":"application/json"
-    }})
+      fetch(window.location.origin + "/api/orders/v1.0/validate", {
+        method:"POST", 
+        body:JSON.stringify(MapBasket()),     
+        headers:{
+        "Content-Type":"application/json"
+        }
+      }
+    )
     .then(resp => resp.json())
     .then(data => {
       console.log(data);
@@ -113,13 +113,6 @@ const BasketPage = () => {
           )}
           <Checkout></Checkout>
         </div>
-        <div className="flex flex-col">
-          <label>More information about the order:</label>
-          <textarea
-            className="border border-slate-300"
-            placeholder="IDK"
-          ></textarea>
-        </div>
       </div>
       <Toaster/>
     </div>
@@ -131,6 +124,7 @@ const ProductOrdered = (props: BasketProps) => {
   const { setBasketCounter } = useBasket();
   const [IsButtonDisabled, setButtonDisabled] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+
   const addOnsPrices = props.item.addOns?.map((addOn) => {
     return addOn.price * addOn.amount;
   });
@@ -265,6 +259,7 @@ const Checkout = () => {
   const { basketItems, setBasketItems } = useBasketContent();
 
   const MapBasketAndFetch = () => {
+    Cookies.set("basket", "[]");
     var newArray:any = [];
     basketItems.forEach(item => {
 
@@ -338,6 +333,7 @@ const Total = () => {
   }) as unknown as number[];
 
   const addOnsTotals = basketItems.map((item) => {
+
     const itemAddOnsPrices = item.addOns
       ? item.addOns.map((addOn) => {
           return addOn.amount * addOn.price;
@@ -349,8 +345,10 @@ const Total = () => {
           return acc + curr;
         })
       : 0;
+
     return itemAddOnsTotal * item.amount;
   });
+
   const addOnsTotal = addOnsTotals?.reduce((acc, curr) => {
     return acc + curr;
   });
@@ -363,7 +361,7 @@ const Total = () => {
 
   return (
     <div>
-      {basketItems.length ? (
+      {basketItems.length && total ? (
         <div className="flex flex-row justify-between shadow-xl rounded">
           total:
           <div className="flex justify-end">

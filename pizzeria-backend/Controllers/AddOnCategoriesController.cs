@@ -5,7 +5,7 @@ namespace pizzeria_backend.Controllers
 {
     [Route("api/add-on-categories/v1.0")]
     [ApiController]
-    public class AddOnCategoriesController : Controller
+     public class AddOnCategoriesController : Controller
     {
         IAddOnCategoriesService _addOnCategoriesService;
         public AddOnCategoriesController(IAddOnCategoriesService addOnCategoriesService)

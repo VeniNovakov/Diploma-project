@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Order } from "../utilities/types";
-import { HttpTransportType, HubConnection, HubConnectionBuilder, IHttpConnectionOptions } from "@microsoft/signalr";
+import { HubConnection, HubConnectionBuilder, IHttpConnectionOptions } from "@microsoft/signalr";
 import toast, { Toaster } from 'react-hot-toast';
 import { fetchDataWithRetry } from "../utilities/functions/fetchAndRefresh";
 const OrderDetails: React.FC<{
@@ -17,7 +17,6 @@ const OrderDetails: React.FC<{
   }
 
   let total = 0;
-
   const deleteOrder = () =>{
     fetchDataWithRetry(window.location.origin+"/api/orders/v1.0/"+ selectedOrder.id, null, "DELETE")
     .then(d =>{ console.log(d); setSelectedOrder(null)});
@@ -32,8 +31,8 @@ const OrderDetails: React.FC<{
 
       <div className="mt-4">
         <h3 className="text-md font-semibold mb-2">Items</h3>
-        {selectedOrder.orderedProducts.map((item) => {
-          const itemTotal = item.product.price * item.amount;
+        {Array.isArray(selectedOrder.orderedProducts) && selectedOrder.orderedProducts.map((item) => {
+          const itemTotal = item.product?.price * item.amount;
           total += itemTotal;
 
           return (
@@ -41,7 +40,7 @@ const OrderDetails: React.FC<{
               <p>
                 {item.amount}x {item.product.name} - {itemTotal}
               </p>
-              {item.addOns?.length && (
+              {Array.isArray(item.addOns) && item.addOns?.length && (
                 <ul className="list-disc pl-4">
                   {item.addOns.map((addOn) => {
                     const addOnTotal = addOn.addOn.price * addOn.amount * item.amount;
@@ -81,10 +80,7 @@ const OrdersPage: React.FC = () => {
 
   function createHubConnection() {
     const con = new HubConnectionBuilder()
-      .withUrl(window.location.origin + "/ordersHub",{
-        accessTokenFactory(){
-          return localStorage.getItem("authAccess");
-        }}as IHttpConnectionOptions)
+      .withUrl(window.location.origin + "/ordersHub")
       .withAutomaticReconnect()
       .build();
     setConnection(con);
@@ -92,7 +88,7 @@ const OrdersPage: React.FC = () => {
 
   const ref = useRef(false);
   useEffect(()=>{
-    createHubConnection();
+  createHubConnection();
     if (!ref.current) {
       toast.loading("Loading orders", {position: "top-center"})
       fetchDataWithRetry(window.location.origin+"/api/orders/v1.0", null,"GET",{
@@ -105,9 +101,9 @@ const OrdersPage: React.FC = () => {
         .catch(error => {
           console.error('Error:', error);
         });
-    }
-    ref.current = true;
+  }
 
+    ref.current = true;
   }, [])
 
   useEffect(() => {
@@ -117,7 +113,9 @@ const OrdersPage: React.FC = () => {
           .start()
           .then(() => {
             connectionRef.on("NewOrder", (data) => {
-              const newOrder = data as Order;
+              const newOrder = JSON.parse(data);
+              console.log("raw data : " + data)
+              console.log(newOrder)
 
               const infoString = "New order #"+ newOrder.id + " came";
               toast(infoString,
@@ -171,31 +169,10 @@ const OrdersPage: React.FC = () => {
       } catch (error) {
         console.log(error as Error);
       }
-      connectionRef.onclose(() => {
-        console.log("Connection closed. Attempting to reconnect...");
-        refreshAccessTokenAndReconnect();
-      });
+
     }
   }, [connectionRef]);
 
-  const refreshAccessTokenAndReconnect = () => {
-    fetchDataWithRetry(window.location.origin + '/api/auth/v1.0/refresh', 
-    {
-      headers:
-      {
-      "Authorization":"Bearer " + localStorage.getItem("authRefresh")
-      }
-    }
-    )
-    .then(data => data.json())
-    .then(data =>{
-      localStorage.setItem('authRefresh', data.accessToken)
-      createHubConnection()
-    }
-    ).catch(e =>{
-      console.log(e);
-    })
-  }
   const handleOrderClick = (order: Order) => {
     setSelectedOrder(order);
   };
@@ -212,7 +189,7 @@ const OrdersPage: React.FC = () => {
 
   const handleToggle = () => {
     setShowCompleted(prev => !prev);
-    setSelectedOrder(null); // Clear selected order when toggling
+    setSelectedOrder(null); 
   };
 
   return (

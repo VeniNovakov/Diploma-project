@@ -63,9 +63,6 @@ builder.Services.AddAuthorization(opt =>
     opt.AddPolicy("Admin", policy => policy.RequireClaim("IsAdmin", "True"));
 });
 
-builder.Services.AddControllers().AddNewtonsoftJson(options =>
-    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
-
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IAddOnService, AddOnService>();
 builder.Services.AddScoped<IOrderService, OrdersService>();

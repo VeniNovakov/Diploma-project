@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import toast, { Toaster } from "react-hot-toast";
 
 interface RegisterDto {
   name: string;
@@ -21,8 +22,7 @@ const Auth: React.FC = () => {
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-
-    setFormData({ ...formData, [name]: value });
+    setFormData({ ...formData, [name]: e.target.value });
   };
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -30,7 +30,7 @@ const Auth: React.FC = () => {
 
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(formData.email) && isRegistering) {
-        console.error("Invalid email format");
+        toast.error("Email format is wrong", {duration:2000})
         return;
       }
 
@@ -48,29 +48,26 @@ const Auth: React.FC = () => {
       return response.json();
     })
     .then(data => {
-      handleSuccess(data); // Callback for successful response
+      handleSuccess(data); 
     })
     .catch(error => {
-      handleError(error); // Callback for error
+      handleError(error); 
     });
   };
   
   const handleSuccess = (data: any) => {
-    // Handle successful registration or login
     localStorage.setItem("authRefresh", data.refreshToken);
     localStorage.setItem("authAccess", data.accessToken);
-    window.location.href = window.location.origin + "/"
-    console.log(`${isRegistering ? "Registration" : "Authentication"} successful`, data);
+    window.location.href = "/"
+    console.log(`${isRegistering ? "Register" : "Login"} successful`, data);
   };
   
   const handleError = (error: any) => {
-    // Handle error
-    console.error(`${isRegistering ? "Registration" : "Authentication"} failed`, error);
+    toast.error(`${isRegistering ? "Register" : "Login"} failed`, error);
   };
 
   const toggleAuthAction = () => {
     setIsRegistering(!isRegistering);
-    // Clear form fields when toggling between registration and login
     setFormData({ name: "", email: "", password: "", confirmPassword: "" });
   };
 
@@ -78,27 +75,28 @@ const Auth: React.FC = () => {
     <div className="bg-gradient-to-r from-amber-200 to-amber-400 min-h-screen flex items-center justify-center">
       <div className="bg-amber-400 p-8 rounded-md shadow-md">
         <h1 className="text-3xl font-bold mb-4 text-center text-white">
-          {isRegistering ? "Registration" : "Authentication"}
+          {isRegistering ? "Register" : "Login"}
         </h1>
         <form className="flex flex-col space-y-4" onSubmit={onSubmit}>
-          <input
-            type="text"
-            name="name"
-            value={name}
-            onChange={onChange}
-            className="w-full py-2 px-4 rounded-md bg-white placeholder-gray-500 focus:outline-none focus:ring focus:border-blue-300"
-            placeholder="Name"
-          />
-          {isRegistering && (
+        {isRegistering && (
             <input
-              type="email"
-              name="email"
-              value={email}
+              type="text"
+              name="Name"
+              value={name}
               onChange={onChange}
               className="w-full py-2 px-4 rounded-md bg-white placeholder-gray-500 focus:outline-none focus:ring focus:border-blue-300"
-              placeholder="Email"
+              placeholder="name"
             />
           )}
+          <input
+            type="email"
+            name="email"
+            value={email}
+            onChange={onChange}
+            className="w-full py-2 px-4 rounded-md bg-white placeholder-gray-500 focus:outline-none focus:ring focus:border-blue-300"
+            placeholder="Email"
+          />
+
           <input
             type="password"
             name="password"
@@ -129,6 +127,7 @@ const Auth: React.FC = () => {
           {isRegistering ? "Already have an account? Log In" : "Don't have an account? Register"}
         </button>
       </div>
+      <Toaster/>
     </div>
   );
 };

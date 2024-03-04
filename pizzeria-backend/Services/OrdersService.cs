@@ -51,7 +51,8 @@ namespace pizzeria_backend.Services
             _context.Order.Add(dbOrder);
 
             await _context.SaveChangesAsync();
-            return dbOrder;
+
+            return (await GetOrderRelations().Where(ord => ord.Id == dbOrder.Id).FirstAsync());
         }
 
         public Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<Order, ProductsCategory> GetOrderRelations()
@@ -102,8 +103,48 @@ namespace pizzeria_backend.Services
 
         public async Task<List<Order>> GetOrders()
         {
-            var order = await GetOrderRelations().ToListAsync();
-            return order;
+            var orders = await _context.Order
+             .Select(order => new Order
+             {
+                 Id = order.Id,
+                 WantedFor = order.WantedFor,
+                 OrderedProducts = order.OrderedProducts.Select(op => new OrderedProduct
+                 {
+                     AddOns = op.AddOns.Select(oa => new OrderedAddOn
+                     {
+                         Id = oa.Id,
+                         AddOn = new AddOn
+                         {
+                             Id = oa.AddOn.Id,
+                             Name = oa.AddOn.Name,
+                             AmountInGrams = oa.AddOn.AmountInGrams,
+                             Category = oa.AddOn.Category,
+                             Description = oa.AddOn.Description,
+                             Price = oa.AddOn.Price,
+
+                         },
+                         Amount = oa.Amount,
+
+                     }).ToList(),
+
+                     Product = new Product
+                     {
+                         Id = op.ProductId,
+                         Name = op.Product.Name,
+                         IsAvailable = op.Product.IsAvailable,
+                         IsInMenu = op.Product.IsInMenu,
+                         Category = op.Product.Category,
+                         Description = op.Product.Description,
+                         Price = op.Product.Price,
+
+                     },
+                     Amount = op.Amount,
+
+                 }).ToList(),
+                 IsCompleted = order.IsCompleted
+             })
+             .ToListAsync();
+            return orders;
         }
 
         public async Task<InvalidOrdersDto> ValidateOrder(OrderDto order)

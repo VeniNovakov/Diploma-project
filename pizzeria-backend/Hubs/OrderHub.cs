@@ -16,4 +16,5 @@ namespace pizzeria_backend.Hubs
             await base.OnDisconnectedAsync(exception);
         }
     }
+
 }

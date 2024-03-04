@@ -199,6 +199,8 @@ const ProductPage: React.FC = () => {
 
   return (
     <>
+    {product?.isAvailable && (
+    <>
       <Link
         to="/menu"
         className="absolute right-0 mr-4 border hover:bg-slate-300"
@@ -227,6 +229,8 @@ const ProductPage: React.FC = () => {
         <Toaster/>
       </div>
       </>
+   ) }
+   </>
   );
 };
 
@@ -284,11 +288,14 @@ const AdditionElement = (topping: AddOnType) => {
     <div className="flex flex-row overflow-hidden">
       <div className="group/item flex-row flex">
         <p className="">{topping.name}</p>
+        <p className=""> ({topping.amountInGrams}g per serving)</p>
         <div className="flex absolute rounded-md invisible group/item group-active/item:visible group-hover/item:scale-110 group-hover/item:cursor-default bg-slate-300  transition group-active/item:ease-in-out delay-150 duration-300">
           <p>{topping.description}</p>
         </div>
       </div>
       <ChangeAmount item={topping} amount={amount} setAmount={setAmount} />
+      <p className=""> ({topping.price}$)</p>
+    
     </div>
   );
 };
@@ -308,7 +315,6 @@ const Product = () => {
     return addOn.price * addOn.amount;
   });
 
-  // Calculate total price
   const total = addOnsPrices?.length
     ? round(
         addOnsPrices.reduce((acc, curr) => {
