@@ -6,6 +6,7 @@ namespace pizzeria_backend.Services
     {
         public Task<Product> AddProductAsync(Product product);
         public Task<Product> GetProduct(int id);
+        public Task<List<Product>> GetAllProducts();
         public Task<Product> UpdateProduct(Product product);
         public Task<Product> DeleteProduct(int id);
         public Task<List<Product>> GetMenu();
@@ -31,7 +32,7 @@ namespace pizzeria_backend.Services
 
         public async Task<Product> GetProduct(int Id)
         {
-            var product = await _context.Products
+            var product = await _context.Products.AsNoTracking()
                 .Include(product => product.Category)
                 .Where(product => product.Id == Id)
                 .FirstAsync();
@@ -39,25 +40,37 @@ namespace pizzeria_backend.Services
             return product;
 
         }
+
         public async Task<List<Product>> GetMenu()
         {
-            var products = _context.Products
+            var products = await _context.Products
                 .Include(product => product.Category)
                 .Where(product => product.IsInMenu)
-                .ToList();
+                .ToListAsync();
 
             return products;
 
         }
 
+        public async Task<List<Product>> GetAllProducts()
+        {
+            var products = await _context.Products.AsNoTracking()
+                .Include(product => product.Category)
+                .ToListAsync();
+
+            return products;
+
+        }
+
+
         public async Task<Product> UpdateProduct(Product product)
         {
+
             _context.Products.Update(product);
 
             await _context.SaveChangesAsync();
 
             return product;
-
 
         }
         public async Task<Product> DeleteProduct(int id)
@@ -70,7 +83,7 @@ namespace pizzeria_backend.Services
             }
 
             return product;
-
         }
+
     }
 }

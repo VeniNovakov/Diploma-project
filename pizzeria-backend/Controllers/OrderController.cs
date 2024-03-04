@@ -1,9 +1,18 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using pizzeria_backend.Hubs;
 using pizzeria_backend.Models.Interfaces;
 using pizzeria_backend.Services;
 using System.ComponentModel.DataAnnotations;
+using System.Web.Http;
+using Authorize = Microsoft.AspNetCore.Authorization.AuthorizeAttribute;
+using FromBody = Microsoft.AspNetCore.Mvc.FromBodyAttribute;
+using HttpDelete = Microsoft.AspNetCore.Mvc.HttpDeleteAttribute;
+using HttpGet = Microsoft.AspNetCore.Mvc.HttpGetAttribute;
+using HttpPost = Microsoft.AspNetCore.Mvc.HttpPostAttribute;
 
 namespace pizzeria_backend.Controllers
 {
@@ -21,7 +30,6 @@ namespace pizzeria_backend.Controllers
         }
 
 
-
         [HttpPost("create")]
         public async Task<ActionResult> Order([FromBody] OrderDto Order)
         {
@@ -29,7 +37,18 @@ namespace pizzeria_backend.Controllers
             {
                 var ord = await _orderService.MakeOrder(Order);
 
-                await _hubContext.Clients.All.SendAsync("NewOrder", ord);
+                Console.WriteLine(ord);
+                await _hubContext.Clients.All.SendAsync("NewOrder", JsonConvert.SerializeObject(ord,
+                    new JsonSerializerSettings
+                    {
+                        ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                        ContractResolver = new CamelCasePropertyNamesContractResolver
+                        {
+
+                            NamingStrategy = new CamelCaseNamingStrategy()
+                        }
+                    })
+                    );
                 return Ok(ord);
             }
             catch (ValidationException ex)
@@ -61,8 +80,8 @@ namespace pizzeria_backend.Controllers
             return Ok(ord);
         }
 
-
         [HttpDelete("{id}")]
+        [Authorize(Policy = "Admin")]
         public async Task<IActionResult> DeleteOrder(int id)
         {
             var ord = await _orderService.DeleteOrder(id);
@@ -70,15 +89,17 @@ namespace pizzeria_backend.Controllers
             {
                 return NotFound("Order not found");
             }
+
             await _hubContext.Clients.All.SendAsync("DeleteOrder", ord);
             return Ok(ord);
         }
 
-
         [HttpGet("change-status/{id}")]
+        [Authorize(Policy = "Admin")]
         public async Task<IActionResult> ChangeCompletion(int id)
         {
             var ord = await _orderService.ChangeOrderCompletion(id);
+
 
             if (ord == null)
             {
@@ -91,13 +112,14 @@ namespace pizzeria_backend.Controllers
 
         }
 
-
         [HttpGet()]
+        [Authorize(Policy = "Admin")]
         [Produces("application/json")]
         public async Task<IActionResult> GetOrders()
         {
 
             var orders = await _orderService.GetOrders();
+
             if (orders == null)
             {
                 return NotFound("Order not found");

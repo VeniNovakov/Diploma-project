@@ -2,7 +2,6 @@
 
 namespace pizzeria_backend.Hubs
 {
-
     public class OrderHub : Hub
     {
         public override async Task OnConnectedAsync()
@@ -17,4 +16,5 @@ namespace pizzeria_backend.Hubs
             await base.OnDisconnectedAsync(exception);
         }
     }
+
 }

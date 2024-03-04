@@ -1,5 +1,5 @@
 import Menu from "../Menu";
-import NavBar from "../NavBar";
+import NavBar from "../components/NavBar";
 import React from "react";
 
 const MenuPage = () => {

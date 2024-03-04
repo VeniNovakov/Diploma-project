@@ -26,7 +26,7 @@ namespace pizzeria_backend.Services
 
         public async Task<Uri> UploadBlobAsync(Stream content, string blobName)
         {
-            var blobClient = _blobContainerClient.GetBlobClient(blobName);
+            var blobClient = _blobContainerClient.GetBlobClient(blobName + Guid.NewGuid().ToString());
             await blobClient.UploadAsync(content);
             return new Uri(blobClient.Uri.AbsoluteUri);
         }

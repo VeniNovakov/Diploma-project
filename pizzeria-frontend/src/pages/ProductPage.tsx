@@ -1,17 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
-import pizza from "../images/pizza.jpg";
-import menu from "../json/menu.json";
 import { AddOnType, ProductType } from "../utilities/types";
 import { Link, useParams } from "react-router-dom";
-import add_ons from "../json/add-ons.json";
 import Cookies from "js-cookie";
 import { useBasketContent } from "../providers/BasketContentProvider";
 import { ProductProvider, useProduct } from "../providers/TempProductProvider";
 import { round } from "../utilities/functions/math";
 import { TempProduct } from "../utilities/types/provider.interfaces";
 import { AddOnsSection } from "../utilities/types/addOns.interfaces";
-import { parse } from "path";
 import toast, { Toaster } from "react-hot-toast";
+import { delay } from "../utilities/functions/delay";
 
 interface ChangeAmountProps {
   item: AddOnType | ProductType;
@@ -19,9 +16,7 @@ interface ChangeAmountProps {
   amount: number;
   setAmount: React.Dispatch<React.SetStateAction<number>>;
 }
-const delay = (ms: number | undefined)  => new Promise(
-  resolve => setTimeout(resolve, ms)
-);
+
 const ChangeAmount: React.FC<ChangeAmountProps> = ({
   item,
   className,
@@ -204,6 +199,8 @@ const ProductPage: React.FC = () => {
 
   return (
     <>
+    {product?.isAvailable && (
+    <>
       <Link
         to="/menu"
         className="absolute right-0 mr-4 border hover:bg-slate-300"
@@ -232,6 +229,8 @@ const ProductPage: React.FC = () => {
         <Toaster/>
       </div>
       </>
+   ) }
+   </>
   );
 };
 
@@ -276,6 +275,7 @@ const AdditionsSection: React.FC<{ section: AddOnsSection }> = ({
           categoryId={addOn.categoryId}
           description={addOn.description}
           price={addOn.price}
+          amountInGrams={addOn.amountInGrams}
         />
       ))}
     </div>
@@ -288,11 +288,14 @@ const AdditionElement = (topping: AddOnType) => {
     <div className="flex flex-row overflow-hidden">
       <div className="group/item flex-row flex">
         <p className="">{topping.name}</p>
+        <p className=""> ({topping.amountInGrams}g per serving)</p>
         <div className="flex absolute rounded-md invisible group/item group-active/item:visible group-hover/item:scale-110 group-hover/item:cursor-default bg-slate-300  transition group-active/item:ease-in-out delay-150 duration-300">
           <p>{topping.description}</p>
         </div>
       </div>
       <ChangeAmount item={topping} amount={amount} setAmount={setAmount} />
+      <p className=""> ({topping.price}$)</p>
+    
     </div>
   );
 };
@@ -312,7 +315,6 @@ const Product = () => {
     return addOn.price * addOn.amount;
   });
 
-  // Calculate total price
   const total = addOnsPrices?.length
     ? round(
         addOnsPrices.reduce((acc, curr) => {
