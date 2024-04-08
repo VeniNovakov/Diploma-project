@@ -10,7 +10,6 @@ namespace pizzeria_backend.Controllers
     [ApiController]
     public class AddOnsController : Controller
     {
-
         private readonly IAddOnService _addOnService;
 
         public AddOnsController(IAddOnService addOnService)
@@ -23,11 +22,8 @@ namespace pizzeria_backend.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> AddAddOn([FromBody] AddOnDto addOn)
         {
-
             return Ok(await _addOnService.AddAddOn(ConvertToAddOn(addOn)));
         }
-
-
 
         [HttpGet()]
         [Produces("application/json")]
@@ -44,7 +40,6 @@ namespace pizzeria_backend.Controllers
             if (addOn == null)
             {
                 return NotFound("Add on not found");
-
             }
             return Ok(addOn);
         }
@@ -58,7 +53,6 @@ namespace pizzeria_backend.Controllers
             if (addOn == null)
             {
                 return NotFound("Add on not found");
-
             }
 
             return Ok(addOn);
@@ -90,6 +84,7 @@ namespace pizzeria_backend.Controllers
                 AmountInGrams = addOn.AmountInGrams
             };
         }
+
         private static AddOn ConvertToAddOn(IAddOn addOn, int id)
         {
             return new AddOn
@@ -102,6 +97,5 @@ namespace pizzeria_backend.Controllers
                 AmountInGrams = addOn.AmountInGrams
             };
         }
-
     }
 }

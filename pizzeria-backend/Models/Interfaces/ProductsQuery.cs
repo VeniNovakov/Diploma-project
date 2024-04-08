@@ -7,7 +7,5 @@
         public string Category;
         public bool IsInMenu;
         public bool IsAvailable;
-
-
     }
 }

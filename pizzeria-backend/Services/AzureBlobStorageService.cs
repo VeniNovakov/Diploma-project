@@ -1,15 +1,9 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using pizzeria_backend.Services.Interfaces;
 
 namespace pizzeria_backend.Services
 {
-    public interface IAzureBlobStorageService
-    {
-        public Task<Uri> UploadBlobAsync(Stream content, string blobName);
-        public Task<BlobDownloadInfo> DownloadBlobAsync(string blobName);
-        public Task<bool> DeleteBlobAsync(string blobName);
-    }
-
     public class AzureBlobStorageService : IAzureBlobStorageService
     {
         private static BlobServiceClient _blobServiceClient;
@@ -27,7 +21,9 @@ namespace pizzeria_backend.Services
 
         public async Task<Uri> UploadBlobAsync(Stream content, string blobName)
         {
-            var blobClient = _blobContainerClient.GetBlobClient(blobName + Guid.NewGuid().ToString());
+            var blobClient = _blobContainerClient.GetBlobClient(
+                blobName + Guid.NewGuid().ToString()
+            );
             await blobClient.UploadAsync(content);
             return new Uri(blobClient.Uri.AbsoluteUri);
         }
@@ -43,9 +39,7 @@ namespace pizzeria_backend.Services
             var blobCLient = _blobContainerClient.GetBlobClient(blobName);
             await blobCLient.DeleteIfExistsAsync();
 
-
             return true;
-
         }
     }
 }

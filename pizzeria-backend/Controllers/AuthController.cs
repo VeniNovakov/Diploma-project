@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using pizzeria_backend.Models.Interfaces;
-using pizzeria_backend.Services;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Security.Principal;
 using System.Web.Http;
+using Microsoft.AspNetCore.Mvc;
+using pizzeria_backend.Models.Interfaces;
+using pizzeria_backend.Services;
 using Authorize = Microsoft.AspNetCore.Authorization.AuthorizeAttribute;
 using FromBody = Microsoft.AspNetCore.Mvc.FromBodyAttribute;
 using HttpGet = Microsoft.AspNetCore.Mvc.HttpGetAttribute;
@@ -15,8 +15,8 @@ namespace pizzeria_backend.Controllers
     [ApiController]
     public class AuthController : Controller
     {
-
         private readonly IAuthService _authService;
+
         public AuthController(IAuthService authService)
         {
             _authService = authService;
@@ -44,13 +44,13 @@ namespace pizzeria_backend.Controllers
             return Ok(tokens);
         }
 
-
         [HttpPost("refresh")]
         [@Authorize(Policy = "refreshToken")]
         public async Task<IActionResult> Refresh()
         {
             string token = HttpContext.Request!.Headers["Authorization"]!
-                    .FirstOrDefault(h => h.StartsWith("Bearer ")).Substring("Bearer ".Length);
+                .FirstOrDefault(h => h.StartsWith("Bearer "))
+                .Substring("Bearer ".Length);
 
             if (token == null)
             {
@@ -71,7 +71,8 @@ namespace pizzeria_backend.Controllers
         public async Task<IActionResult> Revoke()
         {
             string token = HttpContext.Request!.Headers["Authorization"]!
-                .FirstOrDefault(h => h.StartsWith("Bearer ")).Substring("Bearer ".Length);
+                .FirstOrDefault(h => h.StartsWith("Bearer "))
+                .Substring("Bearer ".Length);
 
             var refreshObj = DecodeRefreshToken(HttpContext.User.Identity);
 
@@ -83,10 +84,7 @@ namespace pizzeria_backend.Controllers
             }
 
             return Ok(tokens);
-
-
         }
-
 
         [HttpGet("isAdmin")]
         [@Authorize]
@@ -96,7 +94,6 @@ namespace pizzeria_backend.Controllers
 
             return Ok(Boolean.Parse(claimsRepo.FindFirst("IsAdmin").Value));
         }
-
 
         private JWTRefreshDto DecodeRefreshToken(IIdentity identity)
         {

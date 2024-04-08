@@ -12,7 +12,6 @@ namespace pizzeria_backend.Controllers
         public ProductCategoriesController(IProductCategoriesService productCategoriesService)
         {
             _productCategoriesService = productCategoriesService;
-
         }
 
         [HttpGet]

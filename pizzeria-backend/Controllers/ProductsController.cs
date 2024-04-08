@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using pizzeria_backend.Models;
 using pizzeria_backend.Models.Interfaces;
-using pizzeria_backend.Services;
+using pizzeria_backend.Services.Interfaces;
 
 namespace pizzeria_backend.Controllers
 {
@@ -13,9 +13,11 @@ namespace pizzeria_backend.Controllers
         private readonly IProductService _productService;
         private readonly IAzureBlobStorageService _azureBlobStorageService;
 
-        public ProductsController(IProductService productsService, IAzureBlobStorageService azureBlobStorageService)
+        public ProductsController(
+            IProductService productsService,
+            IAzureBlobStorageService azureBlobStorageService
+        )
         {
-
             _productService = productsService;
             _azureBlobStorageService = azureBlobStorageService;
         }
@@ -30,12 +32,16 @@ namespace pizzeria_backend.Controllers
                 return BadRequest("No body provided");
             }
 
-            var imageLink = (await _azureBlobStorageService.UploadBlobAsync(product.Image.OpenReadStream(), product.Image.FileName)).ToString();
+            var imageLink = (
+                await _azureBlobStorageService.UploadBlobAsync(
+                    product.Image.OpenReadStream(),
+                    product.Image.FileName
+                )
+            ).ToString();
             var pr = await _productService.AddProductAsync(ConvertToProduct(product, imageLink));
 
             return Ok(pr);
         }
-
 
         [HttpGet("{id}")]
         [Produces("application/json")]
@@ -105,14 +111,17 @@ namespace pizzeria_backend.Controllers
             if (product.Image != null)
             {
                 await _azureBlobStorageService.DeleteBlobAsync(pr.Image.Split("/").Last());
-                var image = (await _azureBlobStorageService.UploadBlobAsync(product.Image.OpenReadStream(), product.Image.FileName)).ToString();
+                var image = (
+                    await _azureBlobStorageService.UploadBlobAsync(
+                        product.Image.OpenReadStream(),
+                        product.Image.FileName
+                    )
+                ).ToString();
                 pr = ConvertToProduct(product, image, id);
-
             }
             else
             {
                 pr = ConvertToProduct(product, pr.Image, id);
-
             }
 
             pr = await _productService.UpdateProduct(pr);
@@ -136,7 +145,6 @@ namespace pizzeria_backend.Controllers
 
         private static Product ConvertToProduct(ProductDto productDto, string image, int id)
         {
-
             return new Product
             {
                 Id = id,
@@ -149,6 +157,5 @@ namespace pizzeria_backend.Controllers
                 IsInMenu = productDto.IsInMenu,
             };
         }
-
     }
 }

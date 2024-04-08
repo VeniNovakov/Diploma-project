@@ -1,15 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using pizzeria_backend.Models;
+using pizzeria_backend.Services.Interfaces;
 
 namespace pizzeria_backend.Services
 {
-    public interface IAddOnCategoriesService
-    {
-        public Task<List<AddOnsCategory>> GetAll();
-    }
     public class AddOnCategoriesService : IAddOnCategoriesService
     {
-        AppDbContext _context;
+        private readonly AppDbContext _context;
+
         public AddOnCategoriesService(AppDbContext context)
         {
             _context = context;
@@ -17,7 +15,6 @@ namespace pizzeria_backend.Services
 
         public async Task<List<AddOnsCategory>> GetAll()
         {
-
             var ctgs = await _context.AddOnsCategory.ToListAsync();
 
             return ctgs;

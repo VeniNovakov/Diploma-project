@@ -1,17 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using pizzeria_backend.Models;
+using pizzeria_backend.Services.Interfaces;
+
 namespace pizzeria_backend.Services
 {
-    public interface IProductService
-    {
-        public Task<Product> AddProductAsync(Product product);
-        public Task<Product> GetProduct(int id);
-        public Task<List<Product>> GetAllProducts();
-        public Task<Product> UpdateProduct(Product product);
-        public Task<Product> DeleteProduct(int id);
-        public Task<List<Product>> GetMenu();
-    }
-
     public class ProductService : IProductService
     {
         private readonly AppDbContext _context;
@@ -27,52 +19,48 @@ namespace pizzeria_backend.Services
             await _context.SaveChangesAsync();
 
             return product;
-
         }
 
         public async Task<Product> GetProduct(int Id)
         {
-            var product = await _context.Products.AsNoTracking()
+            var product = await _context
+                .Products.AsNoTracking()
                 .Include(product => product.Category)
                 .Where(product => product.Id == Id)
                 .FirstAsync();
 
             return product;
-
         }
 
         public async Task<List<Product>> GetMenu()
         {
-            var products = await _context.Products
-                .Include(product => product.Category)
+            var products = await _context
+                .Products.Include(product => product.Category)
                 .Where(product => product.IsInMenu)
                 .ToListAsync();
 
             return products;
-
         }
 
         public async Task<List<Product>> GetAllProducts()
         {
-            var products = await _context.Products.AsNoTracking()
+            var products = await _context
+                .Products.AsNoTracking()
                 .Include(product => product.Category)
                 .ToListAsync();
 
             return products;
-
         }
-
 
         public async Task<Product> UpdateProduct(Product product)
         {
-
             _context.Products.Update(product);
 
             await _context.SaveChangesAsync();
 
             return product;
-
         }
+
         public async Task<Product> DeleteProduct(int id)
         {
             var product = await _context.Products.FindAsync(id);
@@ -84,6 +72,5 @@ namespace pizzeria_backend.Services
 
             return product;
         }
-
     }
 }

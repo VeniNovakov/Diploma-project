@@ -6,6 +6,7 @@ using Newtonsoft.Json.Serialization;
 using pizzeria_backend;
 using pizzeria_backend.Hubs;
 using pizzeria_backend.Services;
+using pizzeria_backend.Services.Interfaces;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,33 +21,40 @@ var configuration = new ConfigurationBuilder()
 builder.Services.AddSingleton<IConfiguration>(configuration);
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-        options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
+);
 
-builder.Services.AddControllers().AddNewtonsoftJson(options =>
-{
-    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
-    options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
-    options.SerializerSettings.ContractResolver = new DefaultContractResolver
+builder
+    .Services.AddControllers()
+    .AddNewtonsoftJson(options =>
     {
-        NamingStrategy = new CamelCaseNamingStrategy()
-    };
-}
-    );
+        options.SerializerSettings.ReferenceLoopHandling = Newtonsoft
+            .Json
+            .ReferenceLoopHandling
+            .Ignore;
+        options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
+        options.SerializerSettings.ContractResolver = new DefaultContractResolver
+        {
+            NamingStrategy = new CamelCaseNamingStrategy()
+        };
+    });
 
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-}
-    ).AddJwtBearer(opt =>
+builder
+    .Services.AddAuthentication(options =>
     {
-
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(opt =>
+    {
         opt.TokenValidationParameters = new TokenValidationParameters
         {
             ValidIssuer = Configuration["JWT:Issuer"],
             ValidAudience = Configuration["JWT:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Key"]!)),
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(configuration["JWT:Key"]!)
+            ),
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,
@@ -54,8 +62,7 @@ builder.Services.AddAuthentication(options =>
         };
         opt.Audience = Configuration["JWT:Audience"];
         opt.Authority = Configuration["JWT:Issuer"];
-    }
-    );
+    });
 
 builder.Services.AddAuthorization(opt =>
 {
@@ -74,27 +81,27 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAzureBlobStorageService, AzureBlobStorageService>();
 
-
 builder.Services.AddSwaggerGen(options =>
 {
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        In = ParameterLocation.Header,
-        Description = "Please enter 'Bearer [jwt]'",
-        Name = "Authorization",
-        Type = SecuritySchemeType.ApiKey
-    });
+    options.AddSecurityDefinition(
+        "Bearer",
+        new OpenApiSecurityScheme
+        {
+            In = ParameterLocation.Header,
+            Description = "Please enter 'Bearer [jwt]'",
+            Name = "Authorization",
+            Type = SecuritySchemeType.ApiKey
+        }
+    );
 
     var scheme = new OpenApiSecurityScheme
     {
-        Reference = new OpenApiReference
-        {
-            Type = ReferenceType.SecurityScheme,
-            Id = "Bearer"
-        }
+        Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
     };
 
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement { { scheme, Array.Empty<string>() } });
+    options.AddSecurityRequirement(
+        new OpenApiSecurityRequirement { { scheme, Array.Empty<string>() } }
+    );
 });
 
 builder.Services.AddEndpointsApiExplorer();
@@ -121,13 +128,10 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapSwagger();
-app.MapControllerRoute(
-    name: "default",
-    pattern: "/{controller=Home}/{action=Index}/{id?}");
+app.MapControllerRoute(name: "default", pattern: "/{controller=Home}/{action=Index}/{id?}");
 
 app.MapHub<OrderHub>("/ordersHub");
 
 app.MapFallbackToFile("index.html");
-
 
 app.Run();

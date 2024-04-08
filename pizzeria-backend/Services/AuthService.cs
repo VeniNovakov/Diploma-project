@@ -1,22 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using pizzeria_backend.Models;
 using pizzeria_backend.Models.Interfaces;
+using pizzeria_backend.Services.Interfaces;
 
 namespace pizzeria_backend.Services
 {
-
-    public interface IAuthService
-    {
-        public Task<RefreshDto> Register(RegisterDto user);
-        public Task<RefreshDto> Login(LoginDto loginInfo);
-        public Task<RefreshDto> Revoke(JWTRefreshDto tokens, string refreshToken);
-        public Task<RefreshDto> Refresh(JWTRefreshDto jwtObj, string refreshToken);
-
-    }
     public class AuthService : IAuthService
     {
-
-        AppDbContext _context;
+        private readonly AppDbContext _context;
         ITokenService _tokenService;
 
         public AuthService(AppDbContext context, ITokenService tokenService)
@@ -24,6 +15,7 @@ namespace pizzeria_backend.Services
             _context = context;
             _tokenService = tokenService;
         }
+
         public async Task<RefreshDto> Register(RegisterDto user)
         {
             var IsUser = (await FindByEmail(user.Email));
@@ -51,20 +43,13 @@ namespace pizzeria_backend.Services
 
             var accessToken = _tokenService.GenerateJWTAccess(newUser);
 
-
-
             await _context.SaveChangesAsync();
 
-            return new RefreshDto
-            {
-                AccessToken = accessToken,
-                RefreshToken = refreshToken
-            };
-
+            return new RefreshDto { AccessToken = accessToken, RefreshToken = refreshToken };
         }
+
         public async Task<RefreshDto> Login(LoginDto loginInfo)
         {
-
             var user = (await FindByEmail(loginInfo.Email));
 
             if (BCrypt.Net.BCrypt.EnhancedVerify(loginInfo.Password, user.Password) is false)
@@ -72,23 +57,17 @@ namespace pizzeria_backend.Services
                 return null;
             }
 
-
             var accessToken = _tokenService.GenerateJWTAccess(user);
             var refreshToken = _tokenService.GenerateJwtRefreshToken(user);
 
             user.RefreshToken = BCrypt.Net.BCrypt.EnhancedHashPassword(refreshToken);
             await _context.SaveChangesAsync();
 
-            return new RefreshDto
-            {
-                AccessToken = accessToken,
-                RefreshToken = refreshToken
-            };
-
+            return new RefreshDto { AccessToken = accessToken, RefreshToken = refreshToken };
         }
+
         public async Task<RefreshDto> Refresh(JWTRefreshDto jwtObj, string refreshToken)
         {
-
             var user = (await FindById(jwtObj.Id));
             if (user is null)
             {
@@ -104,17 +83,11 @@ namespace pizzeria_backend.Services
                 return null;
             }
 
-            return new RefreshDto
-            {
-                AccessToken = accessToken,
-                RefreshToken = refreshToken
-            };
-
+            return new RefreshDto { AccessToken = accessToken, RefreshToken = refreshToken };
         }
+
         public async Task<RefreshDto> Revoke(JWTRefreshDto jwtObj, string refreshToken)
         {
-
-
             var user = (await FindById(jwtObj.Id));
 
             if (user is not null)
@@ -130,7 +103,6 @@ namespace pizzeria_backend.Services
             user.RefreshToken = null;
             await _context.SaveChangesAsync();
             return null;
-
         }
 
         private async Task<User> FindByEmail(string Email)
@@ -141,8 +113,6 @@ namespace pizzeria_backend.Services
         private async Task<User> FindById(int Id)
         {
             return await _context.Users.Where(u => u.Id == Id).FirstOrDefaultAsync();
-
         }
-
     }
 }

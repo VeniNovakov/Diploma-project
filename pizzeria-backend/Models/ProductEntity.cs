@@ -1,6 +1,6 @@
-﻿using pizzeria_backend.Models.Interfaces;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using pizzeria_backend.Models.Interfaces;
 
 namespace pizzeria_backend.Models
 {
@@ -19,8 +19,7 @@ namespace pizzeria_backend.Models
         public ProductsCategory Category { get; set; }
         public bool IsInMenu { get; set; }
         public bool IsAvailable { get; set; }
-        public virtual IEnumerable<OrderedProduct> OrderedProducts { get; set; } = new List<OrderedProduct>();
+        public virtual IEnumerable<OrderedProduct> OrderedProducts { get; set; } =
+            new List<OrderedProduct>();
     }
-
-
 }

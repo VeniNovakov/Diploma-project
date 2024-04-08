@@ -5,16 +5,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace pizzeria_backend.Services
 {
-    public interface IOrderService
-    {
-        public Task<Order> MakeOrder(OrderDto Order);
-        public Task<Order> GetOrder(int Id);
-        public Task<Order> DeleteOrder(int Id);
-        public Task<Order> ChangeOrderCompletion(int Id);
-        public Task<InvalidOrdersDto> ValidateOrder(OrderDto Order);
-        public Task<List<Order>> GetOrders();
 
-    }
+
     public class OrdersService : IOrderService
     {
         private readonly AppDbContext _context;
@@ -36,16 +28,20 @@ namespace pizzeria_backend.Services
             var dbOrder = new Order
             {
                 WantedFor = order.WantedFor,
-                OrderedProducts = order.Items.Select(item => new OrderedProduct
-                {
-                    ProductId = item.ProductId,
-                    Amount = item.Amount,
-                    AddOns = item.AddOns?.Select(addon => new OrderedAddOn
+                OrderedProducts = order
+                    .Items.Select(item => new OrderedProduct
                     {
-                        AddOnId = addon.AddOnId,
-                        Amount = addon.Amount
-                    }).ToList()
-                }).ToList()
+                        ProductId = item.ProductId,
+                        Amount = item.Amount,
+                        AddOns = item
+                            .AddOns?.Select(addon => new OrderedAddOn
+                            {
+                                AddOnId = addon.AddOnId,
+                                Amount = addon.Amount
+                            })
+                            .ToList()
+                    })
+                    .ToList()
             };
 
             _context.Order.Add(dbOrder);
@@ -55,22 +51,24 @@ namespace pizzeria_backend.Services
             return (await GetOrderRelations().Where(ord => ord.Id == dbOrder.Id).FirstAsync());
         }
 
-        public Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<Order, ProductsCategory> GetOrderRelations()
+        public Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<
+            Order,
+            ProductsCategory
+        > GetOrderRelations()
         {
-            return _context.Order
+            return _context
+                .Order.Include(order => order.OrderedProducts)
+                .ThenInclude(op => op.AddOns)
+                .ThenInclude(oa => oa.AddOn)
+                .ThenInclude(oa => oa.Category)
                 .Include(order => order.OrderedProducts)
-                    .ThenInclude(op => op.AddOns)
-                    .ThenInclude(oa => oa.AddOn)
-                    .ThenInclude(oa => oa.Category)
-                .Include(order => order.OrderedProducts)
-                    .ThenInclude(op => op.Product)
-                    .ThenInclude(pr => pr.Category);
+                .ThenInclude(op => op.Product)
+                .ThenInclude(pr => pr.Category);
         }
 
         public async Task<Order> GetOrder(int Id)
         {
-            var order = await GetOrderRelations()
-                .Where(ord => ord.Id == Id).FirstAsync();
+            var order = await GetOrderRelations().Where(ord => ord.Id == Id).FirstAsync();
             return order;
         }
 
@@ -98,59 +96,56 @@ namespace pizzeria_backend.Services
             }
 
             return order;
-
         }
 
         public async Task<List<Order>> GetOrders()
         {
-            var orders = await _context.Order
-             .Select(order => new Order
-             {
-                 Id = order.Id,
-                 WantedFor = order.WantedFor,
-                 OrderedProducts = order.OrderedProducts.Select(op => new OrderedProduct
-                 {
-                     AddOns = op.AddOns.Select(oa => new OrderedAddOn
-                     {
-                         Id = oa.Id,
-                         AddOn = new AddOn
-                         {
-                             Id = oa.AddOn.Id,
-                             Name = oa.AddOn.Name,
-                             AmountInGrams = oa.AddOn.AmountInGrams,
-                             Category = oa.AddOn.Category,
-                             Description = oa.AddOn.Description,
-                             Price = oa.AddOn.Price,
+            var orders = await _context
+                .Order.Select(order => new Order
+                {
+                    Id = order.Id,
+                    WantedFor = order.WantedFor,
+                    OrderedProducts = order
+                        .OrderedProducts.Select(op => new OrderedProduct
+                        {
+                            AddOns = op
+                                .AddOns.Select(oa => new OrderedAddOn
+                                {
+                                    Id = oa.Id,
+                                    AddOn = new AddOn
+                                    {
+                                        Id = oa.AddOn.Id,
+                                        Name = oa.AddOn.Name,
+                                        AmountInGrams = oa.AddOn.AmountInGrams,
+                                        Category = oa.AddOn.Category,
+                                        Description = oa.AddOn.Description,
+                                        Price = oa.AddOn.Price,
+                                    },
+                                    Amount = oa.Amount,
+                                })
+                                .ToList(),
 
-                         },
-                         Amount = oa.Amount,
-
-                     }).ToList(),
-
-                     Product = new Product
-                     {
-                         Id = op.ProductId,
-                         Name = op.Product.Name,
-                         IsAvailable = op.Product.IsAvailable,
-                         IsInMenu = op.Product.IsInMenu,
-                         Category = op.Product.Category,
-                         Description = op.Product.Description,
-                         Price = op.Product.Price,
-
-                     },
-                     Amount = op.Amount,
-
-                 }).ToList(),
-                 IsCompleted = order.IsCompleted
-             })
-             .ToListAsync();
+                            Product = new Product
+                            {
+                                Id = op.ProductId,
+                                Name = op.Product.Name,
+                                IsAvailable = op.Product.IsAvailable,
+                                IsInMenu = op.Product.IsInMenu,
+                                Category = op.Product.Category,
+                                Description = op.Product.Description,
+                                Price = op.Product.Price,
+                            },
+                            Amount = op.Amount,
+                        })
+                        .ToList(),
+                    IsCompleted = order.IsCompleted
+                })
+                .ToListAsync();
             return orders;
         }
 
         public async Task<InvalidOrdersDto> ValidateOrder(OrderDto order)
         {
-
-
             List<int> productIds = [];
             List<int> addOnIds = [];
             foreach (OrderedProductsDto op in order.Items)
@@ -159,7 +154,6 @@ namespace pizzeria_backend.Services
                 if (opp is null)
                 {
                     productIds.Add(op.ProductId);
-
                 }
                 else if (opp.IsInMenu == false || opp.IsAvailable == false)
                 {
@@ -173,14 +167,8 @@ namespace pizzeria_backend.Services
                         addOnIds.Add(oa.AddOnId);
                     }
                 }
-
             }
-            return new InvalidOrdersDto
-            {
-                ProductIds = productIds,
-                AddOnIds = addOnIds
-            };
+            return new InvalidOrdersDto { ProductIds = productIds, AddOnIds = addOnIds };
         }
     }
-
 }
