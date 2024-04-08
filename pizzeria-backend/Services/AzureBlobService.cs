@@ -22,6 +22,7 @@ namespace pizzeria_backend.Services
             var connectionString = _configuration.GetConnectionString("AzureBlobStorage");
             _blobServiceClient = new BlobServiceClient(connectionString);
             _blobContainerClient = _blobServiceClient.GetBlobContainerClient("images");
+            _blobContainerClient.CreateIfNotExists();
         }
 
         public async Task<Uri> UploadBlobAsync(Stream content, string blobName)

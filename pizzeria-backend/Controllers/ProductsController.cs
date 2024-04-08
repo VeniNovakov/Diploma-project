@@ -31,7 +31,6 @@ namespace pizzeria_backend.Controllers
             }
 
             var imageLink = (await _azureBlobStorageService.UploadBlobAsync(product.Image.OpenReadStream(), product.Image.FileName)).ToString();
-            Console.WriteLine(imageLink);
             var pr = await _productService.AddProductAsync(ConvertToProduct(product, imageLink));
 
             return Ok(pr);
