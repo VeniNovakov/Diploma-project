@@ -6,7 +6,7 @@ namespace pizzeria_backend.Services.Interfaces
     {
         public Task<RefreshDto> Register(RegisterDto user);
         public Task<RefreshDto> Login(LoginDto loginInfo);
-        public Task<RefreshDto> Revoke(JWTRefreshDto tokens, string refreshToken);
+        public Task Revoke(JWTRefreshDto tokens, string refreshToken);
         public Task<RefreshDto> Refresh(JWTRefreshDto jwtObj, string refreshToken);
     }
 }

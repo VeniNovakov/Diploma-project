@@ -37,9 +37,7 @@ namespace pizzeria_backend.Services
         public async Task<bool> DeleteBlobAsync(string blobName)
         {
             var blobCLient = _blobContainerClient.GetBlobClient(blobName);
-            await blobCLient.DeleteIfExistsAsync();
-
-            return true;
+            return await blobCLient.DeleteIfExistsAsync();
         }
     }
 }

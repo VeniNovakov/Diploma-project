@@ -1,13 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 using pizzeria_backend.Models;
 using pizzeria_backend.Models.Interfaces;
-using System.ComponentModel.DataAnnotations;
+using pizzeria_backend.Services.Interfaces;
 
 namespace pizzeria_backend.Services
 {
-
-
-    public class OrdersService : IOrderService
+    public class OrdersService : IOrdersService
     {
         private readonly AppDbContext _context;
 
@@ -77,7 +76,7 @@ namespace pizzeria_backend.Services
             var order = await _context.Order.FindAsync(Id);
             if (order == null)
             {
-                return order;
+                throw new BadHttpRequestException("Order not found", statusCode: 404);
             }
             order.IsCompleted = !order.IsCompleted;
 
@@ -89,16 +88,18 @@ namespace pizzeria_backend.Services
         public async Task<Order> DeleteOrder(int id)
         {
             var order = await _context.Order.FindAsync(id);
-            if (order != null)
+
+            if (order == null)
             {
-                _context.Order.Remove(order);
-                await _context.SaveChangesAsync();
+                throw new BadHttpRequestException("Order not found", statusCode: 404);
             }
+            _context.Order.Remove(order);
+            await _context.SaveChangesAsync();
 
             return order;
         }
 
-        public async Task<List<Order>> GetOrders()
+        public async Task<IEnumerable<Order>> GetOrders()
         {
             var orders = await _context
                 .Order.Select(order => new Order

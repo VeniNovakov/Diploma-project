@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using pizzeria_backend.Services;
+using pizzeria_backend.Services.Interfaces;
 
 namespace pizzeria_backend.Controllers
 {

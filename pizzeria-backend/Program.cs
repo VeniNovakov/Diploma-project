@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -23,6 +24,19 @@ builder.Services.AddSingleton<IConfiguration>(configuration);
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
 );
+
+builder.Services.AddW3CLogging(logging =>
+{
+    logging.LoggingFields = W3CLoggingFields.All;
+
+    logging.AdditionalRequestHeaders.Add("x-forwarded-for");
+    logging.AdditionalRequestHeaders.Add("x-client-ssl-protocol");
+    logging.FileSizeLimit = 5 * 1024 * 1024;
+    logging.RetainedFileCountLimit = 2;
+    logging.FileName = "MyLogFile";
+    logging.LogDirectory = @"C:\logs";
+    logging.FlushInterval = TimeSpan.FromSeconds(2);
+});
 
 builder
     .Services.AddControllers()
@@ -67,12 +81,12 @@ builder
 builder.Services.AddAuthorization(opt =>
 {
     opt.AddPolicy("refreshToken", policy => policy.RequireClaim("randGuid"));
-    opt.AddPolicy("Admin", policy => policy.RequireClaim("IsAdmin", "True"));
+    opt.AddPolicy("admin", policy => policy.RequireClaim("admin", "True"));
 });
 
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IAddOnService, AddOnService>();
-builder.Services.AddScoped<IOrderService, OrdersService>();
+builder.Services.AddScoped<IOrdersService, OrdersService>();
 
 builder.Services.AddScoped<IProductCategoriesService, ProductCategoriesService>();
 builder.Services.AddScoped<IAddOnCategoriesService, AddOnCategoriesService>();
@@ -108,6 +122,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSignalR();
 
 var app = builder.Build();
+app.UseW3CLogging();
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -133,5 +149,4 @@ app.MapControllerRoute(name: "default", pattern: "/{controller=Home}/{action=Ind
 app.MapHub<OrderHub>("/ordersHub");
 
 app.MapFallbackToFile("index.html");
-
 app.Run();

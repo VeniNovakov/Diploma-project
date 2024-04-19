@@ -37,6 +37,11 @@ namespace pizzeria_backend.Services
                 })
                 .FirstOrDefault(a => a.Id == Id);
 
+            if (addOn == null)
+            {
+                throw new BadHttpRequestException("Add-on not found", statusCode: 404);
+            }
+
             return addOn;
         }
 
@@ -64,7 +69,10 @@ namespace pizzeria_backend.Services
             _context.AddOns.Update(addOn);
 
             await _context.SaveChangesAsync();
-
+            if (addOn == null)
+            {
+                throw new BadHttpRequestException("Add-on not found", statusCode: 404);
+            }
             return addOn;
         }
 
@@ -73,7 +81,7 @@ namespace pizzeria_backend.Services
             var addOn = await _context.AddOns.FindAsync(Id);
             if (addOn == null)
             {
-                return null;
+                throw new BadHttpRequestException("Add-on not found", statusCode: 404);
             }
 
             _context.AddOns.Remove(addOn);

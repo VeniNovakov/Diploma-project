@@ -1,13 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using pizzeria_backend.Extension;
 using pizzeria_backend.Hubs;
 using pizzeria_backend.Models.Interfaces;
 using pizzeria_backend.Services.Interfaces;
 using System.ComponentModel.DataAnnotations;
-
 
 namespace pizzeria_backend.Controllers
 {
@@ -15,10 +13,10 @@ namespace pizzeria_backend.Controllers
     [ApiController]
     public class OrderController : Controller
     {
-        private readonly IOrderService _orderService;
+        private readonly IOrdersService _orderService;
         private readonly IHubContext<OrderHub> _hubContext;
 
-        public OrderController(IOrderService orderService, IHubContext<OrderHub> hubContext)
+        public OrderController(IOrdersService orderService, IHubContext<OrderHub> hubContext)
         {
             _orderService = orderService;
             _hubContext = hubContext;
@@ -30,22 +28,8 @@ namespace pizzeria_backend.Controllers
             try
             {
                 var ord = await _orderService.MakeOrder(Order);
+                await _hubContext.SendJsonAsync("NewOrder", ord);
 
-                Console.WriteLine(ord);
-                await _hubContext.Clients.All.SendAsync(
-                    "NewOrder",
-                    JsonConvert.SerializeObject(
-                        ord,
-                        new JsonSerializerSettings
-                        {
-                            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                            ContractResolver = new CamelCasePropertyNamesContractResolver
-                            {
-                                NamingStrategy = new CamelCaseNamingStrategy()
-                            }
-                        }
-                    )
-                );
                 return Ok(ord);
             }
             catch (ValidationException ex)
@@ -65,56 +49,59 @@ namespace pizzeria_backend.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetOrder(int id)
         {
-            var ord = await _orderService.GetOrder(id);
-            if (ord == null)
+            try
             {
-                return NotFound("Order not found");
-            }
+                var ord = await _orderService.GetOrder(id);
 
-            return Ok(ord);
+                return Ok(ord);
+            }
+            catch (BadHttpRequestException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Policy = "Admin")]
+        [Authorize(Policy = "admin")]
         public async Task<IActionResult> DeleteOrder(int id)
         {
-            var ord = await _orderService.DeleteOrder(id);
-            if (ord == null)
+            try
             {
-                return NotFound("Order not found");
-            }
+                var ord = await _orderService.DeleteOrder(id);
 
-            await _hubContext.Clients.All.SendAsync("DeleteOrder", ord);
-            return Ok(ord);
+                await _hubContext.SendJsonAsync("DeleteOrder", ord);
+                return Ok(ord);
+            }
+            catch (BadHttpRequestException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [HttpGet("change-status/{id}")]
-        [Authorize(Policy = "Admin")]
+        [Authorize(Policy = "admin")]
         public async Task<IActionResult> ChangeCompletion(int id)
         {
-            var ord = await _orderService.ChangeOrderCompletion(id);
-
-            if (ord == null)
+            try
             {
-                return NotFound("Order not found");
+                var ord = await _orderService.ChangeOrderCompletion(id);
+
+                await _hubContext.SendJsonAsync("UpdateOrder", ord);
+
+                return Ok(ord);
             }
-
-            await _hubContext.Clients.All.SendAsync("UpdateOrder", ord);
-
-            return Ok(ord);
+            catch (BadHttpRequestException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [HttpGet()]
-        [Authorize(Policy = "Admin")]
+        [Authorize(Policy = "admin")]
         [Produces("application/json")]
         public async Task<IActionResult> GetOrders()
         {
             var orders = await _orderService.GetOrders();
-
-            if (orders == null)
-            {
-                return NotFound("Order not found");
-            }
 
             return Ok(orders);
         }

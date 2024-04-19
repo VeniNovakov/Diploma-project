@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using pizzeria_backend.Models;
 using pizzeria_backend.Models.Interfaces;
-using pizzeria_backend.Services;
+using pizzeria_backend.Services.Interfaces;
 
 namespace pizzeria_backend.Controllers
 {
@@ -18,7 +18,7 @@ namespace pizzeria_backend.Controllers
         }
 
         [HttpPost()]
-        [Authorize(Policy = "Admin")]
+        [Authorize(Policy = "admin")]
         [Produces("application/json")]
         public async Task<IActionResult> AddAddOn([FromBody] AddOnDto addOn)
         {
@@ -36,30 +36,37 @@ namespace pizzeria_backend.Controllers
         [Produces("application/json")]
         public async Task<IActionResult> GetAddOn(int Id)
         {
-            var addOn = await _addOnService.GetAddOn(Id);
-            if (addOn == null)
+            try
             {
-                return NotFound("Add on not found");
+                var addOn = await _addOnService.GetAddOn(Id);
+
+                return Ok(addOn);
             }
-            return Ok(addOn);
+            catch (BadHttpRequestException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [HttpPatch("{id}")]
-        [Authorize(Policy = "Admin")]
+        [Authorize(Policy = "admin")]
         [Produces("application/json")]
         public async Task<IActionResult> UpdateAddOn(int id, [FromBody] AddOnDto AddOn)
         {
-            var addOn = await _addOnService.UpdateAddOn(ConvertToAddOn(AddOn, id));
-            if (addOn == null)
+            try
             {
-                return NotFound("Add on not found");
-            }
+                var addOn = await _addOnService.UpdateAddOn(ConvertToAddOn(AddOn, id));
 
-            return Ok(addOn);
+                return Ok(addOn);
+            }
+            catch (BadHttpRequestException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Policy = "Admin")]
+        [Authorize(Policy = "admin")]
         [Produces("application/json")]
         public async Task<IActionResult> DeleteAddOn(int id)
         {

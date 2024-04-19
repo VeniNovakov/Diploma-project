@@ -1,15 +1,13 @@
-﻿using Microsoft.IdentityModel.Tokens;
-using pizzeria_backend.Models;
-using pizzeria_backend.Services.Interfaces;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.IdentityModel.Tokens;
+using pizzeria_backend.Models;
+using pizzeria_backend.Services.Interfaces;
 
 namespace pizzeria_backend.Services
 {
-
-
     public class TokenService(IConfiguration config) : ITokenService
     {
         public readonly IConfiguration _config = config;
@@ -18,24 +16,18 @@ namespace pizzeria_backend.Services
         {
             var claims = new List<Claim>
             {
-                new Claim("Id", user.Id.ToString()),
-                new Claim("Name", user.Name),
-                new Claim("Email", user.Email),
-                new Claim("IsAdmin", user.IsAdmin.ToString()),
+                new Claim("id", user.Id.ToString()),
+                new Claim("name", user.Name),
+                new Claim("email", user.Email),
+                new Claim("admin", user.IsAdmin.ToString()),
             };
 
-            var JwtAcc = new JwtSecurityToken(
-                claims: claims,
-                audience: _config["JWT:Audience"],
-                issuer: _config["JWT:Issuer"],
-                notBefore: DateTime.UtcNow,
-                expires: DateTime.UtcNow.AddMinutes(5),
-                signingCredentials: new SigningCredentials(
-                    new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JWT:Key"]!)),
-                    SecurityAlgorithms.HmacSha256Signature
-                )
+            var JwtAccess = CreateJWTSecurityToken(
+                claims,
+                DateTime.UtcNow,
+                DateTime.UtcNow.AddMinutes(5)
             );
-            var accToken = new JwtSecurityTokenHandler().WriteToken(JwtAcc);
+            var accToken = new JwtSecurityTokenHandler().WriteToken(JwtAccess);
             return accToken;
         }
 
@@ -51,23 +43,37 @@ namespace pizzeria_backend.Services
         {
             var claims = new List<Claim>
             {
-                new Claim("Id", user.Id.ToString()),
+                new Claim("id", user.Id.ToString()),
                 new Claim("randGuid", this.Generate64String())
             };
 
-            var JwtAcc = new JwtSecurityToken(
+            var JwtRefresh = CreateJWTSecurityToken(
+                claims,
+                DateTime.UtcNow,
+                DateTime.UtcNow.AddDays(30)
+            );
+
+            var refreshToken = new JwtSecurityTokenHandler().WriteToken(JwtRefresh);
+            return refreshToken;
+        }
+
+        private JwtSecurityToken CreateJWTSecurityToken(
+            IEnumerable<Claim> claims,
+            DateTime before,
+            DateTime expires
+        )
+        {
+            return new JwtSecurityToken(
                 claims: claims,
                 audience: _config["JWT:Audience"],
                 issuer: _config["JWT:Issuer"],
-                notBefore: DateTime.UtcNow,
-                expires: DateTime.UtcNow.AddDays(30),
+                notBefore: before,
+                expires: expires,
                 signingCredentials: new SigningCredentials(
                     new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JWT:Key"]!)),
                     SecurityAlgorithms.HmacSha256Signature
                 )
             );
-            var refreshToken = new JwtSecurityTokenHandler().WriteToken(JwtAcc);
-            return refreshToken;
         }
     }
 }

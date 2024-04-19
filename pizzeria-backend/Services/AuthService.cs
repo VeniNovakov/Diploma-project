@@ -21,12 +21,12 @@ namespace pizzeria_backend.Services
             var IsUser = (await FindByEmail(user.Email));
             if (IsUser is not null)
             {
-                return null;
+                throw new BadHttpRequestException("Email is already in use", statusCode: 401);
             }
 
             if (user.Password != user.ConfirmPassword)
             {
-                return null;
+                throw new BadHttpRequestException("Wrong confirm password", statusCode: 401);
             }
 
             var newUser = new User
@@ -54,7 +54,7 @@ namespace pizzeria_backend.Services
 
             if (BCrypt.Net.BCrypt.EnhancedVerify(loginInfo.Password, user.Password) is false)
             {
-                return null;
+                throw new BadHttpRequestException("Incorrect password", statusCode: 401);
             }
 
             var accessToken = _tokenService.GenerateJWTAccess(user);
@@ -71,38 +71,34 @@ namespace pizzeria_backend.Services
             var user = (await FindById(jwtObj.Id));
             if (user is null)
             {
-                Console.WriteLine("Chupi 1");
-                return null;
+                throw new BadHttpRequestException("Unauthorized", statusCode: 401);
             }
 
             var accessToken = _tokenService.GenerateJWTAccess(user);
             if (BCrypt.Net.BCrypt.EnhancedVerify(refreshToken, user.RefreshToken) is false)
             {
-                Console.WriteLine("Chupi 2");
-
-                return null;
+                throw new BadHttpRequestException("Unauthorized", statusCode: 401);
             }
 
             return new RefreshDto { AccessToken = accessToken, RefreshToken = refreshToken };
         }
 
-        public async Task<RefreshDto> Revoke(JWTRefreshDto jwtObj, string refreshToken)
+        public async Task Revoke(JWTRefreshDto jwtObj, string refreshToken)
         {
             var user = (await FindById(jwtObj.Id));
 
             if (user is not null)
             {
-                return null;
+                throw new BadHttpRequestException("Unauthorized", statusCode: 401);
             }
 
             if (BCrypt.Net.BCrypt.EnhancedVerify(user.RefreshToken, refreshToken) is false)
             {
-                return null;
+                throw new BadHttpRequestException("Unauthorized", statusCode: 401);
             }
 
             user.RefreshToken = null;
             await _context.SaveChangesAsync();
-            return null;
         }
 
         private async Task<User> FindByEmail(string Email)
