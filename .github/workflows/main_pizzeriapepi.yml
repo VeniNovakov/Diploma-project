@@ -23,6 +23,15 @@ jobs:
         with:
           dotnet-version: '8.x'
           include-prerelease: true
+          
+      - name: Change directory to pizzeria-frontend
+        run: cd ../pizzeria-frontend
+
+      - name: Install npm dependencies
+        run: npm install
+
+      - name: Change directory to pizzeria-backend
+        run: cd ../pizzeria-backend
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
