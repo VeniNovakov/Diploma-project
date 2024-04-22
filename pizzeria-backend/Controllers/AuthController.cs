@@ -1,9 +1,9 @@
-﻿using System.Security.Claims;
-using System.Security.Principal;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using pizzeria_backend.Models.Interfaces;
 using pizzeria_backend.Services.Interfaces;
+using System.Security.Claims;
+using System.Security.Principal;
 
 namespace pizzeria_backend.Controllers
 {
@@ -38,7 +38,7 @@ namespace pizzeria_backend.Controllers
         {
             try
             {
-                RefreshDto tokens = await _authService.Login(login);
+                RefreshDto tokens = await _authService.Login(login);// handle user not existing
 
                 return Ok(tokens);
             }
@@ -55,11 +55,6 @@ namespace pizzeria_backend.Controllers
             try
             {
                 string token = getTokenFromHeader(HttpContext);
-
-                if (token == null)
-                {
-                    return BadRequest();
-                }
 
                 var refreshObj = DecodeRefreshToken(identity: HttpContext.User.Identity);
 
@@ -84,10 +79,6 @@ namespace pizzeria_backend.Controllers
             try
             {
                 string token = getTokenFromHeader(HttpContext);
-                if (token == null)
-                {
-                    return BadRequest();
-                }
 
                 var refreshObj = DecodeRefreshToken(HttpContext.User.Identity);
 
@@ -110,10 +101,12 @@ namespace pizzeria_backend.Controllers
         public async Task<IActionResult> IsAdmin()
         {
             var claimsRepo = HttpContext.User.Identity as ClaimsIdentity;
+
             if (claimsRepo == null)
             {
                 return BadRequest();
             }
+
             return Ok(Boolean.Parse(claimsRepo.FindFirst("admin").Value));
         }
 
@@ -121,7 +114,7 @@ namespace pizzeria_backend.Controllers
         {
             if (httpContext == null)
             {
-                throw new Exception("provided nothing");
+                throw new Exception("No token provided");
             }
             return httpContext.Request!.Headers["Authorization"]!.FirstOrDefault(h =>
                 h.StartsWith("Bearer ")
@@ -133,11 +126,11 @@ namespace pizzeria_backend.Controllers
             var claimsRepo = identity as ClaimsIdentity;
             if (claimsRepo == null)
             {
-                return null;
+                throw new BadHttpRequestException("No claims in token");
             }
-            if (claimsRepo.FindFirst("id") == null)
+            if (claimsRepo.FindFirst("id") == null || claimsRepo.FindFirst("randGuid") == null)
             {
-                return null;
+                throw new BadHttpRequestException("Claims do not match");
             }
             var refreshObj = new JWTRefreshDto
             {

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Order } from "../utilities/types";
-import { HubConnection, HubConnectionBuilder, IHttpConnectionOptions } from "@microsoft/signalr";
+import { HttpTransportType, HubConnection, HubConnectionBuilder, IHttpConnectionOptions } from "@microsoft/signalr";
 import toast, { Toaster } from 'react-hot-toast';
 import { fetchDataWithRetry } from "../utilities/functions/fetchAndRefresh";
 const OrderDetails: React.FC<{
@@ -80,7 +80,10 @@ const OrdersPage: React.FC = () => {
 
   function createHubConnection() {
     const con = new HubConnectionBuilder()
-      .withUrl(window.location.origin + "/ordersHub")
+      .withUrl(window.location.origin + "/ordersHub", {
+        accessTokenFactory: () => {return localStorage.getItem("authAccess") as string},
+      }
+      )
       .withAutomaticReconnect()
       .build();
     setConnection(con);
@@ -162,6 +165,23 @@ const OrdersPage: React.FC = () => {
                 return updatedOrders; 
               });
             });
+            connectionRef.onclose( () => {
+              fetch(window.location.origin+"/api/auth/v1.0/refresh", 
+              {
+                method:"POST", 
+                headers:{
+                  "Authorization": "Bearer " + localStorage.getItem("authRefresh") || " "
+                }
+              }
+              )
+              .then(resp => resp.json())
+              .then(data => {
+                localStorage.setItem("authAccess", data.accessToken)
+                createHubConnection();
+              }
+              )
+              .catch(e => console.log(e))
+            })
           })
           .catch((err) => {
             console.log(`Error: ${err}`);

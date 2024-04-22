@@ -52,6 +52,12 @@ namespace pizzeria_backend.Services
         {
             var user = (await FindByEmail(loginInfo.Email));
 
+            if (user is null)
+            {
+
+                throw new BadHttpRequestException("User with requested credentials does not exist");
+            }
+
             if (BCrypt.Net.BCrypt.EnhancedVerify(loginInfo.Password, user.Password) is false)
             {
                 throw new BadHttpRequestException("Incorrect password", statusCode: 401);
@@ -92,7 +98,7 @@ namespace pizzeria_backend.Services
                 throw new BadHttpRequestException("Unauthorized", statusCode: 401);
             }
 
-            if (BCrypt.Net.BCrypt.EnhancedVerify(user.RefreshToken, refreshToken) is false)
+            if (BCrypt.Net.BCrypt.EnhancedVerify(refreshToken, user.RefreshToken) is false)
             {
                 throw new BadHttpRequestException("Unauthorized", statusCode: 401);
             }
