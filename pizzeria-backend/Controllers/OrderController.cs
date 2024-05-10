@@ -6,6 +6,7 @@ using pizzeria_backend.Hubs;
 using pizzeria_backend.Models.Interfaces;
 using pizzeria_backend.Services.Interfaces;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 
 namespace pizzeria_backend.Controllers
 {
@@ -22,12 +23,17 @@ namespace pizzeria_backend.Controllers
             _hubContext = hubContext;
         }
 
-        [HttpPost("create")]
+        [Authorize]
+        [HttpPost()]
         public async Task<ActionResult> Order([FromBody] OrderDto Order)
         {
+
+            var claimsRepo = HttpContext.User.Identity as ClaimsIdentity;
+
             try
             {
-                var ord = await _orderService.MakeOrder(Order);
+
+                var ord = await _orderService.MakeOrder(Order, Int32.Parse(claimsRepo.FindFirst("id").Value));
                 await _hubContext.SendJsonAsync("NewOrder", ord);
 
                 return Ok(ord);
@@ -35,6 +41,10 @@ namespace pizzeria_backend.Controllers
             catch (ValidationException ex)
             {
                 return BadRequest("One or more of the items are not available or in the menu");
+            }
+            catch (BadHttpRequestException ex)
+            {
+                return BadRequest(ex.Message);
             }
         }
 

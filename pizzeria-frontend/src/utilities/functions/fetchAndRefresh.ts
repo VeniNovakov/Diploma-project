@@ -14,23 +14,21 @@ export async function fetchDataWithRetry(url:string, body?:any, method?:string, 
   const fetchData = async (): Promise<any> => {
     try {
       const response = await fetch(url, fetchOptions);
+      
       if (response.ok) {
         return response.json();
 
       } else if (response.status === 401) {
-
         await refreshJWTToken();
-
-        return fetchDataWithRetry(url);
-      } else {
         const response2 = await fetch(url, fetchOptions);
-
+              
         if (response2.ok) {
           return response2.json();
         } else {
           throw new Error(`Failed to fetch: ${response2.status}`);
         }
       }
+      
     } catch (error) {
       throw error;
     }

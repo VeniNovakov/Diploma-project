@@ -22,13 +22,16 @@ var configuration = new ConfigurationBuilder()
 builder.Services.AddSingleton<IConfiguration>(configuration);
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
+{
+    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+
+}
 );
+
 
 builder.Services.AddW3CLogging(logging =>
 {
     logging.LoggingFields = W3CLoggingFields.All;
-
     logging.AdditionalRequestHeaders.Add("x-forwarded-for");
     logging.AdditionalRequestHeaders.Add("x-client-ssl-protocol");
     logging.FileSizeLimit = 5 * 1024 * 1024;
@@ -114,6 +117,8 @@ builder.Services.AddScoped<IAddOnCategoriesService, AddOnCategoriesService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAzureBlobStorageService, AzureBlobStorageService>();
+builder.Services.AddScoped<IBasketService, BasketService>();
+
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -150,6 +155,7 @@ if (!app.Environment.IsDevelopment())
 
     app.UseHsts();
 }
+
 app.UseSwagger();
 app.UseSwaggerUI();
 
@@ -162,6 +168,13 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var dbContext = services.GetRequiredService<AppDbContext>();
+    dbContext.Database.Migrate();
+}
 
 app.MapSwagger();
 app.MapControllerRoute(name: "default", pattern: "/{controller=Home}/{action=Index}/{id?}");

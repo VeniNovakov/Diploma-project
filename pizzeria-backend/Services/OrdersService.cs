@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using pizzeria_backend.Models;
 using pizzeria_backend.Models.Interfaces;
 using pizzeria_backend.Services.Interfaces;
@@ -15,20 +14,29 @@ namespace pizzeria_backend.Services
             _context = context;
         }
 
-        public async Task<Order> MakeOrder(OrderDto order)
+        public async Task<Order> MakeOrder(OrderDto order, int userId)
         {
-            var orderValidation = (await ValidateOrder(order));
 
-            if (orderValidation.ProductIds.Count != 0 && orderValidation.AddOnIds.Count != 0)
+            var userBasket = await _context.Baskets.Where(basket => basket.UserId == userId)
+                .Include(basket => basket.BasketProducts)
+                .ThenInclude(basketProducts => basketProducts.AddOns).FirstOrDefaultAsync();
+
+            if (userBasket == null)
             {
-                throw new ValidationException();
+                throw new BadHttpRequestException("No user basket present");
+            }
+
+            if (userBasket.BasketProducts.Count == 0)
+            {
+                throw new BadHttpRequestException(message: "No items in basket");
             }
 
             var dbOrder = new Order
             {
-                WantedFor = order.WantedFor,
-                OrderedProducts = order
-                    .Items.Select(item => new OrderedProduct
+                WantedFor = DateTime.Now,
+                UserId = userId,
+                OrderedProducts = userBasket
+                    .BasketProducts.Select(item => new OrderedProduct
                     {
                         ProductId = item.ProductId,
                         Amount = item.Amount,
@@ -43,7 +51,8 @@ namespace pizzeria_backend.Services
                     .ToList()
             };
 
-            _context.Order.Add(dbOrder);
+            await _context.Order.AddAsync(dbOrder);
+            userBasket.BasketProducts.Clear();
 
             await _context.SaveChangesAsync();
 

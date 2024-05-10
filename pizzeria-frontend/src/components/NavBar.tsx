@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import React, { useState } from "react";
 import { NavItemProps } from "../utilities/types/navBar.interfaces";
 import { useIsAdmin } from "../providers/AuthProvider";
-import { fetchDataWithRetry } from "../utilities/functions/fetchAndRefresh";
 
 const NavBar = () => {
   const { basketCounter } = useBasket();
@@ -24,7 +23,6 @@ const NavBar = () => {
       },
     })
       .then((resp) => {
-        console.log(resp);
         localStorage.removeItem("authRefresh");
         localStorage.removeItem("authAccess");
         setIsAuthenticated(false);
@@ -48,7 +46,7 @@ const NavBar = () => {
       ) : (<></>
       )}
       
-      {!isAuthenticated ? <NavItem href="/auth">Sign in</NavItem>:<></>}
+      {!isAuthenticated && <NavItem href="/auth">Sign in</NavItem>}
 
       <NavItem href="/menu">Menu</NavItem>
       <NavItem

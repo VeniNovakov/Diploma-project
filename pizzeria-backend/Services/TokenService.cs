@@ -1,10 +1,10 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using Microsoft.IdentityModel.Tokens;
+using pizzeria_backend.Models;
+using pizzeria_backend.Services.Interfaces;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using Microsoft.IdentityModel.Tokens;
-using pizzeria_backend.Models;
-using pizzeria_backend.Services.Interfaces;
 
 namespace pizzeria_backend.Services
 {
@@ -25,7 +25,7 @@ namespace pizzeria_backend.Services
             var JwtAccess = CreateJWTSecurityToken(
                 claims,
                 DateTime.UtcNow,
-                DateTime.UtcNow.AddMinutes(5)
+                DateTime.UtcNow.AddMinutes(7)
             );
             var accToken = new JwtSecurityTokenHandler().WriteToken(JwtAccess);
             return accToken;

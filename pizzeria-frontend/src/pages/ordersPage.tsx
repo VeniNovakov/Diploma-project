@@ -77,7 +77,7 @@ const OrdersPage: React.FC = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [connectionRef, setConnection] = useState < HubConnection > ();
   const [showCompleted, setShowCompleted] = useState<boolean>(false);
-
+  
   function createHubConnection() {
     const con = new HubConnectionBuilder()
       .withUrl(window.location.origin + "/ordersHub", {

@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using pizzeria_backend.Models.Interfaces;
+﻿using pizzeria_backend.Models.Interfaces;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace pizzeria_backend.Models
 {
@@ -17,5 +17,7 @@ namespace pizzeria_backend.Models
         public int AmountInGrams { get; set; }
         public virtual IEnumerable<OrderedAddOn> OrderedAddOns { get; set; } =
             new List<OrderedAddOn>();
+        public virtual IEnumerable<BasketAddOn> BasketedAddOns { get; set; } =
+            new List<BasketAddOn>();
     }
 }
