@@ -14,7 +14,7 @@ namespace pizzeria_backend.Services
             _context = context;
         }
 
-        public async Task<Order> MakeOrder(OrderDto order, int userId)
+        public async Task<Order> MakeOrder(int userId)
         {
 
             var userBasket = await _context.Baskets.Where(basket => basket.UserId == userId)
@@ -72,6 +72,7 @@ namespace pizzeria_backend.Services
                 .Include(order => order.OrderedProducts)
                 .ThenInclude(op => op.Product)
                 .ThenInclude(pr => pr.Category);
+
         }
 
         public async Task<Order> GetOrder(int Id)

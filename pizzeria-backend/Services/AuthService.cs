@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Isopoh.Cryptography.Argon2;
+using Microsoft.EntityFrameworkCore;
 using pizzeria_backend.Models;
 using pizzeria_backend.Models.Interfaces;
 using pizzeria_backend.Services.Interfaces;
@@ -66,7 +67,10 @@ namespace pizzeria_backend.Services
             var accessToken = _tokenService.GenerateJWTAccess(user);
             var refreshToken = _tokenService.GenerateJwtRefreshToken(user);
 
-            user.RefreshToken = BCrypt.Net.BCrypt.EnhancedHashPassword(refreshToken);
+            user.RefreshToken = Argon2.Hash(refreshToken);
+
+            _context.Entry(user).Property(u => u.RefreshToken).IsModified = true;
+
             await _context.SaveChangesAsync();
 
             return new RefreshDto { AccessToken = accessToken, RefreshToken = refreshToken };
@@ -77,12 +81,15 @@ namespace pizzeria_backend.Services
             var user = (await FindById(jwtObj.Id));
             if (user is null)
             {
+                Console.WriteLine("No user");
+
                 throw new BadHttpRequestException("Unauthorized", statusCode: 401);
             }
 
             var accessToken = _tokenService.GenerateJWTAccess(user);
-            if (BCrypt.Net.BCrypt.EnhancedVerify(refreshToken, user.RefreshToken) is false)
+            if (Argon2.Verify(user.RefreshToken, refreshToken) is false)
             {
+                Console.WriteLine("DONT MATCH :((((((");
                 throw new BadHttpRequestException("Unauthorized", statusCode: 401);
             }
 
@@ -93,17 +100,19 @@ namespace pizzeria_backend.Services
         {
             var user = (await FindById(jwtObj.Id));
 
-            if (user is not null)
+            if (user is null)
             {
                 throw new BadHttpRequestException("Unauthorized", statusCode: 401);
             }
 
-            if (BCrypt.Net.BCrypt.EnhancedVerify(refreshToken, user.RefreshToken) is false)
+            if (Argon2.Verify(refreshToken, user.RefreshToken) is false)
             {
                 throw new BadHttpRequestException("Unauthorized", statusCode: 401);
             }
 
             user.RefreshToken = null;
+            _context.Entry(user).Property(u => u.RefreshToken).IsModified = true;
+
             await _context.SaveChangesAsync();
         }
 

@@ -40,8 +40,10 @@ const EditProductsContainer: React.FC = () => {
       try {
         const url = window.location.origin+"/api/products/v1.0";
         const url2 = window.location.origin+"/api/product-categories/v1.0";
+
         const data = await fetchDataWithRetry(url);
         const data2 = await fetchDataWithRetry(url2);
+
         setProducts(data);
         setCategories(data2);
       } catch (error) {
@@ -58,7 +60,7 @@ const EditProductsContainer: React.FC = () => {
   const removeProducts = async () => {
     selectedProducts.forEach(product =>{
       console.log(product.id);
-      fetchDataWithRetry(window.location.origin + `/api/products/v1.0/${product.id}`,null, "DELETE")
+      fetchDataWithRetry(window.location.origin + `/api/products/v1.0/${product.id}`,null, "DELETE").then().catch()
     })
   };
 

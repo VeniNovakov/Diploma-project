@@ -86,6 +86,7 @@ const AddOn: React.FC<{
       amountInGrams: editAddOn.amountInGrams,
       price: editAddOn.price,
     }
+
     if(editAddOn?.id === undefined){
       fetchDataWithRetry(window.location.origin+`/api/add-ons/v1.0`,JSON.stringify(newAddOn), "POST", {'Content-type':'application/json'})
       .then(data =>{
@@ -93,8 +94,15 @@ const AddOn: React.FC<{
         setTimeout(navigate, 2700);
       }
       )
+      .catch()
     }else{
       fetchDataWithRetry(window.location.origin+`/api/add-ons/v1.0/${editAddOn?.id}`,JSON.stringify(newAddOn), "PATCH", {'Content-type':'application/json'})
+      .then(data =>{
+        toast.success("Successfully edited add on", {duration:3000})
+        setTimeout(navigate, 2700);
+      }
+      )
+      .catch()
     }
 
   };

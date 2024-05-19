@@ -7,7 +7,7 @@ namespace pizzeria_backend.Services.Interfaces
     {
         public Task<Basket> GetBasket(int userId);
         public Task<BasketProduct> AddProduct(AddProductToBasketDto product, int userId);
-        public Task<BasketProduct> EditAmount(int productId, bool addToProduct);
-        public Task RemoveProduct(int productId);
+        public Task<BasketProduct> EditAmount(int productId, int userId, bool addToProduct);
+        public Task RemoveProduct(int productId, int userId);
     }
 }

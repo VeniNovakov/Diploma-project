@@ -25,15 +25,14 @@ namespace pizzeria_backend.Controllers
 
         [Authorize]
         [HttpPost()]
-        public async Task<ActionResult> Order([FromBody] OrderDto Order)
+        public async Task<ActionResult> Order()
         {
-
-            var claimsRepo = HttpContext.User.Identity as ClaimsIdentity;
-
             try
             {
+                var claimsRepo = HttpContext.User.Identity as ClaimsIdentity;
 
-                var ord = await _orderService.MakeOrder(Order, Int32.Parse(claimsRepo.FindFirst("id").Value));
+
+                var ord = await _orderService.MakeOrder(Int32.Parse(claimsRepo.FindFirst("id").Value));
                 await _hubContext.SendJsonAsync("NewOrder", ord);
 
                 return Ok(ord);

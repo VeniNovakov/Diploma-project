@@ -7,6 +7,8 @@ import { useBasketContent } from "./providers/BasketContentProvider";
 import { Link } from "react-router-dom";
 import { useProduct } from "./providers/TempProductProvider";
 import toast, { Toaster } from "react-hot-toast";
+import { fetchDataWithRetry } from "./utilities/functions/fetchAndRefresh";
+import Skeleton from "react-loading-skeleton";
 interface IFilter {
   onFilterClick: (filterType: Category | null) => void;
 }
@@ -62,6 +64,7 @@ const Menu = () => {
     <div>
       <Filter onFilterClick={handleFilterClick} />
       <div className="flex flex-wrap items-center justify-center">
+        {!Array.isArray(filteredMenu) && <Skeleton count={20}/>}
         {Array.isArray(filteredMenu) && filteredMenu.map((product) => (
           <Product product={product} key={product.id} />
         ))}
@@ -116,7 +119,7 @@ const Product = (props: ProductProps) => {
   useEffect(() => {
     Cookies.set("tempProduct", JSON.stringify(tempProduct));
   }, [tempProduct, setTempProduct]);
-  console.log(props.product)
+  
   useEffect(() => {
     Cookies.set("basket", JSON.stringify(basketItems));
     setBasketCounter(
@@ -125,43 +128,18 @@ const Product = (props: ProductProps) => {
   }, [basketItems, setBasketCounter]);
 
   const updateBasket = (product: ProductType) => {
-    setBasketCounter(basketCounter + 1);
-
-    const newBasketObj: BasketItem = {
-      productId: product.id,
-      product: product,
-      amount: 1,
-    };
-
-    if (basketItems.length === 0) {
-      toast("Added " + newBasketObj.product.name + " to the basket", {position: "top-right",duration: 4000})
-
-      setBasketItems([...basketItems, newBasketObj]);
-      return;
-    } else {
-      const updatedList: BasketItem[] = basketItems?.map((item: BasketItem) => {
-        if (item.product.id === product.id && !item.addOns) {
-          const updatedItem = {
-            ...item,
-            amount: item.amount + 1,
-          };
-          return updatedItem;
-        } else {
-          return item;
-        }
-      });
-
-      if (JSON.stringify(updatedList) === JSON.stringify(basketItems)) {
-        toast("Added " + newBasketObj.product.name + " to the basket", {position: "top-right",duration: 4000})
-
-        setBasketItems([...updatedList, newBasketObj]);
-      } else {
-        toast("Added amount to " + newBasketObj.product.name + " in the basket", {position: "top-right",duration: 4000})
-
-        setBasketItems([...updatedList]);
+    fetchDataWithRetry(window.location.origin + "/api/basket/v1.0", JSON.stringify({id:product.id, amount:1}), "POST", {'Content-type':'application/json'})
+    .then(data => {
+      console.log(data);
+      if((data as BasketItem).amount > 1 ){
+        toast.success("Added amount to " + (data as BasketItem).product.name + " in the basket", {position:"top-right", duration: 4000})
+      }else{
+        toast.success("Added  " + (data as BasketItem).product.name + " to the basket", {position:"top-right", duration: 4000})
       }
-    }
-  };
+    })
+    .catch(e => console.log(e));
+  }
+
 
   const btnHandle = () => {
    

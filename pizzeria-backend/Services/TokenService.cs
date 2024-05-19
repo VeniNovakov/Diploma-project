@@ -27,6 +27,7 @@ namespace pizzeria_backend.Services
                 DateTime.UtcNow,
                 DateTime.UtcNow.AddMinutes(7)
             );
+
             var accToken = new JwtSecurityTokenHandler().WriteToken(JwtAccess);
             return accToken;
         }

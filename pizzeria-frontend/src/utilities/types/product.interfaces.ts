@@ -49,10 +49,18 @@ export interface Category{
   id: number;
   name: string;
 }
+
 export interface BasketItem {
-  Id?: number;
-  productId:number;
+  id?: number;
+  basketId?: number;
+  productId: number;
   addOns?: AddOnBasketType[];
   product: ProductType;
   amount: number;
+
+}
+
+export interface BasketType {
+  id?: number;
+  basketProducts?: BasketItem
 }

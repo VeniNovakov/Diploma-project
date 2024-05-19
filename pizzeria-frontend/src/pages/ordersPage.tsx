@@ -36,7 +36,7 @@ const OrderDetails: React.FC<{
           total += itemTotal;
 
           return (
-            <div key={item.Id} className="mb-2">
+            <div key={item.id} className="mb-2">
               <p>
                 {item.amount}x {item.product.name} - {itemTotal}
               </p>
@@ -105,7 +105,6 @@ const OrdersPage: React.FC = () => {
           console.error('Error:', error);
         });
   }
-
     ref.current = true;
   }, [])
 
@@ -116,7 +115,7 @@ const OrdersPage: React.FC = () => {
           .start()
           .then(() => {
             connectionRef.on("NewOrder", (data) => {
-              const newOrder = JSON.parse(data);
+              const newOrder = JSON.parse(data) as Order;
               console.log("raw data : " + data)
               console.log(newOrder)
 
@@ -131,8 +130,9 @@ const OrdersPage: React.FC = () => {
             });
 
             connectionRef.on('UpdateOrder', (data) => {
-              const updatedOrder = data as Order;
+              const updatedOrder = JSON.parse(data) as Order;
               const infoString = "Order #"+ updatedOrder.id + " changed status to " + (updatedOrder.isCompleted?"Completed":"Pending");
+
               toast(infoString,
               {
                 duration:4000,
@@ -151,7 +151,7 @@ const OrdersPage: React.FC = () => {
             });
 
             connectionRef.on('DeleteOrder', (data) => {
-              const orderToDelete = data as Order;
+              const orderToDelete = JSON.parse(data) as Order;
               const infoString = "Order #"+ orderToDelete.id + " removed"; 
               toast(infoString,
               {

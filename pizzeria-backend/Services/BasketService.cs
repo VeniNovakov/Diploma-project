@@ -16,14 +16,21 @@ namespace pizzeria_backend.Services
 
         public async Task<Basket> GetBasket(int userId)
         {
-            var basket = await _context.Baskets.Where(basket => basket.UserId == userId).Include(basket => basket.BasketProducts).FirstOrDefaultAsync();
+            var basket = await _context.Baskets
+                .Where(basket => basket.UserId == userId)
+                .Include(basket => basket.BasketProducts)
+                    .ThenInclude(baskProduct => baskProduct.Product)
+                    .ThenInclude(product => product.Category)
+                 .Include(basket => basket.BasketProducts)
+                    .ThenInclude(baskProduct => baskProduct.AddOns)
+                .FirstOrDefaultAsync();
+
             return basket;
         }
 
         public async Task<BasketProduct> AddProduct(AddProductToBasketDto productDto, int userId)
         {
             Basket userBasket = await GetBasket(userId);
-
 
             if (userBasket == null)
             {
@@ -33,8 +40,6 @@ namespace pizzeria_backend.Services
                 await _context.SaveChangesAsync();
             }
 
-
-
             Product product = await _context.Products.FindAsync(productDto.Id);
 
             if (product == null || !product.IsInMenu || !product.IsAvailable)
@@ -42,17 +47,21 @@ namespace pizzeria_backend.Services
                 throw new BadHttpRequestException("Invalid product provided");
             }
 
+            var basketProduct = await _context.BasketProducts.Where(products => products.ProductId == product.Id && products.BasketId == userBasket.Id).FirstOrDefaultAsync();
+            if (basketProduct != null)
+            {
+                basketProduct.Amount += 1;
+                await _context.SaveChangesAsync();
+                return basketProduct;
+            }
 
-            var basketProduct = new BasketProduct
+            basketProduct = new BasketProduct
             {
                 ProductId = product.Id,
                 Product = product,
                 Amount = productDto.Amount,
                 BasketId = userBasket.Id
             };
-
-            Console.WriteLine(basketProduct);
-
             await _context.BasketProducts.AddAsync(basketProduct);
 
             if (productDto.AddOns != null && productDto.AddOns.Any())
@@ -86,9 +95,21 @@ namespace pizzeria_backend.Services
         }
 
 
-        public async Task<BasketProduct> EditAmount(int productId, bool addToProduct)
+        public async Task<BasketProduct> EditAmount(int productId, int userId, bool addToProduct)
         {
-            BasketProduct bp = await _context.BasketProducts.Where(bp => bp.ProductId == productId).FirstOrDefaultAsync();
+
+
+
+
+            BasketProduct bp = await _context.BasketProducts
+                .Where(bp => bp.ProductId == productId && bp.Basket.UserId == userId)
+                .FirstOrDefaultAsync();
+
+            if (bp is null)
+            {
+
+                throw new BadHttpRequestException("product in basket nt found");
+            }
 
             if (addToProduct == true)
             {
@@ -106,16 +127,15 @@ namespace pizzeria_backend.Services
         }
 
 
-        public async Task RemoveProduct(int productId)
+        public async Task RemoveProduct(int productId, int userId)
         {
             BasketProduct bp = await _context.BasketProducts
-                .Where(bp => bp.ProductId == productId)
+                .Where(bp => bp.ProductId == productId && bp.Basket.UserId == userId)
                 .FirstOrDefaultAsync();
 
             if (bp == null)
             {
                 throw new BadHttpRequestException("Invalid product provided");
-
             }
 
             _context.BasketProducts.Remove(bp);

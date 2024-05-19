@@ -55,8 +55,11 @@ namespace pizzeria_backend.Controllers
             try
             {
                 string token = getTokenFromHeader(HttpContext);
+                Console.WriteLine(token);
 
                 var refreshObj = DecodeRefreshToken(identity: HttpContext.User.Identity);
+                Console.WriteLine(refreshObj.Id);
+
 
                 RefreshDto tokens = await _authService.Refresh(refreshObj, token);
 
@@ -88,6 +91,7 @@ namespace pizzeria_backend.Controllers
             }
             catch (BadHttpRequestException ex)
             {
+
                 return BadRequest(ex.Message);
             }
             catch (Exception ex)
@@ -118,7 +122,7 @@ namespace pizzeria_backend.Controllers
             }
             return httpContext.Request!.Headers["Authorization"]!.FirstOrDefault(h =>
                 h.StartsWith("Bearer ")
-            );
+            ).Substring(7);
         }
 
         private JWTRefreshDto DecodeRefreshToken(IIdentity identity)
@@ -130,6 +134,7 @@ namespace pizzeria_backend.Controllers
             }
             if (claimsRepo.FindFirst("id") == null || claimsRepo.FindFirst("randGuid") == null)
             {
+                Console.WriteLine("claims problem check");
                 throw new BadHttpRequestException("Claims do not match");
             }
             var refreshObj = new JWTRefreshDto

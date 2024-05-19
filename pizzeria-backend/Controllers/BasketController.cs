@@ -22,6 +22,7 @@ namespace pizzeria_backend.Controllers
         [HttpGet()]
         public async Task<IActionResult> GetBasket()
         {
+
             try
             {
                 var claimsRepo = HttpContext.User.Identity as ClaimsIdentity;
@@ -41,7 +42,7 @@ namespace pizzeria_backend.Controllers
         }
 
         [Authorize]
-        [HttpPost("{id}")]
+        [HttpPost()]
         public async Task<IActionResult> AddProductToBasket([FromBody] AddProductToBasketDto product)
         {
             try
@@ -52,7 +53,6 @@ namespace pizzeria_backend.Controllers
                 {
                     return BadRequest();
                 }
-
 
                 var basketProduct = await _basketService.AddProduct(product, Int32.Parse(claimsRepo.FindFirst("id").Value));
                 return Ok(basketProduct);
@@ -65,11 +65,19 @@ namespace pizzeria_backend.Controllers
 
         [Authorize]
         [HttpPut("{id}")]
-        public async Task<IActionResult> EditProductAmount([FromQuery] int id, [FromQuery] bool addToProduct)
+        public async Task<IActionResult> EditProductAmount(int id, [FromQuery(Name = "add")] bool add)
         {
+
             try
             {
-                var basketProduct = await _basketService.EditAmount(id, addToProduct);
+                var claimsRepo = HttpContext.User.Identity as ClaimsIdentity;
+
+                if (claimsRepo == null)
+                {
+                    return BadRequest();
+                }
+
+                var basketProduct = await _basketService.EditAmount(id, Int32.Parse(claimsRepo.FindFirst("id").Value), add);
                 return Ok(basketProduct);
             }
             catch (BadHttpRequestException ex)
@@ -78,12 +86,20 @@ namespace pizzeria_backend.Controllers
             }
         }
 
+        [Authorize]
         [HttpDelete("{id}")]
-        public async Task<IActionResult> RemoveProductFromBasket([FromQuery] int id)
+        public async Task<IActionResult> RemoveProductFromBasket(int id)
         {
             try
             {
-                await _basketService.RemoveProduct(id);
+                var claimsRepo = HttpContext.User.Identity as ClaimsIdentity;
+
+                if (claimsRepo == null)
+                {
+                    return BadRequest();
+                }
+
+                await _basketService.RemoveProduct(id, Int32.Parse(claimsRepo.FindFirst("id").Value));
                 return NoContent();
             }
             catch (BadHttpRequestException ex)

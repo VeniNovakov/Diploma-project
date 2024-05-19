@@ -5,7 +5,7 @@ namespace pizzeria_backend.Services.Interfaces
 {
     public interface IOrdersService
     {
-        public Task<Order> MakeOrder(OrderDto Order, int userId);
+        public Task<Order> MakeOrder(int userId);
         public Task<Order> GetOrder(int Id);
         public Task<Order> DeleteOrder(int Id);
         public Task<Order> ChangeOrderCompletion(int Id);
