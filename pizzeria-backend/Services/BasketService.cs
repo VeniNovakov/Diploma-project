@@ -23,7 +23,10 @@ namespace pizzeria_backend.Services
                     .ThenInclude(product => product.Category)
                  .Include(basket => basket.BasketProducts)
                     .ThenInclude(baskProduct => baskProduct.AddOns)
+                    .ThenInclude(baskAddOn => baskAddOn.AddOn)
                 .FirstOrDefaultAsync();
+
+            Console.WriteLine(basket.BasketProducts);
 
             return basket;
         }
@@ -48,7 +51,7 @@ namespace pizzeria_backend.Services
             }
 
             var basketProduct = await _context.BasketProducts.Where(products => products.ProductId == product.Id && products.BasketId == userBasket.Id).FirstOrDefaultAsync();
-            if (basketProduct != null)
+            if (basketProduct != null && productDto.AddOns is null)
             {
                 basketProduct.Amount += 1;
                 await _context.SaveChangesAsync();
@@ -62,7 +65,10 @@ namespace pizzeria_backend.Services
                 Amount = productDto.Amount,
                 BasketId = userBasket.Id
             };
+
             await _context.BasketProducts.AddAsync(basketProduct);
+
+            await _context.SaveChangesAsync();
 
             if (productDto.AddOns != null && productDto.AddOns.Any())
             {
@@ -84,6 +90,7 @@ namespace pizzeria_backend.Services
                     }
                     else
                     {
+
                         throw new BadHttpRequestException("Invalid add-on provided");
                     }
                 }

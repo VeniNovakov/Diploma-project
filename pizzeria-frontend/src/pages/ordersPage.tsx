@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Order } from "../utilities/types";
-import { HttpTransportType, HubConnection, HubConnectionBuilder, IHttpConnectionOptions } from "@microsoft/signalr";
+import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
 import toast, { Toaster } from 'react-hot-toast';
 import { fetchDataWithRetry } from "../utilities/functions/fetchAndRefresh";
 const OrderDetails: React.FC<{
@@ -47,7 +47,7 @@ const OrderDetails: React.FC<{
                     total += addOnTotal;
 
                     return (
-                      <li key={addOn.id}>
+                      <li key={addOn.addOn.id}>
                         {addOn.amount}x {addOn.addOn.name} - ${addOnTotal.toFixed(2)}
                       </li>
                     );

@@ -34,8 +34,8 @@ export interface AddOnType {
   amountInGrams: number;
 }
 
-export interface AddOnBasketType extends AddOnType {
-  addOn: AddOnType;
+export interface AddOnBasketType{
+  addOn: AddOnType
   amount: number;
 
 }
@@ -62,5 +62,5 @@ export interface BasketItem {
 
 export interface BasketType {
   id?: number;
-  basketProducts?: BasketItem
+  basketProducts?: BasketItem[]
 }

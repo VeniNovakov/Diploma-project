@@ -146,8 +146,15 @@ const ProductPage: React.FC = () => {
   }, [numericId]);
 
   const submitOrder = async() => {
-    //
-    fetchDataWithRetry(window.location.origin + "/api/basket/", tempProduct, "POST");
+    const reqBody = {
+      id: tempProduct.product.id,
+      amount: tempProduct.amount,
+      addOns: tempProduct.addOns.map(addOn => ({
+          amount: addOn.amount,
+          id: addOn.id
+      }))
+    };
+    fetchDataWithRetry(window.location.origin + "/api/basket/v1.0", JSON.stringify(reqBody), "POST", {"Content-Type": "application/json"});
 
     await delay(1000);
 

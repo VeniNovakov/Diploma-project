@@ -22,7 +22,6 @@ namespace pizzeria_backend.Controllers
         [HttpGet()]
         public async Task<IActionResult> GetBasket()
         {
-
             try
             {
                 var claimsRepo = HttpContext.User.Identity as ClaimsIdentity;
@@ -67,7 +66,6 @@ namespace pizzeria_backend.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> EditProductAmount(int id, [FromQuery(Name = "add")] bool add)
         {
-
             try
             {
                 var claimsRepo = HttpContext.User.Identity as ClaimsIdentity;

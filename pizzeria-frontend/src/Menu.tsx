@@ -120,26 +120,18 @@ const Product = (props: ProductProps) => {
     Cookies.set("tempProduct", JSON.stringify(tempProduct));
   }, [tempProduct, setTempProduct]);
   
-  useEffect(() => {
-    Cookies.set("basket", JSON.stringify(basketItems));
-    setBasketCounter(
-      (JSON.parse(Cookies.get("basket") || "[]") as BasketItem[]).length,
-    );
-  }, [basketItems, setBasketCounter]);
-
   const updateBasket = (product: ProductType) => {
     fetchDataWithRetry(window.location.origin + "/api/basket/v1.0", JSON.stringify({id:product.id, amount:1}), "POST", {'Content-type':'application/json'})
     .then(data => {
-      console.log(data);
       if((data as BasketItem).amount > 1 ){
         toast.success("Added amount to " + (data as BasketItem).product.name + " in the basket", {position:"top-right", duration: 4000})
       }else{
         toast.success("Added  " + (data as BasketItem).product.name + " to the basket", {position:"top-right", duration: 4000})
+        setBasketCounter(basketCounter+1);
       }
     })
     .catch(e => console.log(e));
   }
-
 
   const btnHandle = () => {
    

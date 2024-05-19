@@ -53,7 +53,7 @@ const ProductOrdered = (props: BasketProps & { triggerUpdate: () => void }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   const addOnsPrices = props.item.addOns?.map((addOn) => {
-    return addOn.price * addOn.amount;
+    return addOn.addOn.price * addOn.amount;
   });
 
   const total = addOnsPrices?.length
@@ -153,10 +153,10 @@ const ProductOrdered = (props: BasketProps & { triggerUpdate: () => void }) => {
         <div className="absolute left-0 mt-8 p-2 bg-white border rounded-lg shadow-md">
           <p className="font-bold">Add-ons:</p>
           {props.item.addOns?.map((addOn) => (
-            <div key={addOn.id} className="flex">
+            <div key={addOn.addOn.id} className="flex">
               <p className="mr-2">{addOn.amount}x</p>
-              <p className="mr-2">{addOn.name}:</p>
-              <p>${round(addOn.price * addOn.amount, 2)}</p>
+              <p className="mr-2">{addOn.addOn.name}:</p>
+              <p>${round(addOn.addOn.price * addOn.amount, 2)}</p>
             </div>
           ))}
         </div>
@@ -202,10 +202,10 @@ const Total = () => {
   }) as unknown as number[];
 
   const addOnsTotals = basketItems.map((item) => {
-
+    console.log(item);
     const itemAddOnsPrices = item.addOns
       ? item.addOns.map((addOn) => {
-          return addOn.amount * addOn.price;
+          return addOn.amount * addOn.addOn.price;
         })
       : [];
 

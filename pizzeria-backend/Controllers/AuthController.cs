@@ -25,6 +25,7 @@ namespace pizzeria_backend.Controllers
             {
                 RefreshDto tokens = await _authService.Register(user);
 
+
                 return Ok(tokens);
             }
             catch (BadHttpRequestException ex)
@@ -38,7 +39,7 @@ namespace pizzeria_backend.Controllers
         {
             try
             {
-                RefreshDto tokens = await _authService.Login(login);// handle user not existing
+                RefreshDto tokens = await _authService.Login(login);
 
                 return Ok(tokens);
             }

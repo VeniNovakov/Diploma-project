@@ -78,9 +78,9 @@ const AddOn: React.FC<{
   }
   
   const submit = () => {
-    console.log(editAddOn);
+    
     const newAddOn: Partial<AddOnType> = {
-      name:editAddOn.name,
+      name: editAddOn.name,
       description: editAddOn.description,
       categoryId: editAddOn.category.id,
       amountInGrams: editAddOn.amountInGrams,
