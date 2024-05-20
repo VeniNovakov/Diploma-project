@@ -33,6 +33,20 @@ jobs:
         run: |
           echo "{ }" > ${{env.DOTNET_ROOT}}/myapp/appsettings.json
 
+      - name: Generate appsettings.json
+        run: |
+          echo "{" > ${{env.DOTNET_ROOT}}/myapp/appsettings.json
+          echo "  \"ConnectionStrings\": {" >> ${{env.DOTNET_ROOT}}/myapp/appsettings.json
+          echo "    \"DefaultConnection\": \"${{ secrets.AZURE_DATABASE_CONNECTION_STRING }}\"," >> ${{env.DOTNET_ROOT}}/myapp/appsettings.json
+          echo "    \"AzureBlobStorage\": \"${{ secrets.BLOB_STORAGE_CONNECTION_STRING }}\"" >> ${{env.DOTNET_ROOT}}/myapp/appsettings.json
+          echo "  }," >> ${{env.DOTNET_ROOT}}/myapp/appsettings.json
+          echo "  \"JWT\": {" >> ${{env.DOTNET_ROOT}}/myapp/appsettings.json
+          echo "    \"Issuer\": \"${{ secrets.JWT_ISSUER }}\"," >> ${{env.DOTNET_ROOT}}/myapp/appsettings.json
+          echo "    \"Audience\": \"${{ secrets.JWT_AUDIENCE }}\"," >> ${{env.DOTNET_ROOT}}/myapp/appsettings.json
+          echo "    \"Key\": \"${{ secrets.JWT_KEY }}\"" >> ${{env.DOTNET_ROOT}}/myapp/appsettings.json
+          echo "  }" >> ${{env.DOTNET_ROOT}}/myapp/appsettings.json
+          echo "}" >> ${{env.DOTNET_ROOT}}/myapp/appsettings.json
+      
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
         with:
