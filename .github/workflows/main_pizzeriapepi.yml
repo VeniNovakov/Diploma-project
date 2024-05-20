@@ -31,10 +31,6 @@ jobs:
 
       - name: Generate appsettings.json
         run: |
-          echo "{ }" > ${{env.DOTNET_ROOT}}/myapp/appsettings.json
-
-      - name: Generate appsettings.json
-        run: |
           echo "{" > ${{env.DOTNET_ROOT}}/myapp/appsettings.json
           echo "  \"ConnectionStrings\": {" >> ${{env.DOTNET_ROOT}}/myapp/appsettings.json
           echo "    \"DefaultConnection\": \"$(echo -n "${{ secrets.AZURE_DATABASE_CONNECTION_STRING }}" | base64 -w 0)\"," >> ${{env.DOTNET_ROOT}}/myapp/appsettings.json
