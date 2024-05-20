@@ -60,7 +60,14 @@ jobs:
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_6EDEFF3AD26C46688F29D82E17A7EC8D }}
           package: .
 
-
+      - name: Debug Secrets
+        run: |
+          echo "AZURE_DATABASE_CONNECTION_STRING: ${{ secrets.AZURE_DATABASE_CONNECTION_STRING }}"
+          echo "JWT_ISSUER: ${{ secrets.JWT_ISSUER }}"
+          echo "JWT_AUDIENCE: ${{ secrets.JWT_AUDIENCE }}"
+          echo "JWT_KEY: ${{ secrets.JWT_KEY }}"
+          echo "BLOB_STORAGE_CONNECTION_STRING: ${{ secrets.BLOB_STORAGE_CONNECTION_STRING }}"
+          
       - name: Set environment variables
         run: |
           echo "Setting environment variables..."
@@ -71,5 +78,4 @@ jobs:
             JWT__Issuer='${{ secrets.JWT_ISSUER }}' `
             JWT__Audience='${{ secrets.JWT_AUDIENCE }}' `
             JWT__Key='${{ secrets.JWT_KEY }}' `
-            ConnectionStrings__AzureBlobStorage='${{ secrets.BLOB_STORAGE_CONNECTION_STRING }}'        
-        shell: pwsh
+            ConnectionStrings__AzureBlobStorage='${{ secrets.BLOB_STORAGE_CONNECTION_STRING }}'
