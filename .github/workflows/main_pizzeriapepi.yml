@@ -62,12 +62,7 @@ jobs:
 
 
       - name: Set environment variables
-        shell: pwsh
         run: |
           echo "Setting environment variables..."
-          az webapp config appsettings set --name pizzeriaPepi --resource-group pizzeria --settings `
-            ConnectionStrings__DefaultConnection='${{ secrets.AZURE_DATABASE_CONNECTION_STRING }}' `
-            JWT__Issuer='${{ secrets.JWT_ISSUER }}' `
-            JWT__Audience='${{ secrets.JWT_AUDIENCE }}' `
-            JWT__Key='${{ secrets.JWT_KEY }}' `
-            ConnectionStrings__AzureBlobStorage='${{ secrets.AZURE_BLOB_STORAGE_CONNECTION_STRING }}'
+          az webapp config appsettings set --name pizzeriaPepi --resource-group pizzeria --settings ConnectionStrings__DefaultConnection='${{ secrets.AZURE_DATABASE_CONNECTION_STRING }}' JWT__Issuer='${{ secrets.JWT_ISSUER }}' JWT__Audience='${{ secrets.JWT_AUDIENCE }}' JWT__Key='${{ secrets.JWT_KEY }}' ConnectionStrings__AzureBlobStorage='${{ secrets.AZURE_BLOB_STORAGE_CONNECTION_STRING }}'
+        shell: pwsh
