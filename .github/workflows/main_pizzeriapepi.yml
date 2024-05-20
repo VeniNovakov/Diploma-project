@@ -1,6 +1,3 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
 name: Build and deploy ASP.Net Core app to Azure Web App - pizzeriaPepi
 
 on:
@@ -31,7 +28,21 @@ jobs:
 
       - name: Generate appsettings.json
         run: |
-          echo "{ }" > ${{env.DOTNET_ROOT}}/myapp/appsettings.json
+          $appSettings = @{
+            "ConnectionStrings" = @{
+              "DefaultConnection" = "${{ secrets.AZURE_DATABASE_CONNECTION_STRING }}"
+            }
+            "JWT" = @{
+              "Issuer" = "${{ secrets.JWT_ISSUER }}"
+              "Audience" = "${{ secrets.JWT_AUDIENCE }}"
+              "Key" = "${{ secrets.JWT_KEY }}"
+            }
+            "ConnectionStrings" = @{
+              "AzureBlobStorage" = "${{ secrets.BLOB_STORAGE_CONNECTION_STRING }}"
+            }
+          }
+          $appSettingsJson = $appSettings | ConvertTo-Json -Compress
+          $appSettingsJson | Out-File -FilePath $env:DOTNET_ROOT/myapp/appsettings.json -Encoding utf8
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
