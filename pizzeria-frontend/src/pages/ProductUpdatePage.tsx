@@ -104,13 +104,13 @@ const Product: React.FC<{
     if(editProduct?.id === undefined){
       fetchDataWithRetry(window.location.origin+`/api/products/v1.0`,formData, "POST")
       .then(data => {
-        toast.success("Product added successfully", {duration:3000, position:"top-right"})
-        setTimeout(window.location.href="/edit/menu", 3500);
+        toast.success("Product added successfully", {duration:2000, position:"top-right"})
+        setTimeout(window.location.href="/menu/edit", 3500);
       });
     }else{
       fetchDataWithRetry(window.location.origin+`/api/products/v1.0/${editProduct?.id}`,formData, "PATCH").then(data => {
-        toast.success("Product added edited", {duration:3000, position:"top-right"})
-        setTimeout(window.location.href="/edit/menu", 3500);
+        toast.success("Product added edited", {duration:2000, position:"top-right"})
+        setTimeout(window.location.href="/menu/edit", 3500);
       })
 
     }

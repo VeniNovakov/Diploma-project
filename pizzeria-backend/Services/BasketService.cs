@@ -26,8 +26,6 @@ namespace pizzeria_backend.Services
                     .ThenInclude(baskAddOn => baskAddOn.AddOn)
                 .FirstOrDefaultAsync();
 
-            Console.WriteLine(basket.BasketProducts);
-
             return basket;
         }
 

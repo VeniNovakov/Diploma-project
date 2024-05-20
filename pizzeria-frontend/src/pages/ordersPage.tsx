@@ -15,7 +15,7 @@ const OrderDetails: React.FC<{
       </p>
     );
   }
-
+  console.log(selectedOrder);
   let total = 0;
   const deleteOrder = () =>{
     fetchDataWithRetry(window.location.origin+"/api/orders/v1.0/"+ selectedOrder.id, null, "DELETE")
@@ -28,6 +28,13 @@ const OrderDetails: React.FC<{
               new Date(
                   Date.parse(selectedOrder.wantedFor)
                 ).toString()}</p>
+      {selectedOrder.user && (
+        <div className="mt-4">
+          <h3 className="text-md font-semibold mb-2">User Information</h3>
+          <p>Name: {selectedOrder.user.name}</p>
+          <p>Email: {selectedOrder.user.email}</p>
+        </div>
+      )}
 
       <div className="mt-4">
         <h3 className="text-md font-semibold mb-2">Items</h3>

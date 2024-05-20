@@ -51,7 +51,7 @@ namespace pizzeria_backend.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("AddOns");
+                    b.ToTable("AddOns", (string)null);
                 });
 
             modelBuilder.Entity("pizzeria_backend.Models.AddOnsCategory", b =>
@@ -68,7 +68,7 @@ namespace pizzeria_backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AddOnsCategory");
+                    b.ToTable("AddOnsCategory", (string)null);
 
                     b.HasData(
                         new
@@ -109,7 +109,7 @@ namespace pizzeria_backend.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Baskets");
+                    b.ToTable("Baskets", (string)null);
                 });
 
             modelBuilder.Entity("pizzeria_backend.Models.BasketAddOn", b =>
@@ -135,7 +135,7 @@ namespace pizzeria_backend.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("BasketAddOns");
+                    b.ToTable("BasketAddOns", (string)null);
                 });
 
             modelBuilder.Entity("pizzeria_backend.Models.BasketProduct", b =>
@@ -161,7 +161,7 @@ namespace pizzeria_backend.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("BasketProducts");
+                    b.ToTable("BasketProducts", (string)null);
                 });
 
             modelBuilder.Entity("pizzeria_backend.Models.Order", b =>
@@ -185,7 +185,7 @@ namespace pizzeria_backend.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Order");
+                    b.ToTable("Order", (string)null);
                 });
 
             modelBuilder.Entity("pizzeria_backend.Models.OrderedAddOn", b =>
@@ -211,7 +211,7 @@ namespace pizzeria_backend.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderedAddOns");
+                    b.ToTable("OrderedAddOns", (string)null);
                 });
 
             modelBuilder.Entity("pizzeria_backend.Models.OrderedProduct", b =>
@@ -237,7 +237,7 @@ namespace pizzeria_backend.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderedProducts");
+                    b.ToTable("OrderedProducts", (string)null);
                 });
 
             modelBuilder.Entity("pizzeria_backend.Models.Product", b =>
@@ -276,7 +276,7 @@ namespace pizzeria_backend.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("pizzeria_backend.Models.ProductsCategory", b =>
@@ -293,7 +293,7 @@ namespace pizzeria_backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProductsCategories");
+                    b.ToTable("ProductsCategories", (string)null);
 
                     b.HasData(
                         new
@@ -352,7 +352,7 @@ namespace pizzeria_backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("pizzeria_backend.Models.AddOn", b =>

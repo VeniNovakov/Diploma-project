@@ -34,13 +34,13 @@ namespace pizzeria_backend.Services
             {
                 Name = user.Name,
                 Email = user.Email,
-                Password = BCrypt.Net.BCrypt.EnhancedHashPassword(user.Password),
+                Password = Argon2.Hash(user.Password),
                 IsAdmin = false
             };
 
             await _context.Users.AddAsync(newUser);
             var refreshToken = _tokenService.GenerateJwtRefreshToken(newUser);
-            newUser.RefreshToken = BCrypt.Net.BCrypt.EnhancedHashPassword(refreshToken);
+            newUser.RefreshToken = Argon2.Hash(refreshToken);
 
             var accessToken = _tokenService.GenerateJWTAccess(newUser);
 
@@ -59,7 +59,7 @@ namespace pizzeria_backend.Services
                 throw new BadHttpRequestException("User with requested credentials does not exist");
             }
 
-            if (BCrypt.Net.BCrypt.EnhancedVerify(loginInfo.Password, user.Password) is false)
+            if (Argon2.Verify(user.Password, loginInfo.Password) is false)
             {
                 throw new BadHttpRequestException("Incorrect password", statusCode: 401);
             }
@@ -81,15 +81,12 @@ namespace pizzeria_backend.Services
             var user = (await FindById(jwtObj.Id));
             if (user is null)
             {
-                Console.WriteLine("No user");
-
                 throw new BadHttpRequestException("Unauthorized", statusCode: 401);
             }
 
             var accessToken = _tokenService.GenerateJWTAccess(user);
             if (Argon2.Verify(user.RefreshToken, refreshToken) is false)
             {
-                Console.WriteLine("DONT MATCH :((((((");
                 throw new BadHttpRequestException("Unauthorized", statusCode: 401);
             }
 

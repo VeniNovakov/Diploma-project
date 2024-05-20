@@ -43,7 +43,13 @@ export interface Order {
   id: number;
   wantedFor: string;
   orderedProducts: BasketItem[];
+  user: User
   isCompleted: boolean;
+}
+
+export interface User{
+  name: string;
+  email: string;
 }
 export interface Category{
   id: number;

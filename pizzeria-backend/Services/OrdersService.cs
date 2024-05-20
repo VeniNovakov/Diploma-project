@@ -21,6 +21,7 @@ namespace pizzeria_backend.Services
                 .Include(basket => basket.BasketProducts)
                 .ThenInclude(basketProducts => basketProducts.AddOns).FirstOrDefaultAsync();
 
+
             if (userBasket == null)
             {
                 throw new BadHttpRequestException("No user basket present");
@@ -34,7 +35,7 @@ namespace pizzeria_backend.Services
             var dbOrder = new Order
             {
                 WantedFor = DateTime.Now,
-                UserId = userId,
+                UserId = userBasket.UserId,
                 OrderedProducts = userBasket
                     .BasketProducts.Select(item => new OrderedProduct
                     {
@@ -65,14 +66,15 @@ namespace pizzeria_backend.Services
         > GetOrderRelations()
         {
             return _context
-                .Order.Include(order => order.OrderedProducts)
-                .ThenInclude(op => op.AddOns)
-                .ThenInclude(oa => oa.AddOn)
-                .ThenInclude(oa => oa.Category)
+                .Order
+                .Include(order => order.User)
                 .Include(order => order.OrderedProducts)
-                .ThenInclude(op => op.Product)
-                .ThenInclude(pr => pr.Category);
-
+                    .ThenInclude(op => op.AddOns)
+                    .ThenInclude(oa => oa.AddOn)
+                    .ThenInclude(oa => oa.Category)
+                .Include(order => order.OrderedProducts)
+                    .ThenInclude(op => op.Product)
+                    .ThenInclude(pr => pr.Category);
         }
 
         public async Task<Order> GetOrder(int Id)
@@ -116,6 +118,7 @@ namespace pizzeria_backend.Services
                 {
                     Id = order.Id,
                     WantedFor = order.WantedFor,
+                    User = order.User,
                     OrderedProducts = order
                         .OrderedProducts.Select(op => new OrderedProduct
                         {

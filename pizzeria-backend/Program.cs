@@ -24,10 +24,8 @@ builder.Services.AddSingleton<IConfiguration>(configuration);
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
-
 }
 );
-
 
 builder.Services.AddW3CLogging(logging =>
 {
@@ -169,12 +167,6 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var dbContext = services.GetRequiredService<AppDbContext>();
-    dbContext.Database.Migrate();
-}
 
 app.MapSwagger();
 app.MapControllerRoute(name: "default", pattern: "/{controller=Home}/{action=Index}/{id?}");
