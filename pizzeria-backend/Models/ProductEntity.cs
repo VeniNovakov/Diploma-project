@@ -19,8 +19,9 @@ namespace pizzeria_backend.Models
         public ProductsCategory Category { get; set; }
         public bool IsInMenu { get; set; }
         public bool IsAvailable { get; set; }
-        public virtual IEnumerable<OrderedProduct> OrderedProducts { get; set; } = new List<OrderedProduct>();
+        public virtual IEnumerable<OrderedProduct> OrderedProducts { get; set; } =
+            new List<OrderedProduct>();
+        public virtual IEnumerable<BasketProduct> BasketedProducts { get; set; } =
+        new List<BasketProduct>();
     }
-
-
 }

@@ -1,5 +1,4 @@
-﻿
-namespace pizzeria_backend.Models.Interfaces
+﻿namespace pizzeria_backend.Models.Interfaces
 {
     public class ProductDto : IProductDto
     {

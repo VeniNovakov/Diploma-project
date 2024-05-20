@@ -14,7 +14,8 @@ namespace pizzeria_backend.Migrations
                 name: "OrderedProducts",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    Id = table
+                        .Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ProductId = table.Column<int>(type: "int", nullable: false),
                     Amount = table.Column<int>(type: "int", nullable: false)
@@ -27,14 +28,17 @@ namespace pizzeria_backend.Migrations
                         column: x => x.ProductId,
                         principalTable: "Products",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
+                        onDelete: ReferentialAction.Cascade
+                    );
+                }
+            );
 
             migrationBuilder.CreateTable(
                 name: "OrderedAddOns",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    Id = table
+                        .Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     AddOnId = table.Column<int>(type: "int", nullable: false),
                     ProductId = table.Column<int>(type: "int", nullable: false),
@@ -48,39 +52,43 @@ namespace pizzeria_backend.Migrations
                         column: x => x.AddOnId,
                         principalTable: "AddOns",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Cascade
+                    );
                     table.ForeignKey(
                         name: "FK_OrderedAddOns_OrderedProducts_ProductId",
                         column: x => x.ProductId,
                         principalTable: "OrderedProducts",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
+                        onDelete: ReferentialAction.Cascade
+                    );
+                }
+            );
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderedAddOns_AddOnId",
                 table: "OrderedAddOns",
-                column: "AddOnId");
+                column: "AddOnId"
+            );
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderedAddOns_ProductId",
                 table: "OrderedAddOns",
-                column: "ProductId");
+                column: "ProductId"
+            );
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderedProducts_ProductId",
                 table: "OrderedProducts",
-                column: "ProductId");
+                column: "ProductId"
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "OrderedAddOns");
+            migrationBuilder.DropTable(name: "OrderedAddOns");
 
-            migrationBuilder.DropTable(
-                name: "OrderedProducts");
+            migrationBuilder.DropTable(name: "OrderedProducts");
         }
     }
 }

@@ -15,15 +15,14 @@ namespace pizzeria_backend.Migrations
                 table: "Products",
                 type: "nvarchar(max)",
                 nullable: false,
-                defaultValue: "");
+                defaultValue: ""
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "Image",
-                table: "Products");
+            migrationBuilder.DropColumn(name: "Image", table: "Products");
         }
     }
 }

@@ -1,17 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using pizzeria_backend.Models;
+using pizzeria_backend.Services.Interfaces;
 
 namespace pizzeria_backend.Services
 {
-
-    public interface IAddOnService
-    {
-        public Task<AddOn> AddAddOn(AddOn addOn);
-        public Task<AddOn> GetAddOn(int Id);
-        public Task<List<AddOn>> GetAllAddOns();
-        public Task<AddOn> UpdateAddOn(AddOn addOn);
-        public Task<AddOn> DeleteAddOn(int Id);
-    }
     public class AddOnService : IAddOnService
     {
         private readonly AppDbContext _context;
@@ -27,13 +19,12 @@ namespace pizzeria_backend.Services
             await _context.SaveChangesAsync();
 
             return addOn;
-
         }
 
         public async Task<AddOn> GetAddOn(int Id)
         {
-            AddOn addOn = _context.AddOns
-                .Include(a => a.Category)
+            AddOn addOn = _context
+                .AddOns.Include(a => a.Category)
                 .Select(a => new AddOn
                 {
                     Id = a.Id,
@@ -42,22 +33,22 @@ namespace pizzeria_backend.Services
                     Description = a.Description,
                     Price = a.Price,
                     CategoryId = a.CategoryId,
-                    Category = new AddOnsCategory
-                    {
-                        Id = a.Category.Id,
-                        Name = a.Category.Name
-                    }
+                    Category = new AddOnsCategory { Id = a.Category.Id, Name = a.Category.Name }
                 })
                 .FirstOrDefault(a => a.Id == Id);
 
-            return addOn;
+            if (addOn == null)
+            {
+                throw new BadHttpRequestException("Add-on not found", statusCode: 404);
+            }
 
+            return addOn;
         }
 
         public async Task<List<AddOn>> GetAllAddOns()
         {
-            List<AddOn> addOns = await _context.AddOns
-                .Include(a => a.Category)
+            List<AddOn> addOns = await _context
+                .AddOns.Include(a => a.Category)
                 .Select(a => new AddOn
                 {
                     Id = a.Id,
@@ -66,23 +57,23 @@ namespace pizzeria_backend.Services
                     Description = a.Description,
                     Price = a.Price,
                     CategoryId = a.CategoryId,
-                    Category = new AddOnsCategory
-                    {
-                        Id = a.Category.Id,
-                        Name = a.Category.Name
-                    }
-                }).ToListAsync();
+                    Category = new AddOnsCategory { Id = a.Category.Id, Name = a.Category.Name }
+                })
+                .ToListAsync();
 
             return addOns;
         }
+
         public async Task<AddOn> UpdateAddOn(AddOn addOn)
         {
             _context.AddOns.Update(addOn);
 
             await _context.SaveChangesAsync();
-
+            if (addOn == null)
+            {
+                throw new BadHttpRequestException("Add-on not found", statusCode: 404);
+            }
             return addOn;
-
         }
 
         public async Task<AddOn> DeleteAddOn(int Id)
@@ -90,13 +81,12 @@ namespace pizzeria_backend.Services
             var addOn = await _context.AddOns.FindAsync(Id);
             if (addOn == null)
             {
-                return null;
+                throw new BadHttpRequestException("Add-on not found", statusCode: 404);
             }
 
             _context.AddOns.Remove(addOn);
             await _context.SaveChangesAsync();
             return addOn;
-
         }
     }
 }

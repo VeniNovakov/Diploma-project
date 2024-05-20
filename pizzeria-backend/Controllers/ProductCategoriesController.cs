@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using pizzeria_backend.Services;
+using pizzeria_backend.Services.Interfaces;
 
 namespace pizzeria_backend.Controllers
 {
@@ -12,7 +12,6 @@ namespace pizzeria_backend.Controllers
         public ProductCategoriesController(IProductCategoriesService productCategoriesService)
         {
             _productCategoriesService = productCategoriesService;
-
         }
 
         [HttpGet]

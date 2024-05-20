@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Order } from "../utilities/types";
-import { HubConnection, HubConnectionBuilder, IHttpConnectionOptions } from "@microsoft/signalr";
+import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
 import toast, { Toaster } from 'react-hot-toast';
 import { fetchDataWithRetry } from "../utilities/functions/fetchAndRefresh";
 const OrderDetails: React.FC<{
@@ -15,7 +15,6 @@ const OrderDetails: React.FC<{
       </p>
     );
   }
-
   let total = 0;
   const deleteOrder = () =>{
     fetchDataWithRetry(window.location.origin+"/api/orders/v1.0/"+ selectedOrder.id, null, "DELETE")
@@ -28,35 +27,44 @@ const OrderDetails: React.FC<{
               new Date(
                   Date.parse(selectedOrder.wantedFor)
                 ).toString()}</p>
+      {selectedOrder.user && (
+        <div className="mt-4">
+          <h3 className="text-md font-semibold mb-2">User Information</h3>
+          <p>Name: {selectedOrder.user.name}</p>
+          <p>Email: {selectedOrder.user.email}</p>
+        </div>
+      )}
 
       <div className="mt-4">
         <h3 className="text-md font-semibold mb-2">Items</h3>
-        {Array.isArray(selectedOrder.orderedProducts) && selectedOrder.orderedProducts.map((item) => {
-          const itemTotal = item.product?.price * item.amount;
-          total += itemTotal;
 
-          return (
-            <div key={item.Id} className="mb-2">
-              <p>
-                {item.amount}x {item.product.name} - {itemTotal}
-              </p>
-              {Array.isArray(item.addOns) && item.addOns?.length && (
-                <ul className="list-disc pl-4">
-                  {item.addOns.map((addOn) => {
-                    const addOnTotal = addOn.addOn.price * addOn.amount * item.amount;
-                    total += addOnTotal;
+    {Array.isArray(selectedOrder.orderedProducts) && selectedOrder.orderedProducts.map((item) => {
+    const itemTotal = item.product?.price * item.amount;
+    total += itemTotal;
 
-                    return (
-                      <li key={addOn.id}>
-                        {addOn.amount}x {addOn.addOn.name} - ${addOnTotal.toFixed(2)}
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </div>
-          );
-        })}
+    return (
+      <div key={item.id} className="mb-2">
+        <p>
+          {item.amount}x {item.product.name} - ${itemTotal.toFixed(2)}
+        </p>
+        {Array.isArray(item.addOns) && item.addOns.length > 0 && (
+          <ul className="list-disc pl-4">
+            {item.addOns.map((addOn) => {
+              const addOnTotal = addOn.addOn.price * addOn.amount * item.amount;
+              total += addOnTotal;
+
+              return (
+                <li key={addOn.addOn.id} className={addOnTotal ? "" : "invisible"}>
+                  {addOn.amount}x {addOn.addOn.name} - ${addOnTotal.toFixed(2)}
+                </li>
+              );
+            })}
+          </ul>
+            )}
+      </div>
+      );
+      })}
+
       </div>
       <p className="text-xl font-semibold mt-4">Total: ${total.toFixed(2)}</p>
       <button
@@ -77,10 +85,13 @@ const OrdersPage: React.FC = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [connectionRef, setConnection] = useState < HubConnection > ();
   const [showCompleted, setShowCompleted] = useState<boolean>(false);
-
+  
   function createHubConnection() {
     const con = new HubConnectionBuilder()
-      .withUrl(window.location.origin + "/ordersHub")
+      .withUrl(window.location.origin + "/ordersHub", {
+        accessTokenFactory: () => {return localStorage.getItem("authAccess") as string},
+      }
+      )
       .withAutomaticReconnect()
       .build();
     setConnection(con);
@@ -102,7 +113,6 @@ const OrdersPage: React.FC = () => {
           console.error('Error:', error);
         });
   }
-
     ref.current = true;
   }, [])
 
@@ -113,7 +123,7 @@ const OrdersPage: React.FC = () => {
           .start()
           .then(() => {
             connectionRef.on("NewOrder", (data) => {
-              const newOrder = JSON.parse(data);
+              const newOrder = JSON.parse(data) as Order;
               console.log("raw data : " + data)
               console.log(newOrder)
 
@@ -128,8 +138,9 @@ const OrdersPage: React.FC = () => {
             });
 
             connectionRef.on('UpdateOrder', (data) => {
-              const updatedOrder = data as Order;
+              const updatedOrder = JSON.parse(data) as Order;
               const infoString = "Order #"+ updatedOrder.id + " changed status to " + (updatedOrder.isCompleted?"Completed":"Pending");
+
               toast(infoString,
               {
                 duration:4000,
@@ -148,7 +159,7 @@ const OrdersPage: React.FC = () => {
             });
 
             connectionRef.on('DeleteOrder', (data) => {
-              const orderToDelete = data as Order;
+              const orderToDelete = JSON.parse(data) as Order;
               const infoString = "Order #"+ orderToDelete.id + " removed"; 
               toast(infoString,
               {
@@ -162,6 +173,23 @@ const OrdersPage: React.FC = () => {
                 return updatedOrders; 
               });
             });
+            connectionRef.onclose( () => {
+              fetch(window.location.origin+"/api/auth/v1.0/refresh", 
+              {
+                method:"POST", 
+                headers:{
+                  "Authorization": "Bearer " + localStorage.getItem("authRefresh") || " "
+                }
+              }
+              )
+              .then(resp => resp.json())
+              .then(data => {
+                localStorage.setItem("authAccess", data.accessToken)
+                createHubConnection();
+              }
+              )
+              .catch(e => console.log(e))
+            })
           })
           .catch((err) => {
             console.log(`Error: ${err}`);

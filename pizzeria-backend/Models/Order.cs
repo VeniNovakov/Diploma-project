@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace pizzeria_backend.Models
 {
@@ -8,7 +9,13 @@ namespace pizzeria_backend.Models
 
         public DateTime WantedFor { get; set; }
 
-        public ICollection<OrderedProduct> OrderedProducts { get; set; } = new List<OrderedProduct>();
+        [ForeignKey("User")]
+        public int UserId { get; set; }
+
+        public User User { get; set; }
+
+        public ICollection<OrderedProduct> OrderedProducts { get; set; } =
+            new List<OrderedProduct>();
 
         [DefaultValue(false)]
         public bool IsCompleted { get; set; }

@@ -9,5 +9,10 @@
         public bool IsAdmin { get; set; }
         public string RefreshToken { get; set; }
 
+        public Basket Basket { get; set; }
+
+        public IEnumerable<Order> Orders = new List<Order>();
+
+
     }
 }

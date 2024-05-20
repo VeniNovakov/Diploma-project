@@ -16,20 +16,23 @@ namespace pizzeria_backend.Migrations
                 name: "AddOnsCategory",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    Id = table
+                        .Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AddOnsCategory", x => x.Id);
-                });
+                }
+            );
 
             migrationBuilder.CreateTable(
                 name: "AddOns",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    Id = table
+                        .Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -45,8 +48,10 @@ namespace pizzeria_backend.Migrations
                         column: x => x.CategoryId,
                         principalTable: "AddOnsCategory",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
+                        onDelete: ReferentialAction.Cascade
+                    );
+                }
+            );
 
             migrationBuilder.InsertData(
                 table: "AddOnsCategory",
@@ -57,22 +62,22 @@ namespace pizzeria_backend.Migrations
                     { 2, "Veggies" },
                     { 3, "Cheeses" },
                     { 4, "Sauces" }
-                });
+                }
+            );
 
             migrationBuilder.CreateIndex(
                 name: "IX_AddOns_CategoryId",
                 table: "AddOns",
-                column: "CategoryId");
+                column: "CategoryId"
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "AddOns");
+            migrationBuilder.DropTable(name: "AddOns");
 
-            migrationBuilder.DropTable(
-                name: "AddOnsCategory");
+            migrationBuilder.DropTable(name: "AddOnsCategory");
         }
     }
 }

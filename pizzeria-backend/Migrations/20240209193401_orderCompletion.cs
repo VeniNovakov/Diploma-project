@@ -15,15 +15,14 @@ namespace pizzeria_backend.Migrations
                 table: "Order",
                 type: "bit",
                 nullable: false,
-                defaultValue: false);
+                defaultValue: false
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "IsCompleted",
-                table: "Order");
+            migrationBuilder.DropColumn(name: "IsCompleted", table: "Order");
         }
     }
 }

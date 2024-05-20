@@ -15,7 +15,7 @@ const Auth: React.FC = () => {
     password: "",
     confirmPassword: ""
   });
-
+  
   const [isRegistering, setIsRegistering] = useState<boolean>(false);
 
   const { name, email, password, confirmPassword } = formData;
@@ -81,7 +81,7 @@ const Auth: React.FC = () => {
         {isRegistering && (
             <input
               type="text"
-              name="Name"
+              name="name"
               value={name}
               onChange={onChange}
               className="w-full py-2 px-4 rounded-md bg-white placeholder-gray-500 focus:outline-none focus:ring focus:border-blue-300"

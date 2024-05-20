@@ -1,13 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using pizzeria_backend.Models.Interfaces;
-using pizzeria_backend.Services;
+using pizzeria_backend.Services.Interfaces;
 using System.Security.Claims;
 using System.Security.Principal;
-using System.Web.Http;
-using Authorize = Microsoft.AspNetCore.Authorization.AuthorizeAttribute;
-using FromBody = Microsoft.AspNetCore.Mvc.FromBodyAttribute;
-using HttpGet = Microsoft.AspNetCore.Mvc.HttpGetAttribute;
-using HttpPost = Microsoft.AspNetCore.Mvc.HttpPostAttribute;
 
 namespace pizzeria_backend.Controllers
 {
@@ -15,8 +11,8 @@ namespace pizzeria_backend.Controllers
     [ApiController]
     public class AuthController : Controller
     {
-
         private readonly IAuthService _authService;
+
         public AuthController(IAuthService authService)
         {
             _authService = authService;
@@ -25,89 +21,122 @@ namespace pizzeria_backend.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto? user)
         {
-            RefreshDto tokens = await _authService.Register(user);
-            if (tokens is null)
+            try
             {
-                return BadRequest("Email is already in use or passwords don't match");
+                RefreshDto tokens = await _authService.Register(user);
+
+
+                return Ok(tokens);
             }
-            return Ok(tokens);
+            catch (BadHttpRequestException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto login)
         {
-            RefreshDto tokens = await _authService.Login(login);
-            if (tokens is null)
+            try
             {
-                return BadRequest("Bad credentials");
+                RefreshDto tokens = await _authService.Login(login);
+
+                return Ok(tokens);
             }
-            return Ok(tokens);
+            catch (BadHttpRequestException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
-
         [HttpPost("refresh")]
-        [@Authorize(Policy = "refreshToken")]
+        [Authorize(Policy = "refreshToken")]
         public async Task<IActionResult> Refresh()
         {
-            string token = HttpContext.Request!.Headers["Authorization"]!
-                    .FirstOrDefault(h => h.StartsWith("Bearer ")).Substring("Bearer ".Length);
-
-            if (token == null)
+            try
             {
-                return Unauthorized();
-            }
-            var refreshObj = DecodeRefreshToken(HttpContext.User.Identity);
+                string token = getTokenFromHeader(HttpContext);
 
-            RefreshDto tokens = await _authService.Refresh(refreshObj, token);
-            if (tokens is null)
-            {
-                return Unauthorized();
+                var refreshObj = DecodeRefreshToken(identity: HttpContext.User.Identity);
+
+                RefreshDto tokens = await _authService.Refresh(refreshObj, token);
+
+                return Ok(tokens);
             }
-            return Ok(tokens);
+            catch (BadHttpRequestException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPost("revoke")]
-        [@Authorize(Policy = "refreshToken")]
+        [Authorize(Policy = "refreshToken")]
         public async Task<IActionResult> Revoke()
         {
-            string token = HttpContext.Request!.Headers["Authorization"]!
-                .FirstOrDefault(h => h.StartsWith("Bearer ")).Substring("Bearer ".Length);
-
-            var refreshObj = DecodeRefreshToken(HttpContext.User.Identity);
-
-            RefreshDto tokens = await _authService.Revoke(refreshObj, token);
-
-            if (tokens is null)
+            try
             {
-                return Unauthorized();
+                string token = getTokenFromHeader(HttpContext);
+
+                var refreshObj = DecodeRefreshToken(HttpContext.User.Identity);
+
+                await _authService.Revoke(refreshObj, token);
+
+                return Ok();
             }
+            catch (BadHttpRequestException ex)
+            {
 
-            return Ok(tokens);
-
-
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
-
         [HttpGet("isAdmin")]
-        [@Authorize]
+        [Authorize]
         public async Task<IActionResult> IsAdmin()
         {
             var claimsRepo = HttpContext.User.Identity as ClaimsIdentity;
 
-            return Ok(Boolean.Parse(claimsRepo.FindFirst("IsAdmin").Value));
+            if (claimsRepo == null)
+            {
+                return BadRequest();
+            }
+
+            return Ok(Boolean.Parse(claimsRepo.FindFirst("admin").Value));
         }
 
+        private string getTokenFromHeader(HttpContext httpContext)
+        {
+            if (httpContext == null)
+            {
+                throw new Exception("No token provided");
+            }
+            return httpContext.Request!.Headers["Authorization"]!.FirstOrDefault(h =>
+                h.StartsWith("Bearer ")
+            ).Substring(7);
+        }
 
         private JWTRefreshDto DecodeRefreshToken(IIdentity identity)
         {
             var claimsRepo = identity as ClaimsIdentity;
-            if (claimsRepo.FindFirst("Id") == null)
+            if (claimsRepo == null)
             {
-                return null;
+                throw new BadHttpRequestException("No claims in token");
+            }
+            if (claimsRepo.FindFirst("id") == null || claimsRepo.FindFirst("randGuid") == null)
+            {
+                throw new BadHttpRequestException("Claims do not match");
             }
             var refreshObj = new JWTRefreshDto
             {
-                Id = Int32.Parse(claimsRepo.FindFirst("Id").Value),
+                Id = Int32.Parse(claimsRepo.FindFirst("id").Value),
                 randGuid = claimsRepo.FindFirst("randGuid").Value
             };
             return refreshObj;

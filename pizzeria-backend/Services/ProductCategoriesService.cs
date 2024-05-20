@@ -1,15 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using pizzeria_backend.Models;
+using pizzeria_backend.Services.Interfaces;
 
 namespace pizzeria_backend.Services
 {
-    public interface IProductCategoriesService
-    {
-        public Task<List<ProductsCategory>> GetAll();
-    }
     public class ProductCategoriesService : IProductCategoriesService
     {
-        AppDbContext _context;
+        private readonly AppDbContext _context;
+
         public ProductCategoriesService(AppDbContext context)
         {
             _context = context;

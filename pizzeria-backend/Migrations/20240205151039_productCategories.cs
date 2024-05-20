@@ -12,29 +12,30 @@ namespace pizzeria_backend.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "Category",
-                table: "Products");
+            migrationBuilder.DropColumn(name: "Category", table: "Products");
 
             migrationBuilder.AddColumn<int>(
                 name: "CategoryId",
                 table: "Products",
                 type: "int",
                 nullable: false,
-                defaultValue: 0);
+                defaultValue: 0
+            );
 
             migrationBuilder.CreateTable(
                 name: "ProductsCategories",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    Id = table
+                        .Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ProductsCategories", x => x.Id);
-                });
+                }
+            );
 
             migrationBuilder.InsertData(
                 table: "ProductsCategories",
@@ -46,12 +47,14 @@ namespace pizzeria_backend.Migrations
                     { 3, "Salad" },
                     { 4, "Pasta" },
                     { 5, "Rice" }
-                });
+                }
+            );
 
             migrationBuilder.CreateIndex(
                 name: "IX_Products_CategoryId",
                 table: "Products",
-                column: "CategoryId");
+                column: "CategoryId"
+            );
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Products_ProductsCategories_CategoryId",
@@ -59,7 +62,8 @@ namespace pizzeria_backend.Migrations
                 column: "CategoryId",
                 principalTable: "ProductsCategories",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.Cascade
+            );
         }
 
         /// <inheritdoc />
@@ -67,25 +71,22 @@ namespace pizzeria_backend.Migrations
         {
             migrationBuilder.DropForeignKey(
                 name: "FK_Products_ProductsCategories_CategoryId",
-                table: "Products");
+                table: "Products"
+            );
 
-            migrationBuilder.DropTable(
-                name: "ProductsCategories");
+            migrationBuilder.DropTable(name: "ProductsCategories");
 
-            migrationBuilder.DropIndex(
-                name: "IX_Products_CategoryId",
-                table: "Products");
+            migrationBuilder.DropIndex(name: "IX_Products_CategoryId", table: "Products");
 
-            migrationBuilder.DropColumn(
-                name: "CategoryId",
-                table: "Products");
+            migrationBuilder.DropColumn(name: "CategoryId", table: "Products");
 
             migrationBuilder.AddColumn<string>(
                 name: "Category",
                 table: "Products",
                 type: "nvarchar(max)",
                 nullable: false,
-                defaultValue: "");
+                defaultValue: ""
+            );
         }
     }
 }

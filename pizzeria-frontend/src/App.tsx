@@ -15,19 +15,26 @@ import UpdateProductPage from "./pages/ProductUpdatePage";
 import UpdateAddOnPage from "./pages/AddOnUpdate";
 import { fetchDataWithRetry } from "./utilities/functions/fetchAndRefresh";
 import { AuthProvider, useIsAdmin } from "./providers/AuthProvider";
+import NotLoggedInComponent from "./components/NotLoggedInPopUp";
+import { LoggedInProvider } from "./providers/LoggedInProvider";
 
 const App = () => {
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("authRefresh"))
 
   useEffect(() => {
+    setIsLoggedIn(!!localStorage.getItem("authRefresh"));
+
     fetchDataWithRetry(window.location.origin+ '/api/auth/v1.0/isAdmin')
       .then(response => {setIsAdmin(response)})
       .catch(error => console.error('Error checking admin status:', error));
   }, [window.location.href]);
-  
+
   return (
+    <LoggedInProvider>
     <AuthProvider>
       <BasketProvider>
+      <NotLoggedInComponent/>
         <ProductProvider>
         <BrowserRouter>
           <Routes>
@@ -55,6 +62,7 @@ const App = () => {
         </ProductProvider>
       </BasketProvider>
     </AuthProvider>
+    </LoggedInProvider>
   );
 };
 

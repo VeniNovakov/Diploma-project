@@ -1,22 +1,14 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Isopoh.Cryptography.Argon2;
+using Microsoft.EntityFrameworkCore;
 using pizzeria_backend.Models;
 using pizzeria_backend.Models.Interfaces;
+using pizzeria_backend.Services.Interfaces;
 
 namespace pizzeria_backend.Services
 {
-
-    public interface IAuthService
-    {
-        public Task<RefreshDto> Register(RegisterDto user);
-        public Task<RefreshDto> Login(LoginDto loginInfo);
-        public Task<RefreshDto> Revoke(JWTRefreshDto tokens, string refreshToken);
-        public Task<RefreshDto> Refresh(JWTRefreshDto jwtObj, string refreshToken);
-
-    }
     public class AuthService : IAuthService
     {
-
-        AppDbContext _context;
+        private readonly AppDbContext _context;
         ITokenService _tokenService;
 
         public AuthService(AppDbContext context, ITokenService tokenService)
@@ -24,113 +16,101 @@ namespace pizzeria_backend.Services
             _context = context;
             _tokenService = tokenService;
         }
+
         public async Task<RefreshDto> Register(RegisterDto user)
         {
             var IsUser = (await FindByEmail(user.Email));
             if (IsUser is not null)
             {
-                return null;
+                throw new BadHttpRequestException("Email is already in use", statusCode: 401);
             }
 
             if (user.Password != user.ConfirmPassword)
             {
-                return null;
+                throw new BadHttpRequestException("Wrong confirm password", statusCode: 401);
             }
 
             var newUser = new User
             {
                 Name = user.Name,
                 Email = user.Email,
-                Password = BCrypt.Net.BCrypt.EnhancedHashPassword(user.Password),
+                Password = Argon2.Hash(user.Password),
                 IsAdmin = false
             };
 
             await _context.Users.AddAsync(newUser);
             var refreshToken = _tokenService.GenerateJwtRefreshToken(newUser);
-            newUser.RefreshToken = BCrypt.Net.BCrypt.EnhancedHashPassword(refreshToken);
+            newUser.RefreshToken = Argon2.Hash(refreshToken);
 
             var accessToken = _tokenService.GenerateJWTAccess(newUser);
 
-
-
             await _context.SaveChangesAsync();
 
-            return new RefreshDto
-            {
-                AccessToken = accessToken,
-                RefreshToken = refreshToken
-            };
-
+            return new RefreshDto { AccessToken = accessToken, RefreshToken = refreshToken };
         }
+
         public async Task<RefreshDto> Login(LoginDto loginInfo)
         {
-
             var user = (await FindByEmail(loginInfo.Email));
 
-            if (BCrypt.Net.BCrypt.EnhancedVerify(loginInfo.Password, user.Password) is false)
+            if (user is null)
             {
-                return null;
+
+                throw new BadHttpRequestException("User with requested credentials does not exist");
             }
 
+            if (Argon2.Verify(user.Password, loginInfo.Password) is false)
+            {
+                throw new BadHttpRequestException("Incorrect password", statusCode: 401);
+            }
 
             var accessToken = _tokenService.GenerateJWTAccess(user);
             var refreshToken = _tokenService.GenerateJwtRefreshToken(user);
 
-            user.RefreshToken = BCrypt.Net.BCrypt.EnhancedHashPassword(refreshToken);
+            user.RefreshToken = Argon2.Hash(refreshToken);
+
+            _context.Entry(user).Property(u => u.RefreshToken).IsModified = true;
+
             await _context.SaveChangesAsync();
 
-            return new RefreshDto
-            {
-                AccessToken = accessToken,
-                RefreshToken = refreshToken
-            };
-
+            return new RefreshDto { AccessToken = accessToken, RefreshToken = refreshToken };
         }
+
         public async Task<RefreshDto> Refresh(JWTRefreshDto jwtObj, string refreshToken)
         {
-
             var user = (await FindById(jwtObj.Id));
             if (user is null)
             {
-                Console.WriteLine("Chupi 1");
-                return null;
+                throw new BadHttpRequestException("Unauthorized", statusCode: 401);
             }
 
             var accessToken = _tokenService.GenerateJWTAccess(user);
-            if (BCrypt.Net.BCrypt.EnhancedVerify(refreshToken, user.RefreshToken) is false)
+            if (Argon2.Verify(user.RefreshToken, refreshToken) is false)
             {
-                Console.WriteLine("Chupi 2");
-
-                return null;
+                throw new BadHttpRequestException("Unauthorized", statusCode: 401);
             }
 
-            return new RefreshDto
-            {
-                AccessToken = accessToken,
-                RefreshToken = refreshToken
-            };
-
+            return new RefreshDto { AccessToken = accessToken, RefreshToken = refreshToken };
         }
-        public async Task<RefreshDto> Revoke(JWTRefreshDto jwtObj, string refreshToken)
+
+        public async Task Revoke(JWTRefreshDto jwtObj, string refreshToken)
         {
-
-
             var user = (await FindById(jwtObj.Id));
 
-            if (user is not null)
+            if (user is null)
             {
-                return null;
+                throw new BadHttpRequestException("Unauthorized", statusCode: 401);
             }
 
-            if (BCrypt.Net.BCrypt.EnhancedVerify(user.RefreshToken, refreshToken) is false)
+            if (Argon2.Verify(refreshToken, user.RefreshToken) is false)
             {
-                return null;
+                throw new BadHttpRequestException("Unauthorized", statusCode: 401);
             }
 
             user.RefreshToken = null;
-            await _context.SaveChangesAsync();
-            return null;
+            _context.Entry(user).Property(u => u.RefreshToken).IsModified = true;
 
+            await _context.SaveChangesAsync();
         }
 
         private async Task<User> FindByEmail(string Email)
@@ -141,8 +121,6 @@ namespace pizzeria_backend.Services
         private async Task<User> FindById(int Id)
         {
             return await _context.Users.Where(u => u.Id == Id).FirstOrDefaultAsync();
-
         }
-
     }
 }

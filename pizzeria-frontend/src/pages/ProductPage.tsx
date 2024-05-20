@@ -9,6 +9,7 @@ import { TempProduct } from "../utilities/types/provider.interfaces";
 import { AddOnsSection } from "../utilities/types/addOns.interfaces";
 import toast, { Toaster } from "react-hot-toast";
 import { delay } from "../utilities/functions/delay";
+import { fetchDataWithRetry } from "../utilities/functions/fetchAndRefresh";
 
 interface ChangeAmountProps {
   item: AddOnType | ProductType;
@@ -145,10 +146,15 @@ const ProductPage: React.FC = () => {
   }, [numericId]);
 
   const submitOrder = async() => {
-    const tempProduct = JSON.parse(Cookies.get("tempProduct") || "{}") as TempProduct;
-    Cookies.set("tempProduct", "{}");
-    toast.success("Added " + tempProduct.product.name + " with add ons to basket", {position:"top-right", duration:1500})
-    setBasketItems([...basketItems, tempProduct]);
+    const reqBody = {
+      id: tempProduct.product.id,
+      amount: tempProduct.amount,
+      addOns: tempProduct.addOns.map(addOn => ({
+          amount: addOn.amount,
+          id: addOn.id
+      }))
+    };
+    fetchDataWithRetry(window.location.origin + "/api/basket/v1.0", JSON.stringify(reqBody), "POST", {"Content-Type": "application/json"});
 
     await delay(1000);
 

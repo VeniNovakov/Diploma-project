@@ -3,6 +3,7 @@ import { Category, ProductType } from "../utilities/types";
 import { useParams } from "react-router-dom";
 import { ImageDialogProvider, useDialog } from "../providers/DialogProvider";
 import { fetchDataWithRetry } from "../utilities/functions/fetchAndRefresh";
+import toast, { Toaster } from "react-hot-toast";
 
 const UpdateProductPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -88,7 +89,9 @@ const Product: React.FC<{
 
   const submit = () => {
     console.log(editProduct);
-    
+    editProduct.isInMenu == undefined ? true: false;
+    editProduct.isAvailable == undefined ? true: false;
+
     const formData = new FormData();
     formData.append('name', editProduct.name);
     formData.append('categoryId', editProduct.categoryId?.toString() ? editProduct.categoryId.toString() : "1");
@@ -97,16 +100,20 @@ const Product: React.FC<{
     formData.append('isInMenu', editProduct.isInMenu ? "true":"false");
     formData.append('isAvailable', editProduct.isAvailable ? "true": "false");
     formData.append('image', file as Blob);
-    console.log(formData);
 
     if(editProduct?.id === undefined){
-      console.log("dasdsadsadsa")
-      fetchDataWithRetry(window.location.origin+`/api/products/v1.0`,formData, "POST");
+      fetchDataWithRetry(window.location.origin+`/api/products/v1.0`,formData, "POST")
+      .then(data => {
+        toast.success("Product added successfully", {duration:2000, position:"top-right"})
+        setTimeout(window.location.href="/menu/edit", 3500);
+      });
     }else{
-      fetchDataWithRetry(window.location.origin+`/api/products/v1.0/${editProduct?.id}`,formData, "PATCH")
+      fetchDataWithRetry(window.location.origin+`/api/products/v1.0/${editProduct?.id}`,formData, "PATCH").then(data => {
+        toast.success("Product added edited", {duration:2000, position:"top-right"})
+        setTimeout(window.location.href="/menu/edit", 3500);
+      })
 
     }
-
   };
 
   const handleDialog = () => {
@@ -226,6 +233,7 @@ const Product: React.FC<{
         >
           submit
         </button>
+        <Toaster/>
       </div>
     </>
   );
