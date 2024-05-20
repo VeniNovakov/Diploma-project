@@ -67,15 +67,20 @@ jobs:
           echo "JWT_AUDIENCE: ${{ secrets.JWT_AUDIENCE }}"
           echo "JWT_KEY: ${{ secrets.JWT_KEY }}"
           echo "BLOB_STORAGE_CONNECTION_STRING: ${{ secrets.BLOB_STORAGE_CONNECTION_STRING }}"
-          
+
       - name: Set environment variables
         run: |
           echo "Setting environment variables..."
+          $appSettings = @{
+            "ConnectionStrings__DefaultConnection" = "${{ secrets.AZURE_DATABASE_CONNECTION_STRING }}"
+            "JWT__Issuer" = "${{ secrets.JWT_ISSUER }}"
+            "JWT__Audience" = "${{ secrets.JWT_AUDIENCE }}"
+            "JWT__Key" = "'${{ secrets.JWT_KEY }}"
+            "ConnectionStrings__AzureBlobStorage" = "${{ secrets.BLOB_STORAGE_CONNECTION_STRING }}"
+          }
+          $appSettingsJson = $appSettings | ConvertTo-Json -Compress
           az webapp config appsettings set `
             --name pizzeriaPepi `
             --resource-group pizzeria `
-            --settings ConnectionStrings__DefaultConnection='${{ secrets.AZURE_DATABASE_CONNECTION_STRING }}' `
-            JWT__Issuer='${{ secrets.JWT_ISSUER }}' `
-            JWT__Audience='${{ secrets.JWT_AUDIENCE }}' `
-            JWT__Key='${{ secrets.JWT_KEY }}' `
-            ConnectionStrings__AzureBlobStorage='${{ secrets.BLOB_STORAGE_CONNECTION_STRING }}'
+            --settings $appSettingsJson
+        shell: pwsh
