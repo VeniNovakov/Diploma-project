@@ -68,4 +68,5 @@ jobs:
             ConnectionStrings__DefaultConnection='${{ secrets.AZURE_DATABASE_CONNECTION_STRING }}' \
             JWT__Issuer='${{ secrets.JWT_ISSUER }}' \
             JWT__Audience='${{ secrets.JWT_AUDIENCE }}' \
-            JWT__Key='${{ secrets.JWT_KEY }}'
+            JWT__Key='${{ secrets.JWT_KEY }}' \
+            ConnectionStrings__AzureBlobStorage='${{ secrets.BLOB_STORAGE_CONNECTION_STRING }}'
