@@ -4,14 +4,12 @@ import { Link } from "react-router-dom";
 import React, { useState } from "react";
 import { NavItemProps } from "../utilities/types/navBar.interfaces";
 import { useIsAdmin } from "../providers/AuthProvider";
+import { useIsLoggedIn } from "../providers/LoggedInProvider";
 
 const NavBar = () => {
   const { basketCounter } = useBasket();
   const { isAdmin, setIsAdmin } = useIsAdmin();
-
-  const [isAuthenticated, setIsAuthenticated] = useState(
-    !!localStorage.getItem("authRefresh")
-  );
+  const { isLoggedIn, setIsLoggedIn } = useIsLoggedIn();
 
   const HandleSignOut = () => {
     fetch(window.location.origin + "/api/auth/v1.0/revoke", {
@@ -25,7 +23,7 @@ const NavBar = () => {
       .then((resp) => {
         localStorage.removeItem("authRefresh");
         localStorage.removeItem("authAccess");
-        setIsAuthenticated(false);
+        setIsLoggedIn(false);
         setIsAdmin(false);
       })
       .catch((error) => {
@@ -35,21 +33,21 @@ const NavBar = () => {
 
   return (
     <div className="flex-start flex flex-row items-center justify-center bg-amber-200 h-full">
-      {isAuthenticated ? (
+      {isLoggedIn ? (
         <NavItem href="/" function={HandleSignOut}>
           Sign out
         </NavItem>
       ) : null}
 
-      {isAdmin && isAuthenticated ? (
+      {isAdmin && isLoggedIn ? (
         <NavItem href="/profile">Profile</NavItem>
       ) : (<></>
       )}
       
-      {!isAuthenticated && <NavItem href="/auth">Sign in</NavItem>}
+      {!isLoggedIn && <NavItem href="/auth">Sign in</NavItem>}
 
       <NavItem href="/menu">Menu</NavItem>
-      <NavItem
+      {isLoggedIn && <NavItem
         href="/basket"
         basket={{
           icon: shoppingCart,
@@ -57,16 +55,19 @@ const NavBar = () => {
           counter: basketCounter,
         }}
         children={""}
-      />
+      />}
     </div>
   );
 };
 
 const NavItem: React.FC<NavItemProps> = (props) => {
+  const Navigate = () =>{
+    window.location.href = props.href;
+  }
   return (
     <div className="flex h-full pl-12 m-0">
-      <Link
-        to={props.href}
+      <button
+        onClick={Navigate}
         className="font-serif font-medium border-2 hover:bg-amber-300"
       >
         {props.basket ? (
@@ -87,7 +88,7 @@ const NavItem: React.FC<NavItemProps> = (props) => {
         ) : (
           props.children
         )}
-      </Link>
+      </button>
     </div>
   );
 };

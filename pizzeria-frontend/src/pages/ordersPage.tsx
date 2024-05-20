@@ -38,32 +38,34 @@ const OrderDetails: React.FC<{
 
       <div className="mt-4">
         <h3 className="text-md font-semibold mb-2">Items</h3>
-        {Array.isArray(selectedOrder.orderedProducts) && selectedOrder.orderedProducts.map((item) => {
-          const itemTotal = item.product?.price * item.amount;
-          total += itemTotal;
 
-          return (
-            <div key={item.id} className="mb-2">
-              <p>
-                {item.amount}x {item.product.name} - {itemTotal}
-              </p>
-              {Array.isArray(item.addOns) && item.addOns?.length && (
-                <ul className="list-disc pl-4">
-                  {item.addOns.map((addOn) => {
-                    const addOnTotal = addOn.addOn.price * addOn.amount * item.amount;
-                    total += addOnTotal;
+    {Array.isArray(selectedOrder.orderedProducts) && selectedOrder.orderedProducts.map((item) => {
+    const itemTotal = item.product?.price * item.amount;
+    total += itemTotal;
 
-                    return (
-                      <li key={addOn.addOn.id}>
-                        {addOn.amount}x {addOn.addOn.name} - ${addOnTotal.toFixed(2)}
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </div>
-          );
-        })}
+    return (
+      <div key={item.id} className="mb-2">
+        <p>
+          {item.amount}x {item.product.name} - ${itemTotal.toFixed(2)}
+        </p>
+        {Array.isArray(item.addOns) && item.addOns.length > 0 && (
+          <ul className="list-disc pl-4">
+            {item.addOns.map((addOn) => {
+              const addOnTotal = addOn.addOn.price * addOn.amount * item.amount;
+              total += addOnTotal;
+
+              return (
+                <li key={addOn.addOn.id} className={addOnTotal ? "" : "invisible"}>
+                  {addOn.amount}x {addOn.addOn.name} - ${addOnTotal.toFixed(2)}
+                </li>
+              );
+            })}
+          </ul>
+            )}
+      </div>
+      );
+      })}
+      
       </div>
       <p className="text-xl font-semibold mt-4">Total: ${total.toFixed(2)}</p>
       <button

@@ -27,6 +27,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 }
 );
 
+
 builder.Services.AddW3CLogging(logging =>
 {
     logging.LoggingFields = W3CLoggingFields.All;
@@ -141,6 +142,7 @@ builder.Services.AddSwaggerGen(options =>
     );
 });
 
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSignalR();
 
@@ -166,7 +168,6 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
 
 app.MapSwagger();
 app.MapControllerRoute(name: "default", pattern: "/{controller=Home}/{action=Index}/{id?}");

@@ -15,7 +15,7 @@ const Auth: React.FC = () => {
     password: "",
     confirmPassword: ""
   });
-
+  
   const [isRegistering, setIsRegistering] = useState<boolean>(false);
 
   const { name, email, password, confirmPassword } = formData;

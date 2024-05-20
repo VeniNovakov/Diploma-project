@@ -46,12 +46,16 @@ async function refreshJWTToken() {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer '+ (localStorage.getItem('authRefresh') || " ") 
     },
-
   });
 
   if (response.ok) {
     const data = await response.json();
     localStorage.setItem("authAccess", data.accessToken); 
+  }else if(response.status == 401){
+    localStorage.removeItem("authRefresh");
+    localStorage.removeItem("authAccess");
+    throw new Error(`Failed to refresh token: ${response.status}`);
+    
   } else {
 
     if(

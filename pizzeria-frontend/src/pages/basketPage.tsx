@@ -1,18 +1,22 @@
 import React, { useEffect, useRef, useState } from "react";
 import { BasketItem, BasketProps, BasketType, Order, ProductType } from "../utilities/types";
-import Cookies from "js-cookie";
 import NavBar from "../components/NavBar";
 import { useBasketContent } from "../providers/BasketContentProvider";
 import { useBasket } from "../providers/BasketCounterProvider";
 import { round } from "../utilities/functions/math";
 import toast,{Toaster} from "react-hot-toast";
 import { fetchDataWithRetry } from "../utilities/functions/fetchAndRefresh";
+import { useIsLoggedIn } from "../providers/LoggedInProvider";
 
 const BasketPage = () => {
   const { basketItems, setBasketItems } = useBasketContent();
   const [basketUpdateTrigger, setBasketUpdateTrigger] = useState(false);
-
+  const {isLoggedIn, setIsLoggedIn } = useIsLoggedIn();
+  if(!isLoggedIn){
+    window.location.href = '/';
+  }
   useEffect(()=>{
+
     fetchDataWithRetry(window.location.origin+"/api/basket/v1.0")
     .then(data => {
       setBasketItems((data as BasketType).basketProducts)
@@ -25,7 +29,7 @@ const BasketPage = () => {
       <NavBar></NavBar>
       <div className="flex flex-row justify-around">
         <div className="flex flex-col">
-          {basketItems.length ? (
+          {Array.isArray(basketItems)  ? (
             basketItems.map((item) => {
               return (
                 <ProductOrdered
@@ -178,7 +182,7 @@ const Checkout = (props: { triggerUpdate: () => void }) => {
 
   return (
     <div>
-      {basketItems.length && (
+      {Array.isArray(basketItems) && (
         <>
           <Total></Total>
           <button
@@ -202,14 +206,14 @@ const Total = () => {
   }) as unknown as number[];
 
   const addOnsTotals = basketItems.map((item) => {
-    console.log(item);
-    const itemAddOnsPrices = item.addOns
+
+    const itemAddOnsPrices = Array.isArray(item.addOns)
       ? item.addOns.map((addOn) => {
           return addOn.amount * addOn.addOn.price;
         })
       : [];
 
-    const itemAddOnsTotal = itemAddOnsPrices.length
+    const itemAddOnsTotal = Array.isArray(itemAddOnsPrices)
       ? itemAddOnsPrices?.reduce((acc, curr) => {
           return acc + curr;
         })
@@ -218,11 +222,11 @@ const Total = () => {
     return itemAddOnsTotal * item.amount;
   });
 
-  const addOnsTotal = addOnsTotals?.reduce((acc, curr) => {
+  const addOnsTotal = Array.isArray(addOnsTotals)? addOnsTotals?.reduce((acc, curr) => {
     return acc + curr;
-  });
+  }):0;
 
-  const total = calcTotals.length
+  const total = Array.isArray(calcTotals)
     ? calcTotals.reduce((acc, curr) => {
         return acc + curr;
       })
@@ -230,7 +234,7 @@ const Total = () => {
 
   return (
     <div>
-      {basketItems.length && total ? (
+      {Array.isArray(basketItems) && total ? (
         <div className="flex flex-row justify-between shadow-xl rounded">
           total:
           <div className="flex justify-end">
