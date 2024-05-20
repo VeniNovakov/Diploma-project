@@ -47,7 +47,10 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: .net-app
-
+          
+      - name: Azure login
+        run: az login
+        
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
@@ -56,7 +59,8 @@ jobs:
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_6EDEFF3AD26C46688F29D82E17A7EC8D }}
           package: .
-      
+
+
       - name: Set environment variables
         run: |
           echo "Setting environment variables..."
