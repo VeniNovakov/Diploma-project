@@ -15,7 +15,6 @@ const OrderDetails: React.FC<{
       </p>
     );
   }
-  console.log(selectedOrder);
   let total = 0;
   const deleteOrder = () =>{
     fetchDataWithRetry(window.location.origin+"/api/orders/v1.0/"+ selectedOrder.id, null, "DELETE")
@@ -65,7 +64,7 @@ const OrderDetails: React.FC<{
       </div>
       );
       })}
-      
+
       </div>
       <p className="text-xl font-semibold mt-4">Total: ${total.toFixed(2)}</p>
       <button

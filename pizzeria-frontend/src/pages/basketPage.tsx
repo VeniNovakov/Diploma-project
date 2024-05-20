@@ -29,7 +29,7 @@ const BasketPage = () => {
       <NavBar></NavBar>
       <div className="flex flex-row justify-around">
         <div className="flex flex-col">
-          {Array.isArray(basketItems)  ? (
+          {Array.isArray(basketItems) && basketItems.length  ? (
             basketItems.map((item) => {
               return (
                 <ProductOrdered
@@ -60,7 +60,7 @@ const ProductOrdered = (props: BasketProps & { triggerUpdate: () => void }) => {
     return addOn.addOn.price * addOn.amount;
   });
 
-  const total = addOnsPrices?.length
+  const total = Array.isArray(addOnsPrices) && addOnsPrices?.length
     ? round(
         addOnsPrices.reduce((acc, curr) => {
           return acc + curr;
@@ -139,14 +139,18 @@ const ProductOrdered = (props: BasketProps & { triggerUpdate: () => void }) => {
           </button>
         </div>
       </div>
-      <div className="text-xl font-semibold pr-2 self-end">
-        $
-        {round(
-          props.item.product.price * props.item.amount +
-            total * props.item.amount,
-          2,
-        )}
-      </div>
+      {props.item.product.price * props.item.amount +
+              total * props.item.amount != 0 &&
+        <div className="text-xl font-semibold pr-2 self-end">
+          kldsak;dkal;dklas;kals;dkasl;dk;lkl;lkkkkkkkkkkkkkkkkkkk
+          $
+          {round(
+            props.item.product.price * props.item.amount +
+              total * props.item.amount,
+            2,
+          )}
+        </div>
+      }
       <button
         className="border p-1 hover:bg-red-300 self-end"
         onClick={() => updateBasket("x")}
@@ -182,8 +186,9 @@ const Checkout = (props: { triggerUpdate: () => void }) => {
 
   return (
     <div>
-      {Array.isArray(basketItems) && (
+      {Array.isArray(basketItems) && basketItems.length != 0 ?(
         <>
+        dkslad;alkd;laskd;laskd;laskdl;sakdl;sakd;lkk
           <Total></Total>
           <button
             type="button"
@@ -193,7 +198,7 @@ const Checkout = (props: { triggerUpdate: () => void }) => {
             ORDER
           </button>
         </>
-      )}
+      ):<></>}
     </div>
   );
 };
@@ -216,25 +221,25 @@ const Total = () => {
     const itemAddOnsTotal = Array.isArray(itemAddOnsPrices)
       ? itemAddOnsPrices?.reduce((acc, curr) => {
           return acc + curr;
-        })
+        }, 0)
       : 0;
 
     return itemAddOnsTotal * item.amount;
   });
 
-  const addOnsTotal = Array.isArray(addOnsTotals)? addOnsTotals?.reduce((acc, curr) => {
+  const addOnsTotal = Array.isArray(addOnsTotals) ? addOnsTotals?.reduce((acc, curr) => {
     return acc + curr;
-  }):0;
+  }, 0): 0;
 
   const total = Array.isArray(calcTotals)
     ? calcTotals.reduce((acc, curr) => {
         return acc + curr;
-      })
+      }, 0)
     : 0;
 
   return (
     <div>
-      {Array.isArray(basketItems) && total ? (
+      {Array.isArray(basketItems) && total + addOnsTotal != 0 ? (
         <div className="flex flex-row justify-between shadow-xl rounded">
           total:
           <div className="flex justify-end">

@@ -35,41 +35,71 @@ const EditProductsContainer: React.FC = () => {
   const [availabilityFilter, setAvailabilityFilter] = useState<boolean | null>(null);
   const [inMenuFilter, setInMenuFilter] = useState<boolean | null>(null);
 
+
   useEffect(() => {
     const fetchMenuData = async () => {
       try {
         const url = window.location.origin+"/api/products/v1.0";
         const url2 = window.location.origin+"/api/product-categories/v1.0";
-
+  
         const data = await fetchDataWithRetry(url);
         const data2 = await fetchDataWithRetry(url2);
-
+  
         setProducts(data);
         setCategories(data2);
       } catch (error) {
-
+  
         console.error("Error fetching menu data:", error);
         return(
           <div>PAGE ENTRY PROHIBITED</div>
           )
       }
     };
+
     fetchMenuData();
   }, []);
 
   const removeProducts = async () => {
-    selectedProducts.forEach(product =>{
-      console.log(product.id);
-      fetchDataWithRetry(window.location.origin + `/api/products/v1.0/${product.id}`,null, "DELETE").then().catch()
-    })
+    const promises = selectedProducts.map((product) =>
+      fetchDataWithRetry(window.location.origin + `/api/products/v1.0/${product.id}`, null, "DELETE")
+    );
+  
+    try {
+      await Promise.all(promises);
+  
+      const newProducts = products.filter(
+        (product) => !selectedProducts.some((selected) => selected.id === product.id)
+      );
+  
+      setProducts(newProducts);
+  
+      filteredProducts = newProducts.filter((product) => {
+        if (categoryFilter && product.category.id !== categoryFilter.id) {
+          return false;
+        }
+        if (availabilityFilter !== null && product.isAvailable !== availabilityFilter) {
+          return false;
+        }
+        if (inMenuFilter !== null && product.isInMenu !== inMenuFilter) {
+          return false;
+        }
+        return true;
+      });
+  
+      setSelectedProducts([]);
+    } catch (error) {
+      console.error("Error deleting products:", error);
+    }
   };
+  
 
   const applyFilters = (category: Category | null, availability?: boolean | null, inMenu?: boolean | null) => {
     setCategoryFilter(category);
     setAvailabilityFilter(availability as boolean);
     setInMenuFilter(inMenu as boolean);
   };
-  const filteredProducts = products.filter(product => {
+  
+  let filteredProducts = products.filter(product => {
     if (categoryFilter && product.category.id !== categoryFilter.id) {
       return false;
     }
@@ -169,6 +199,7 @@ const Product: React.FC<ProductProps> = (prop) => {
     </button>
   );
 };
+
 const EditAddOnsContainer: React.FC = () => {
   const [addOns, setAddOns] = useState<AddOnType[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);

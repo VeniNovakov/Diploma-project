@@ -56,11 +56,8 @@ namespace pizzeria_backend.Controllers
             try
             {
                 string token = getTokenFromHeader(HttpContext);
-                Console.WriteLine(token);
 
                 var refreshObj = DecodeRefreshToken(identity: HttpContext.User.Identity);
-                Console.WriteLine(refreshObj.Id);
-
 
                 RefreshDto tokens = await _authService.Refresh(refreshObj, token);
 
@@ -135,7 +132,6 @@ namespace pizzeria_backend.Controllers
             }
             if (claimsRepo.FindFirst("id") == null || claimsRepo.FindFirst("randGuid") == null)
             {
-                Console.WriteLine("claims problem check");
                 throw new BadHttpRequestException("Claims do not match");
             }
             var refreshObj = new JWTRefreshDto
