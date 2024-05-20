@@ -37,15 +37,16 @@ jobs:
         run: |
           echo "{" > ${{env.DOTNET_ROOT}}/myapp/appsettings.json
           echo "  \"ConnectionStrings\": {" >> ${{env.DOTNET_ROOT}}/myapp/appsettings.json
-          echo "    \"DefaultConnection\": \"${{ secrets.AZURE_DATABASE_CONNECTION_STRING }}\"," >> ${{env.DOTNET_ROOT}}/myapp/appsettings.json
-          echo "    \"AzureBlobStorage\": \"${{ secrets.BLOB_STORAGE_CONNECTION_STRING }}\"" >> ${{env.DOTNET_ROOT}}/myapp/appsettings.json
+          echo "    \"DefaultConnection\": \"$(echo -n "${{ secrets.AZURE_DATABASE_CONNECTION_STRING }}" | base64 -w 0)\"," >> ${{env.DOTNET_ROOT}}/myapp/appsettings.json
+          echo "    \"AzureBlobStorage\": \"$(echo -n "${{ secrets.BLOB_STORAGE_CONNECTION_STRING }}" | base64 -w 0)\"" >> ${{env.DOTNET_ROOT}}/myapp/appsettings.json
           echo "  }," >> ${{env.DOTNET_ROOT}}/myapp/appsettings.json
           echo "  \"JWT\": {" >> ${{env.DOTNET_ROOT}}/myapp/appsettings.json
-          echo "    \"Issuer\": \"${{ secrets.JWT_ISSUER }}\"," >> ${{env.DOTNET_ROOT}}/myapp/appsettings.json
-          echo "    \"Audience\": \"${{ secrets.JWT_AUDIENCE }}\"," >> ${{env.DOTNET_ROOT}}/myapp/appsettings.json
-          echo "    \"Key\": \"${{ secrets.JWT_KEY }}\"" >> ${{env.DOTNET_ROOT}}/myapp/appsettings.json
+          echo "    \"Issuer\": \"$(echo -n "${{ secrets.JWT_ISSUER }}" | base64 -w 0)\"," >> ${{env.DOTNET_ROOT}}/myapp/appsettings.json
+          echo "    \"Audience\": \"$(echo -n "${{ secrets.JWT_AUDIENCE }}" | base64 -w 0)\"," >> ${{env.DOTNET_ROOT}}/myapp/appsettings.json
+          echo "    \"Key\": \"$(echo -n "${{ secrets.JWT_KEY }}" | base64 -w 0)\"" >> ${{env.DOTNET_ROOT}}/myapp/appsettings.json
           echo "  }" >> ${{env.DOTNET_ROOT}}/myapp/appsettings.json
           echo "}" >> ${{env.DOTNET_ROOT}}/myapp/appsettings.json
+
       
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
