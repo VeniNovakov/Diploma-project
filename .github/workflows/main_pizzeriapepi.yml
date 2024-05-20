@@ -49,7 +49,7 @@ jobs:
           name: .net-app
           
       - name: Azure login
-        run: az login
+        run: az login --use-device-code
         
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
