@@ -26,23 +26,17 @@ jobs:
         run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
         working-directory: 'pizzeria-backend'
 
-      - name: Generate appsettings.json
+      - name: Generate appsettings.json with secrets
         run: |
           $appSettings = @{
-            "ConnectionStrings" = @{
-              "DefaultConnection" = "${{ secrets.AZURE_DATABASE_CONNECTION_STRING }}"
-            }
-            "JWT" = @{
-              "Issuer" = "${{ secrets.JWT_ISSUER }}"
-              "Audience" = "${{ secrets.JWT_AUDIENCE }}"
-              "Key" = "${{ secrets.JWT_KEY }}"
-            }
-            "ConnectionStrings" = @{
-              "AzureBlobStorage" = "${{ secrets.BLOB_STORAGE_CONNECTION_STRING }}"
-            }
+            "ConnectionStrings__DefaultConnection" = "${{ secrets.AZURE_DATABASE_CONNECTION_STRING }}"
+            "JWT__Issuer" = "${{ secrets.JWT_ISSUER }}"
+            "JWT__Audience" = "${{ secrets.JWT_AUDIENCE }}"
+            "JWT__Key" = "${{ secrets.JWT_KEY }}"
+            "ConnectionStrings__AzureBlobStorage" = "${{ secrets.BLOB_STORAGE_CONNECTION_STRING }}"
           }
           $appSettingsJson = $appSettings | ConvertTo-Json -Compress
-          $appSettingsJson | Out-File -FilePath $env:DOTNET_ROOT/myapp/appsettings.json -Encoding utf8
+          echo $appSettingsJson > ${{env.DOTNET_ROOT}}/myapp/appsettings.json
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
