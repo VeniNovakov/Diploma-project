@@ -61,7 +61,7 @@ jobs:
         run: |
           echo "Setting environment variables..."
           az webapp config appsettings set --name pizzeriaPepi --resource-group pizzeria --settings `
-            ConnectionStrings__DefaultConnection=${{ secrets.AZURE_DATABASE_CONNECTION_STRING }} `
-            JWT__Issuer=${{ secrets.JWT_ISSUER }} `
-            JWT__Audience=${{ secrets.JWT_AUDIENCE }} `
-            JWT__Key=${{ secrets.JWT_KEY }} `
+            ConnectionStrings__DefaultConnection='${{ secrets.AZURE_DATABASE_CONNECTION_STRING }}' `
+            JWT__Issuer='${{ secrets.JWT_ISSUER }}' `
+            JWT__Audience='${{ secrets.JWT_AUDIENCE }}' `
+            JWT__Key='${{ secrets.JWT_KEY }}'
