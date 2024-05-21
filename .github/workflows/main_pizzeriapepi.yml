@@ -18,6 +18,10 @@ jobs:
           dotnet-version: '8.x'
           include-prerelease: true
 
+      - name: Restore dependencies
+        run: dotnet restore
+        working-directory: 'pizzeria-backend'
+        
       - name: Build with dotnet
         run: dotnet build --configuration Release
         working-directory: 'pizzeria-backend'
