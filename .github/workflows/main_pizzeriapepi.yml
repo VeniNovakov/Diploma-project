@@ -32,12 +32,16 @@ jobs:
 
       - name: Generate appsettings.json with secrets
         run: |
-          $appSettings = @{
-            "ConnectionStrings__DefaultConnection" = "${{ secrets.AZURE_DATABASE_CONNECTION_STRING }}"
-            "JWT__Issuer" = "${{ secrets.JWT_ISSUER }}"
-            "JWT__Audience" = "${{ secrets.JWT_AUDIENCE }}"
-            "JWT__Key" = "${{ secrets.JWT_KEY }}"
-            "ConnectionStrings__AzureBlobStorage" = "${{ secrets.BLOB_STORAGE_CONNECTION_STRING }}"
+         $appSettings = @{
+            "ConnectionStrings" = @{
+              "DefaultConnection" = "${{ secrets.AZURE_DATABASE_CONNECTION_STRING }}"
+              "AzureBlobStorage" = "${{ secrets.BLOB_STORAGE_CONNECTION_STRING }}"
+            }
+            "JWT" = @{
+              "Issuer" = "${{ secrets.JWT_ISSUER }}"
+              "Audience" = "${{ secrets.JWT_AUDIENCE }}"
+              "Key" = "${{ secrets.JWT_KEY }}"
+            }
           }
           $appSettingsJson = $appSettings | ConvertTo-Json -Compress
           echo $appSettingsJson > ${{env.DOTNET_ROOT}}/myapp/appsettings.json
